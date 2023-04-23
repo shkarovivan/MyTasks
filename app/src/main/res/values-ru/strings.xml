@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Мои задачи</string>
+    <string name="work_tasks">Работа</string>
+    <string name="home_tasks">Дом</string>
+    <string name="work_tasks_title">Рабочие задачи</string>
+    <string name="home_tasks_title">Домашние задачи</string>
+    <string name="daily_tasks">Ежедневные</string>
+    <string name="medium_tasks">Средние</string>
+    <string name="large_tasks">Сложные</string>
+</resources>

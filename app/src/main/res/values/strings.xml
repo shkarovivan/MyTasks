@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">MyTasks</string>
+    <string name="work_tasks">Work</string>
+    <string name="home_tasks">Home</string>
+    <string name="daily_tasks">Daily</string>
+    <string name="work_tasks_title">Work tasks</string>
+    <string name="home_tasks_title">Home tasks</string>
+    <string name="medium_tasks">Medium</string>
+    <string name="large_tasks">Large</string>
 </resources>
