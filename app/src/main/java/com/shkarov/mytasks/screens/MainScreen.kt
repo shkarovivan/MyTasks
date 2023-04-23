@@ -2,11 +2,15 @@ package com.shkarov.mytasks.ui.theme
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -15,13 +19,15 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.shkarov.mytasks.screens.Screens
 import com.shkarov.mytasks.NavGraph
+import com.shkarov.mytasks.screens.CreateTaskScreen
 
 
 @Composable
 fun MainScreen() {
     val navController = rememberNavController()
     Scaffold(
-        bottomBar = { BottomBar(navController = navController) }
+        bottomBar = { BottomBar(navController = navController) },
+        floatingActionButton = { FloatingButton(navController) }
     ) {  paddingValue->
         Modifier.padding(paddingValue)
         NavGraph(navController = navController)
@@ -75,5 +81,24 @@ fun RowScope.AddItem(
             }
         }
     )
+}
+@Composable
+fun FloatingButton(
+    navController: NavHostController
+){
+    FloatingActionButton(
+        modifier = Modifier
+            .padding(end = 16.dp,
+                bottom = 16.dp),
+        onClick = {
+            navController.navigate(CreateTaskScreen.CreatedTaskScreen.route) {
+                popUpTo(Screens.WorkTasks.route)
+            }
+                  },
+        backgroundColor = Color.Blue,
+        contentColor = Color.White
+    ){
+        Icon(Icons.Filled.Add,"")
+    }
 }
 

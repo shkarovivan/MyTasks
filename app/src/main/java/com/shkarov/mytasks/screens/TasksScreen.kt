@@ -4,6 +4,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -67,55 +68,57 @@ fun TasksScreen(
         onPageChange(pages[pagerState.currentPage])
     }
 
-    Column(modifier.nestedScroll(rememberNestedScrollInteropConnection())) {
-        val coroutineScope = rememberCoroutineScope()
+        Column(modifier.nestedScroll(rememberNestedScrollInteropConnection())) {
+            val coroutineScope = rememberCoroutineScope()
 
-        val title = if (isWorkTasks) stringResource(id = R.string.work_tasks_title)
-        else stringResource(id = R.string.home_tasks_title)
-        Toolbar(title = title)
+            val title = if (isWorkTasks) stringResource(id = R.string.work_tasks_title)
+            else stringResource(id = R.string.home_tasks_title)
+            Toolbar(title = title)
 
-        // Tab Row
-        TabRow(
-            selectedTabIndex = pagerState.currentPage
-        ) {
-            pages.forEachIndexed { index, page ->
-                val title = stringResource(id = page.titleResId)
-                Tab(
-                    selected = pagerState.currentPage == index,
-                    onClick = { coroutineScope.launch { pagerState.animateScrollToPage(index) } },
-                    text = { Text(text = title) },
-                    icon = {
-                        Icon(
-                            painter = painterResource(id = page.drawableResId),
-                            contentDescription = title
-                        )
-                    },
-                    unselectedContentColor = Color.DarkGray,
-                    selectedContentColor = MaterialTheme.colors.onBackground,
-                )
+            // Tab Row
+            TabRow(
+                selectedTabIndex = pagerState.currentPage
+            ) {
+                pages.forEachIndexed { index, page ->
+                    val title = stringResource(id = page.titleResId)
+                    Tab(
+                        selected = pagerState.currentPage == index,
+                        onClick = { coroutineScope.launch { pagerState.animateScrollToPage(index) } },
+                        text = { Text(text = title) },
+                        icon = {
+                            Icon(
+                                painter = painterResource(id = page.drawableResId),
+                                contentDescription = title
+                            )
+                        },
+                        unselectedContentColor = Color.DarkGray,
+                        selectedContentColor = MaterialTheme.colors.onBackground,
+                    )
+                }
             }
-        }
 
-        // Pages
-        HorizontalPager(
-            pageCount = pages.size,
-            state = pagerState,
-            verticalAlignment = Alignment.Top
-        ) { index ->
-            when (pages[index]) {
-                TaskPages.DAILY_TASKS -> {
-                  TasksList(navController = navController, tasks = dailyTasks)
-                }
-                TaskPages.MEDIUM_TASKS -> {
-                    TasksList(navController = navController, tasks = mediumTasks)
-                }
-                TaskPages.LARGE_TASKS -> {
-                    TasksList(navController = navController, tasks = largeTasks)
+            // Pages
+            HorizontalPager(
+                pageCount = pages.size,
+                state = pagerState,
+                verticalAlignment = Alignment.Top
+            ) { index ->
+                when (pages[index]) {
+                    TaskPages.DAILY_TASKS -> {
+                        TasksList(navController = navController, tasks = dailyTasks)
+                    }
+                    TaskPages.MEDIUM_TASKS -> {
+                        TasksList(navController = navController, tasks = mediumTasks)
+                    }
+                    TaskPages.LARGE_TASKS -> {
+                        TasksList(navController = navController, tasks = largeTasks)
+                    }
                 }
             }
         }
     }
-}
+
+
 
 @Composable
 fun Toolbar(
@@ -158,9 +161,9 @@ fun TasksList(
             TaskView(
                 task = itemTask
             ) {
-//                navController.navigate("detail_weather_screen/$itemTown") {
-//                    popUpTo(Screens.Towns.route)
-//                }
+                navController.navigate("detail_task_screen/${itemTask.id}") {
+                    popUpTo(Screens.WorkTasks.route)
+                }
             }
             Divider(
                 modifier = Modifier
@@ -186,7 +189,8 @@ fun TaskView(
             )
             .clip(
                 RoundedCornerShape(dimensionResource(id = R.dimen.corner_radius))
-            ),
+            )
+            .clickable { navigateToDetailTask() },
         backgroundColor =
         when (task.status) {
             Status.STARTED -> {

@@ -1,11 +1,12 @@
 package com.shkarov.mytasks.screens
 
 import androidx.compose.runtime.Composable
-import com.shkarov.mytasks.data.Task
+import com.shkarov.mytasks.Greeting
 
 @Composable
 fun DetailTaskScreen(
-    task: Task
+    taskId: String,
+    onBackClick: () -> Unit
 ){
-
+    Greeting(name = taskId)
 }

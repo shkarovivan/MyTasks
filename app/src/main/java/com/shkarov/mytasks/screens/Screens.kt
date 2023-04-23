@@ -20,37 +20,19 @@ sealed class Screens(
     )
 }
 
-sealed class DetailScreen(
+sealed class DetailTaskScreen(
     val route: String
 ) {
-    object DetailedScreen : DetailScreen(
-        route = "detail_screen/{id}"
-    ){
-        val id = DEFAULT_ID
-    }
-
-    fun withArgs(vararg args: String): String {
-        return buildString {
-            append(route)
-            args.forEach{ arg ->
-                append("/$arg")
-            }
-        }
-    }
-
-    // build and setup route format (in navigation graph)
-    fun withArgsFormat(vararg args: String) : String {
-        return buildString {
-            append(route)
-            args.forEach{ arg ->
-                append("/{$arg}")
-            }
-        }
-    }
-    companion object{
-        const val DEFAULT_ID= "1"
-    }
-
+    object DetailedTaskScreen : DetailTaskScreen(
+        route = "detail_task_screen/{taskId}"
+    )
 }
 
+sealed class CreateTaskScreen(
+    val route: String
+) {
+    object CreatedTaskScreen : CreateTaskScreen(
+        route = "create_task_screen"
+    )
+}
 
