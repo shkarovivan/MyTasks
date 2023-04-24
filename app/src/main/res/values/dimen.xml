@@ -6,4 +6,7 @@
     <dimen name="corner_radius">20dp</dimen>
     <dimen name="main_text_size">16sp</dimen>
     <dimen name="bottom_height">50dp</dimen>
+    <dimen name="border_width">1dp</dimen>
+    <dimen name="task_title_min_lines">3</dimen>
+    <dimen name="task_description_min_lines">6</dimen>
 </resources>

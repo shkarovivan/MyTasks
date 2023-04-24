@@ -7,4 +7,11 @@
     <string name="home_tasks_title">Home tasks</string>
     <string name="medium_tasks">Medium</string>
     <string name="large_tasks">Large</string>
+    <string name="task_title">Title</string>
+    <string name="task_description_text">Task description</string>
+    <string name="task_type_text">Type</string>
+    <string name="task_start_date_text">Date</string>
+    <string name="task_deadline_text">Deadline</string>
+    <string name="task_status_text">Status</string>
+    <string name="save_text">Save</string>
 </resources>
