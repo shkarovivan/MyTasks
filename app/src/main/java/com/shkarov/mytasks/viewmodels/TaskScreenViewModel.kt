@@ -3,10 +3,14 @@ package com.shkarov.mytasks.viewmodels
 import androidx.lifecycle.ViewModel
 import com.shkarov.mytasks.data.Status
 import com.shkarov.mytasks.data.Task
+import com.shkarov.mytasks.repository.TasksRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import javax.inject.Inject
 
-class TaskScreenViewModel(
-
+@HiltViewModel
+class TaskScreenViewModel @Inject constructor(
+    private val repository: TasksRepository
 ) : ViewModel() {
     var errorString = MutableStateFlow<String?>(null)
     var loadProgress = MutableStateFlow(false)
@@ -24,6 +28,7 @@ class TaskScreenViewModel(
         val task = Task(
             id = "0",
             created = "21.04.2023",
+            title = "Проверить  работу",
             description = "Проверить работу TaskView в превью приложения и попарвить при необходимости",
             type = "daily",
             deadLine = "21.04.2023",

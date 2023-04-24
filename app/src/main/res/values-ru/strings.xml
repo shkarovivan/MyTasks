@@ -9,10 +9,19 @@
     <string name="medium_tasks">Средние</string>
     <string name="large_tasks">Сложные</string>
     <string name="task_title">Название</string>
-    <string name="task_description_text">Описание задачи</string>
+    <string name="task_description_text">Описание задачи (необязательно)</string>
     <string name="task_type_text">Тип задачи</string>
     <string name="task_start_date_text">Дата постановки</string>
     <string name="task_deadline_text">Дата завершения</string>
     <string name="task_status_text">Статус</string>
     <string name="save_text">Сохранить</string>
+    <string name="deadline_1">  1             </string>
+    <string name="deadline_2">  2             </string>
+    <string name="deadline_3">  3             </string>
+    <string name="deadline_4">  4             </string>
+    <string name="deadline_5">  5             </string>
+    <string name="deadline_6">  6             </string>
+    <string name="deadline_7">  7             </string>
+    <string name="deadline_choose_date">Выбрать дату</string>
+    <string name="choosen_data_text"> Выбрана дата - </string>
 </resources>

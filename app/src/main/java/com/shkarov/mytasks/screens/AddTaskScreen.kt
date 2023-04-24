@@ -3,23 +3,26 @@ package com.shkarov.mytasks.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.material.Button
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.shkarov.mytasks.R
 import com.shkarov.mytasks.ui.theme.MyTasksTheme
@@ -32,27 +35,187 @@ fun AddTaskScreen(
         mutableStateOf("")
     }
 
+    var chosenData by remember {
+        mutableStateOf<String?>("")
+    }
+    val onChangeData: (String) -> Unit = { chosenData = it}
+
     var descriptionValue by remember {
         mutableStateOf("")
     }
+    val selectedTypeValue = remember { mutableStateOf("") }
+    val isSelectedTypeItem: (String) -> Boolean = { selectedTypeValue.value == it }
+    val onChangeTypeState: (String) -> Unit = { selectedTypeValue.value = it }
+
+    val selectedDeadlineValue = remember { mutableStateOf("") }
+    val isSelectedDeadlineItem: (String) -> Boolean = { selectedDeadlineValue.value == it }
+    val onChangeDeadlineState: (String) -> Unit = { selectedDeadlineValue.value = it }
+
+    val typeItems =  listOf(
+        stringResource(id = R.string.daily_tasks),
+        stringResource(id = R.string.medium_tasks),
+        stringResource(id = R.string.large_tasks)
+    )
+
+    val deadlineItems =  mutableListOf(
+        stringResource(id = R.string.deadline_1),
+        stringResource(id = R.string.deadline_2),
+        stringResource(id = R.string.deadline_3),
+        stringResource(id = R.string.deadline_4),
+        stringResource(id = R.string.deadline_5),
+        stringResource(id = R.string.deadline_6),
+        stringResource(id = R.string.deadline_7),
+        stringResource(id = R.string.deadline_choose_date)
+    )
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(all = dimensionResource(id = R.dimen.padding_small))
+            .padding(bottom = dimensionResource(id = R.dimen.bottom_height))
     ) {
         Column(
             modifier = Modifier
-                .fillMaxHeight()
+                .verticalScroll(rememberScrollState())
                 .padding(all = dimensionResource(id = R.dimen.padding_small))
         ) {
             Text(
-                text = stringResource(id = R.string.task_title)
+                text = stringResource(id = R.string.task_title),
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .padding(
+                        start = dimensionResource(id = R.dimen.padding_main),
+                        top = dimensionResource(id = R.dimen.padding_main)
+                    )
             )
 
-            TextInput(value = titleValue, onValueChange ={
-                titleValue = it
-            } )
+            TextInput(
+                value = titleValue,
+                onValueChange = {
+                    titleValue = it
+                },
+                minLines = 2
+            )
+            GrayDivider()
+            Text(
+                text = stringResource(id = R.string.task_description_text),
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .padding(
+                        start = dimensionResource(id = R.dimen.padding_main),
+                        top = dimensionResource(id = R.dimen.padding_main)
+                    )
+            )
+
+            TextInput(
+                value = descriptionValue,
+                onValueChange = {
+                    descriptionValue = it
+                },
+                minLines = 5
+            )
+            GrayDivider()
+
+            Text(
+                text = stringResource(id = R.string.task_type_text),
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .padding(
+                        start = dimensionResource(id = R.dimen.padding_main),
+                        top = dimensionResource(id = R.dimen.padding_main)
+                    )
+            )
+
+            typeItems.forEach { item ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .selectable(
+                            selected = isSelectedTypeItem(item),
+                            onClick = {
+                                onChangeData("sdvsdgv")
+                                onChangeTypeState(item)
+                            },
+                            role = Role.RadioButton
+                        )
+                        //.padding(8.dp)
+                        .fillMaxWidth()
+                ){
+                    RadioButton(
+                        selected = isSelectedTypeItem(item),
+                        onClick = null)
+                    Text(
+                        text = item,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier
+                            .padding(start = dimensionResource(id = R.dimen.padding_main))
+                    )
+                }
+            }
+
+            GrayDivider()
+
+            Text(
+                text = stringResource(id = R.string.task_deadline_text),
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .padding(
+                        start = dimensionResource(id = R.dimen.padding_main),
+                        top = dimensionResource(id = R.dimen.padding_main)
+                    )
+            )
+
+            deadlineItems.forEach { item ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .selectable(
+                            selected = isSelectedDeadlineItem(item),
+                            onClick = { onChangeDeadlineState(item) },
+                            role = Role.RadioButton
+                        )
+                        .padding(
+                            vertical = dimensionResource(id = R.dimen.padding_smallest),
+                            horizontal = dimensionResource(id = R.dimen.padding_main)
+                        )
+                        .fillMaxWidth()
+                ){
+                    RadioButton(
+                        selected = isSelectedDeadlineItem(item),
+                        onClick = null)
+                    Text(
+                        text = item,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier
+                            .padding(start = dimensionResource(id = R.dimen.padding_main))
+                    )
+                }
+            }
+
+        //    if (!chosenData.isNullOrEmpty()) {
+                Row{
+                    Text(
+                        text = stringResource(id = R.string.choosen_data_text),
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .padding(
+                                start = dimensionResource(id = R.dimen.padding_main),
+                                top = dimensionResource(id = R.dimen.padding_main)
+                            )
+                    )
+
+                    Text(
+                        text = chosenData!!,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .padding(
+                                start = dimensionResource(id = R.dimen.padding_main),
+                                top = dimensionResource(id = R.dimen.padding_main)
+                            )
+                    )
+                }
+        //    }
+
+
 
             Row(
                 verticalAlignment = Alignment.Bottom,
@@ -60,11 +223,22 @@ fun AddTaskScreen(
             ) {
                 Button(
                     modifier = Modifier
-                        .padding(all = dimensionResource(id = R.dimen.padding_main))
+                        .padding(
+                            vertical = dimensionResource(id = R.dimen.padding_smallest),
+                            horizontal = dimensionResource(id = R.dimen.padding_main)
+                        )
                         .fillMaxWidth(),
                     onClick = { /*TODO*/ })
                 {
-                    Text(text = stringResource(id = R.string.save_text))
+                    Text(
+                        text = stringResource(id = R.string.save_text),
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .padding(
+                                start = dimensionResource(id = R.dimen.padding_main),
+                                top = dimensionResource(id = R.dimen.padding_main)
+                            )
+                    )
                 }
             }
 
@@ -73,24 +247,23 @@ fun AddTaskScreen(
     }
 }
 
+
 @Composable
 fun TextInput(
-    value:String,
-    onValueChange:(String)->Unit
+    value: String,
+    onValueChange: (String) -> Unit,
+    minLines: Int
 ){
     BasicTextField(
         modifier = Modifier
             .padding(
-                start = dimensionResource(id = R.dimen.padding_main),
-                end = dimensionResource(id = R.dimen.padding_main),
-                top = dimensionResource(id = R.dimen.padding_smallest),
-                bottom = dimensionResource(id = R.dimen.padding_smallest),
+                vertical = dimensionResource(id = R.dimen.padding_main)
             )
             .fillMaxWidth()
             .testTag("searchTextFieldTag"),
 
         singleLine = false,
-        minLines = dimensionResource(id = R.dimen.task_title_min_lines).value.toInt(),
+        minLines = minLines,
         value = value,
         onValueChange = {
             onValueChange(it)
@@ -127,13 +300,23 @@ fun TextInput(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    imageVector = Icons.Default.Search,
+                    imageVector = Icons.Default.Edit,
                     contentDescription = "Favorite icon",
                     // tint = Color.DarkGray
                 )
                 innerTextField()
             }
         }
+    )
+}
+
+@Composable
+fun GrayDivider() {
+    Divider(
+        modifier = Modifier
+            .padding(start = 16.dp, end = 16.dp),
+        color = Color.DarkGray,
+        thickness = 2.dp
     )
 }
 

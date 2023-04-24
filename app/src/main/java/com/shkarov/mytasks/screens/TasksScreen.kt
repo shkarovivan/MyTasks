@@ -271,6 +271,7 @@ private fun TaskViewPreview() {
             task = Task(
                 id = "1",
                 created = "21.04.2023",
+                title = "Проверить работу",
                 description = "Проверить работу TaskView в превью приложения и попарвить при необходимости",
                 type = "daily",
                 deadLine = "21.04.2023",
