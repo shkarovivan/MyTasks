@@ -11,7 +11,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -130,7 +130,7 @@ fun Toolbar(
             backgroundColor = BackGroundMyTasks
         ) {
             Text(
-                color = MaterialTheme.colors.onBackground,
+                color = MaterialTheme.colorScheme.onBackground,
                 text = title,
                 style = MaterialTheme.typography.h6,
                 // As title in TopAppBar has extra inset on the left, need to do this: b/158829169

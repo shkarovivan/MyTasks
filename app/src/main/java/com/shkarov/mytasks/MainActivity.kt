@@ -3,10 +3,10 @@ package com.shkarov.mytasks
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.material.Text
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import com.shkarov.mytasks.ui.theme.MainScreen
+import com.shkarov.mytasks.screens.MainScreen
 import com.shkarov.mytasks.ui.theme.MyTasksTheme
 import dagger.hilt.android.AndroidEntryPoint
 

@@ -1,18 +1,11 @@
-buildscript {
-    repositories {
-        google()
-        mavenCentral()
-    }
-    ext {
-        kotlin_version = '1.7.20'
-        compose_ui_version = '1.4.2'
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:7.3.1'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.0"
-        classpath 'androidx.navigation:navigation-safe-args-gradle-plugin:2.5.3'
-        classpath 'com.google.dagger:hilt-android-gradle-plugin:2.44'
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
-    }
+plugins {
+    alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.android.library) apply false
+    alias(libs.plugins.kotlin.android) apply false
+    alias(libs.plugins.kotlin.kapt) apply false
+    alias(libs.plugins.kotlin.parcelize) apply false
+//    alias(libs.plugins.ksp) apply false
+    alias(libs.plugins.hilt) apply false
+    alias(libs.plugins.navigation.safeargs) apply false
+    alias(libs.plugins.kotlin.compose) apply false
 }

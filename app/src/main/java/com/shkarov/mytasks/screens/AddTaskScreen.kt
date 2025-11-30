@@ -8,9 +8,15 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.Divider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -283,14 +289,14 @@ fun TextInput(
                     )
                     .fillMaxWidth()
                     .background(
-                        color = MaterialTheme.colors.background,
+                        color = MaterialTheme.colorScheme.background,
                         shape = RoundedCornerShape(
                             size = dimensionResource(id = R.dimen.corner_radius)
                         )
                     )
                     .border(
                         width = dimensionResource(id = R.dimen.border_width),
-                        color = MaterialTheme.colors.onBackground,
+                        color = MaterialTheme.colorScheme.onBackground,
                         shape = RoundedCornerShape(size = dimensionResource(id = R.dimen.corner_radius))
                     )
                     .padding(
