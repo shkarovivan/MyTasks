@@ -2,6 +2,8 @@ package com.shkarov.mytasks.screens
 
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -40,7 +42,7 @@ fun BottomBar(navController: NavHostController) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
-    BottomNavigation {
+    NavigationBar {
         screens.forEach { screen ->
             AddItem(
                 screen = screen,
@@ -57,7 +59,7 @@ fun RowScope.AddItem(
     currentDestination: NavDestination?,
     navController: NavHostController
 ) {
-    BottomNavigationItem(
+    NavigationBarItem(
         label = { Text(text = stringResource(id = screen.title)) },
         icon = {
             Icon(
@@ -66,7 +68,6 @@ fun RowScope.AddItem(
             )
         },
         selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
-        unselectedContentColor = LocalContentColor.current.copy(alpha = ContentAlpha.disabled),
         onClick = {
             navController.navigate(screen.route) {
                 popUpTo(navController.graph.findStartDestination().id)
