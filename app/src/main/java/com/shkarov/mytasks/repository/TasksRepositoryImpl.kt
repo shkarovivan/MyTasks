@@ -24,9 +24,17 @@ class TasksRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getAllTasks(): List<Task> {
-        Timber.d("AllTasks start")
-        return tasksDao.getAllTasks().also {
-            Timber.d("AllTasks - $it")
+        return try {
+            Timber.d("getAllTasks: starting query")
+            val tasks = tasksDao.getAllTasks()
+            Timber.d("getAllTasks: found ${tasks.size} tasks")
+            tasks.forEach { task ->
+                Timber.d("getAllTasks: task id=${task.id}, type=${task.type}, status=${task.status}")
+            }
+            tasks
+        } catch (e: Exception) {
+            Timber.e(e, "getAllTasks: error occurred")
+            emptyList()
         }
     }
 

@@ -7,8 +7,6 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 @Entity(tableName = TaskDataBaseContract.TABLE_NAME)
-
-@TypeConverters(StatusConverter::class)
 data class Task(
     @PrimaryKey(autoGenerate = false)
     @ColumnInfo(name = TaskDataBaseContract.Columns.ID)
@@ -45,8 +43,20 @@ enum class Type (val value: String) {
 
 class StatusConverter {
     @TypeConverter
-    fun convertStatusToString(status: Status): String = status.status
+    fun convertStatusToString(status: Status): String {
+        return status.status
+    }
 
     @TypeConverter
-    fun convertStringToStatus( statusString: String) : Status = Status.valueOf(statusString)
+    fun convertStringToStatus(statusString: String): Status {
+        return try {
+            // Сначала пытаемся найти по значению status (например, "started")
+            Status.values().find { it.status == statusString }
+                // Если не найдено, пытаемся найти по имени enum (например, "STARTED")
+                ?: Status.valueOf(statusString.uppercase())
+        } catch (e: Exception) {
+            // Если ничего не найдено, возвращаем значение по умолчанию
+            Status.WAITING
+        }
+    }
 }

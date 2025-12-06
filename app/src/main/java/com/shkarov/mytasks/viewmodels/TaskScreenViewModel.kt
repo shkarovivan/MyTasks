@@ -6,7 +6,6 @@ import com.shkarov.mytasks.data.Task
 import com.shkarov.mytasks.repository.TasksRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -34,15 +33,16 @@ class TaskScreenViewModel @Inject constructor(
             try {
                 loadProgress.value = true
                 val tasks = withContext(Dispatchers.IO) {
-                    Timber.d("getDailyTasks")
-//                    repository.getTaskByType(Type.DAILY.value).also {
-//                        Timber.d("tasks - $it")
-//                    }
-                    delay(2000)
-                    repository.getAllTasks()
+                    Timber.d("getDailyTasks: starting")
+                    val allTasks = repository.getAllTasks()
+                    Timber.d("getDailyTasks: received ${allTasks.size} tasks")
+                    // Фильтруем по типу "daily"
+                    allTasks.filter { it.type == "daily" }
                 }
+                Timber.d("getDailyTasks: filtered to ${tasks.size} daily tasks")
                 dailyTasks.value = tasks
             } catch (e: Exception) {
+                Timber.e(e, "getDailyTasks: error")
                 errorString.value = e.message ?: "Ошибка загрузки ежедневных задач"
             } finally {
                 loadProgress.value = false
@@ -55,12 +55,16 @@ class TaskScreenViewModel @Inject constructor(
             try {
                 loadProgress.value = true
                 val tasks = withContext(Dispatchers.IO) {
-                    Timber.d("getMediumTasks")
-//                    repository.getTaskByType(Type.MEDIUM.value)
-                    repository.getAllTasks()
+                    Timber.d("getMediumTasks: starting")
+                    val allTasks = repository.getAllTasks()
+                    Timber.d("getMediumTasks: received ${allTasks.size} tasks")
+                    // Фильтруем по типу "medium"
+                    allTasks.filter { it.type == "medium" }
                 }
+                Timber.d("getMediumTasks: filtered to ${tasks.size} medium tasks")
                 mediumTasks.value = tasks
             } catch (e: Exception) {
+                Timber.e(e, "getMediumTasks: error")
                 errorString.value = e.message ?: "Ошибка загрузки средних задач"
             } finally {
                 loadProgress.value = false
@@ -73,12 +77,16 @@ class TaskScreenViewModel @Inject constructor(
             try {
                 loadProgress.value = true
                 val tasks = withContext(Dispatchers.IO) {
-                    Timber.d("getLargeTasks")
-//                    repository.getTaskByType(Type.LARGE.value)
-                    repository.getAllTasks()
+                    Timber.d("getLargeTasks: starting")
+                    val allTasks = repository.getAllTasks()
+                    Timber.d("getLargeTasks: received ${allTasks.size} tasks")
+                    // Фильтруем по типу "large"
+                    allTasks.filter { it.type == "large" }
                 }
+                Timber.d("getLargeTasks: filtered to ${tasks.size} large tasks")
                 largeTasks.value = tasks
             } catch (e: Exception) {
+                Timber.e(e, "getLargeTasks: error")
                 errorString.value = e.message ?: "Ошибка загрузки крупных задач"
             } finally {
                 loadProgress.value = false

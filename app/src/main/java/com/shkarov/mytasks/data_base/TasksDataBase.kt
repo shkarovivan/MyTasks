@@ -2,6 +2,8 @@ package com.shkarov.mytasks.data_base
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
+import com.shkarov.mytasks.data.StatusConverter
 import com.shkarov.mytasks.data.Task
 
 @Database(
@@ -9,6 +11,7 @@ import com.shkarov.mytasks.data.Task
     version = TasksDataBase.DB_VERSION,
     exportSchema = true
 )
+@TypeConverters(StatusConverter::class)
 abstract class TasksDataBase : RoomDatabase()  {
     abstract fun taskDbDao(): TasksDbDao
 
