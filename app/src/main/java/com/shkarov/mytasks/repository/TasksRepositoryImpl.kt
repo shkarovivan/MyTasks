@@ -1,9 +1,40 @@
 package com.shkarov.mytasks.repository
 
+import com.shkarov.mytasks.data.Task
 import com.shkarov.mytasks.data_base.TasksDbDao
+import timber.log.Timber
 import javax.inject.Inject
 
 class TasksRepositoryImpl @Inject constructor(
-    private val dbDao: TasksDbDao
+    private val tasksDao: TasksDbDao
 ) : TasksRepository {
+
+    override suspend fun getTaskByType(type: String): List<Task> {
+        return tasksDao.getTaskByType(type).also {
+            Timber.d("tasks2 - $it")
+        }
+    }
+
+    override suspend fun getTaskByStatus(status: String): List<Task> {
+        return tasksDao.getTaskByStatus(status)
+    }
+
+    override suspend fun insertTask(task: Task) {
+        tasksDao.insertTask(task)
+    }
+
+    override suspend fun getAllTasks(): List<Task> {
+        Timber.d("AllTasks start")
+        return tasksDao.getAllTasks().also {
+            Timber.d("AllTasks - $it")
+        }
+    }
+
+    override suspend fun deleteTaskByID(id: String) {
+        tasksDao.deleteTaskByID(id)
+    }
+
+    override suspend fun deleteAllTasks() {
+        tasksDao.deleteAllTasks()
+    }
 }

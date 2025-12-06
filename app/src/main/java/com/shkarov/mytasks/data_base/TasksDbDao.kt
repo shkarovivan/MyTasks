@@ -20,6 +20,9 @@ interface TasksDbDao {
     @Query("DELETE FROM ${TaskDataBaseContract.TABLE_NAME} WHERE ${TaskDataBaseContract.Columns.ID} = :id")
     suspend fun deleteTaskByID(id: String)
 
+    @Query("SELECT * FROM ${TaskDataBaseContract.TABLE_NAME}")
+    suspend fun getAllTasks(): List<Task>
+
     @Query("DELETE FROM ${TaskDataBaseContract.TABLE_NAME}")
     suspend fun deleteAllTasks()
 }

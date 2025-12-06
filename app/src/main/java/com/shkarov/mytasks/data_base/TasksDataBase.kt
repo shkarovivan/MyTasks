@@ -14,6 +14,6 @@ abstract class TasksDataBase : RoomDatabase()  {
 
     companion object{
         const val DB_VERSION = 1
-        const val DB_NAME = "tasks-database"
+        const val DB_NAME = TaskDataBaseContract.TABLE_NAME
     }
 }

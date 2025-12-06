@@ -37,6 +37,12 @@ enum class Status(val status: String){
     STOPPED("stopped")
 }
 
+enum class Type (val value: String) {
+    DAILY("daily"),
+    MEDIUM("medium"),
+    LARGE("large"),
+}
+
 class StatusConverter {
     @TypeConverter
     fun convertStatusToString(status: Status): String = status.status

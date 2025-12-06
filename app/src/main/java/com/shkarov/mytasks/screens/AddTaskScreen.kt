@@ -10,7 +10,6 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
@@ -30,25 +29,28 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.shkarov.mytasks.R
+import com.shkarov.mytasks.data.Status
+import com.shkarov.mytasks.data.Task
+import com.shkarov.mytasks.data.Type
 import com.shkarov.mytasks.ui.theme.MyTasksTheme
+import com.shkarov.mytasks.viewmodels.AddTaskViewModel
+import timber.log.Timber
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun AddTaskScreen(
     onBackClick: () -> Unit
 ) {
-    var titleValue by remember {
-        mutableStateOf("")
-    }
+    var titleValue by remember { mutableStateOf("") }
+    var chosenData by remember { mutableStateOf<String?>("") }
+    val onChangeData: (String) -> Unit = { chosenData = it }
+    var descriptionValue by remember { mutableStateOf("") }
 
-    var chosenData by remember {
-        mutableStateOf<String?>("")
-    }
-    val onChangeData: (String) -> Unit = { chosenData = it}
-
-    var descriptionValue by remember {
-        mutableStateOf("")
-    }
+    val viewModel: AddTaskViewModel = hiltViewModel()
     val selectedTypeValue = remember { mutableStateOf("") }
     val isSelectedTypeItem: (String) -> Boolean = { selectedTypeValue.value == it }
     val onChangeTypeState: (String) -> Unit = { selectedTypeValue.value = it }
@@ -56,6 +58,10 @@ fun AddTaskScreen(
     val selectedDeadlineValue = remember { mutableStateOf("") }
     val isSelectedDeadlineItem: (String) -> Boolean = { selectedDeadlineValue.value == it }
     val onChangeDeadlineState: (String) -> Unit = { selectedDeadlineValue.value = it }
+
+    val dailyTasksLabel = stringResource(id = R.string.daily_tasks)
+    val mediumTasksLabel = stringResource(id = R.string.medium_tasks)
+    val largeTasksLabel = stringResource(id = R.string.large_tasks)
 
     val typeItems =  listOf(
         stringResource(id = R.string.daily_tasks),
@@ -234,7 +240,39 @@ fun AddTaskScreen(
                             horizontal = dimensionResource(id = R.dimen.padding_main)
                         )
                         .fillMaxWidth(),
-                    onClick = { /*TODO*/ })
+                    onClick = {
+                        // 1. Проверяем, что поля заполнены
+                        if (titleValue.isBlank()) {
+                            Timber.w("Заголовок задачи не может быть пустым")
+                            return@Button
+                        }
+
+                        // 2. Формируем объект Task
+                        val task = Task(
+                            id = System.currentTimeMillis().toString(), // уникальное ID
+                            created = SimpleDateFormat(
+                                "dd.MM.yyyy",
+                                Locale.getDefault()
+                            ).format(Date()),
+                            title = titleValue,
+                            description = descriptionValue,
+                            type = when (selectedTypeValue.value) {
+                                dailyTasksLabel -> Type.DAILY.value
+                                mediumTasksLabel -> Type.MEDIUM.value
+                                largeTasksLabel -> Type.LARGE.value
+                                else -> "daily" // дефолт
+                            },
+                            deadLine = selectedDeadlineValue.value, // можно улучшить: парсинг даты
+                            deadLineMs = 0L, // опционально: рассчитать миллисекунды
+                            status = Status.STARTED
+                        )
+
+                        // 3. Сохраняем в БД
+                        viewModel.addTask(task)
+
+                        // 4. Возвращаемся назад (опционально)
+                        onBackClick()
+                    })
                 {
                     Text(
                         text = stringResource(id = R.string.save_text),
