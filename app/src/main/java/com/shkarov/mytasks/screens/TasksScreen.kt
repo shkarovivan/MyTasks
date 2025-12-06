@@ -28,7 +28,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.shkarov.mytasks.R
 import com.shkarov.mytasks.data.Status
@@ -55,8 +55,8 @@ fun TasksScreen(
     modifier: Modifier = Modifier,
     pages: Array<TaskPages> = TaskPages.values()
 ) {
-    val pagerState = rememberPagerState()
-    val viewModel: TaskScreenViewModel = viewModel()
+    val pagerState = rememberPagerState(pageCount = { pages.size })
+    val viewModel: TaskScreenViewModel = hiltViewModel()
 
     val load by viewModel.loadProgress.collectAsState()
     val error by viewModel.errorString.collectAsState()
@@ -68,7 +68,7 @@ fun TasksScreen(
         onPageChange(pages[pagerState.currentPage])
     }
 
-        Column(modifier.nestedScroll(rememberNestedScrollInteropConnection())) {
+    Column(modifier = modifier.nestedScroll(rememberNestedScrollInteropConnection())) {
             val coroutineScope = rememberCoroutineScope()
 
             val title = if (isWorkTasks) stringResource(id = R.string.work_tasks_title)
@@ -92,14 +92,13 @@ fun TasksScreen(
                             )
                         },
                         unselectedContentColor = Color.DarkGray,
-                        selectedContentColor = MaterialTheme.colors.onBackground,
+                        selectedContentColor = MaterialTheme.colorScheme.onBackground,
                     )
                 }
             }
 
             // Pages
             HorizontalPager(
-                pageCount = pages.size,
                 state = pagerState,
                 verticalAlignment = Alignment.Top
             ) { index ->
@@ -120,6 +119,7 @@ fun TasksScreen(
 
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Toolbar(
     title: String
@@ -127,19 +127,14 @@ fun Toolbar(
     Surface {
         TopAppBar(
             modifier = Modifier.statusBarsPadding(),
-            backgroundColor = BackGroundMyTasks
-        ) {
-            Text(
-                color = MaterialTheme.colorScheme.onBackground,
-                text = title,
-                style = MaterialTheme.typography.h6,
-                // As title in TopAppBar has extra inset on the left, need to do this: b/158829169
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxSize()
-                    .wrapContentSize(Alignment.Center)
-            )
-        }
+            title = { 
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+            }
+        )
     }
 }
 
@@ -191,17 +186,17 @@ fun TaskView(
                 RoundedCornerShape(dimensionResource(id = R.dimen.corner_radius))
             )
             .clickable { navigateToDetailTask() },
-        backgroundColor =
-        when (task.status) {
-            Status.STARTED -> {
-                if (task.deadLineMs > System.currentTimeMillis()) LatedTaskColor
-                else StartedTaskColor
+        colors = CardDefaults.cardColors(
+            containerColor = when (task.status) {
+                Status.STARTED -> {
+                    if (task.deadLineMs > System.currentTimeMillis()) LatedTaskColor
+                    else StartedTaskColor
+                }
+                Status.STOPPED -> StoppedTaskColor
+                Status.WAITING -> WaitingTaskColor
+                Status.PAUSED -> PausedTaskColor
             }
-            Status.STOPPED -> StoppedTaskColor
-            Status.WAITING -> WaitingTaskColor
-            Status.PAUSED -> PausedTaskColor
-        }
-
+        )
     )
     {
         Column(
