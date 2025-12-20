@@ -1,4 +1,4 @@
-package com.shkarov.mytasks.data
+package com.shkarov.mytasks.domain.model
 
 import android.os.Parcelable
 import androidx.room.*
@@ -50,12 +50,9 @@ class StatusConverter {
     @TypeConverter
     fun convertStringToStatus(statusString: String): Status {
         return try {
-            // Сначала пытаемся найти по значению status (например, "started")
-            Status.values().find { it.status == statusString }
-                // Если не найдено, пытаемся найти по имени enum (например, "STARTED")
+            Status.entries.find { it.status == statusString }
                 ?: Status.valueOf(statusString.uppercase())
         } catch (e: Exception) {
-            // Если ничего не найдено, возвращаем значение по умолчанию
             Status.WAITING
         }
     }

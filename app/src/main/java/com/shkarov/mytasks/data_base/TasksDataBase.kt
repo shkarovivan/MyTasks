@@ -3,8 +3,8 @@ package com.shkarov.mytasks.data_base
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.shkarov.mytasks.data.StatusConverter
-import com.shkarov.mytasks.data.Task
+import com.shkarov.mytasks.domain.model.StatusConverter
+import com.shkarov.mytasks.domain.model.Task
 
 @Database(
     entities = [Task::class],

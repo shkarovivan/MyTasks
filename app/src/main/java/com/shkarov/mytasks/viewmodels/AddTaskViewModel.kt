@@ -2,7 +2,7 @@ package com.shkarov.mytasks.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.shkarov.mytasks.data.Task
+import com.shkarov.mytasks.domain.model.Task
 import com.shkarov.mytasks.repository.TasksRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers

@@ -1,6 +1,6 @@
 package com.shkarov.mytasks.repository
 
-import com.shkarov.mytasks.data.Task
+import com.shkarov.mytasks.domain.model.Task
 import com.shkarov.mytasks.data_base.TasksDbDao
 import timber.log.Timber
 import javax.inject.Inject

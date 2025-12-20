@@ -1,6 +1,6 @@
 package com.shkarov.mytasks.repository
 
-import com.shkarov.mytasks.data.Task
+import com.shkarov.mytasks.domain.model.Task
 
 interface TasksRepository {
     suspend fun getTaskByType(type: String): List<Task>

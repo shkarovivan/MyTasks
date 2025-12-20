@@ -4,7 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.shkarov.mytasks.data.Task
+import com.shkarov.mytasks.domain.model.Task
 
 @Dao
 interface TasksDbDao {

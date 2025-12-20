@@ -31,8 +31,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.shkarov.mytasks.R
-import com.shkarov.mytasks.data.Status
-import com.shkarov.mytasks.data.Task
+import com.shkarov.mytasks.domain.model.Status
+import com.shkarov.mytasks.domain.model.Task
 import com.shkarov.mytasks.ui.theme.*
 import com.shkarov.mytasks.viewmodels.TaskScreenViewModel
 import kotlinx.coroutines.launch

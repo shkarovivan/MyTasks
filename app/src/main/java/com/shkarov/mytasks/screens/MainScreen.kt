@@ -1,17 +1,15 @@
 package com.shkarov.mytasks.screens
 
-
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -19,18 +17,45 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.shkarov.mytasks.NavGraph
+import com.shkarov.mytasks.ui.buttons.FloatingButtonAddByText
+import com.shkarov.mytasks.ui.buttons.FloatingButtonAddByVoice
+import com.shkarov.mytasks.ui.buttons.FloatingButtonSearchByVoice
+import com.shkarov.mytasks.ui.dialogs.VoiceSearchDialog
 
 @Composable
 fun MainScreen() {
     val navController = rememberNavController()
+    var showVoiceSearchDialog by remember { mutableStateOf(false) }
+
+    var showFAB by remember { mutableStateOf(true) }
+
     Scaffold(
         bottomBar = { BottomBar(navController = navController) },
-        floatingActionButton = { FloatingButton(navController) }
+        floatingActionButton = {
+            if (showFAB) {
+                Row(
+                    //horizontalArrangement = Arrangement.spacedBy(0.dp)
+                ) {
+                    FloatingButtonSearchByVoice(onShowDialog = { showVoiceSearchDialog = true })
+                    FloatingButtonAddByText(navController)
+                    FloatingButtonAddByVoice(navController)
+                }
+            }
+        },
     ) { paddingValue ->
         Box(modifier = Modifier.padding(paddingValue)) {
-            NavGraph(navController = navController)
+            NavGraph(
+                navController = navController,
+                onFABVisibilityChanged = { visible ->
+                    showFAB = visible
+                })
         }
     }
+
+    VoiceSearchDialog(
+        showDialog = showVoiceSearchDialog,
+        onDismiss = { showVoiceSearchDialog = false }
+    )
 }
 
 @Composable
@@ -75,20 +100,4 @@ fun RowScope.AddItem(
             }
         }
     )
-}
-
-@Composable
-fun FloatingButton(navController: NavHostController) {
-    FloatingActionButton(
-        modifier = Modifier.padding(end = 16.dp, bottom = 16.dp),
-        onClick = {
-            navController.navigate(CreateTaskScreen.CreatedTaskScreen.route) {
-                popUpTo(Screens.WorkTasks.route)
-            }
-        },
-        containerColor = Color.Blue,
-        contentColor = Color.White
-    ) {
-        Icon(Icons.Filled.Add, contentDescription = "Add")
-    }
 }
