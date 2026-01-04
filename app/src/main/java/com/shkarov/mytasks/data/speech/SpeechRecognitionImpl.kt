@@ -147,6 +147,10 @@ class SpeechRecognitionImpl(
         }
     }
 
+    override fun stopListening() {
+        speechRecognizer?.stopListening()
+    }
+
     override fun stopRecognition() {
         Timber.d("$TAG stopRecognition")
         try {

@@ -9,6 +9,8 @@ interface SpeechRecognition {
 
     fun stopRecognition()
 
+    fun stopListening()
+
     fun checkPermission(): Boolean
 }
 

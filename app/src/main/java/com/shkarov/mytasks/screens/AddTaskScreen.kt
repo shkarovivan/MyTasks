@@ -133,7 +133,8 @@ fun AddTaskScreen(
                 modifier = Modifier
                     .padding(
                         start = dimensionResource(id = R.dimen.padding_main),
-                        top = dimensionResource(id = R.dimen.padding_main)
+                        top = dimensionResource(id = R.dimen.padding_main),
+                        bottom = dimensionResource(id = R.dimen.padding_small),
                     )
             )
 
@@ -149,7 +150,10 @@ fun AddTaskScreen(
                             },
                             role = Role.RadioButton
                         )
-                        //.padding(8.dp)
+                        .padding(
+                            vertical = dimensionResource(id = R.dimen.padding_smallest),
+                            horizontal = dimensionResource(id = R.dimen.padding_main)
+                        )
                         .fillMaxWidth()
                 ){
                     RadioButton(
@@ -172,7 +176,8 @@ fun AddTaskScreen(
                 modifier = Modifier
                     .padding(
                         start = dimensionResource(id = R.dimen.padding_main),
-                        top = dimensionResource(id = R.dimen.padding_main)
+                        top = dimensionResource(id = R.dimen.padding_main),
+                        bottom = dimensionResource(id = R.dimen.padding_small),
                     )
             )
 
@@ -315,14 +320,14 @@ fun TextInput(
         textStyle = TextStyle(
             fontSize = dimensionResource(id = R.dimen.main_text_size).value.sp,
             fontWeight = FontWeight.Medium,
-            //color = Color.DarkGray
+            color = MaterialTheme.colorScheme.onBackground
         ),
         enabled = true,
         decorationBox = { innerTextField ->
             Row(
                 modifier = Modifier
                     .padding(
-                        start = dimensionResource(id = R.dimen.padding_small),
+                        start = dimensionResource(id = R.dimen.padding_main),
                         end = dimensionResource(id = R.dimen.padding_main)
                     )
                     .fillMaxWidth()
@@ -348,7 +353,12 @@ fun TextInput(
                     contentDescription = "Favorite icon",
                     // tint = Color.DarkGray
                 )
-                innerTextField()
+                Box(
+                    modifier = Modifier
+                        .padding(start = dimensionResource(id =R.dimen.padding_small))
+                ) {
+                    innerTextField()
+                }
             }
         }
     )

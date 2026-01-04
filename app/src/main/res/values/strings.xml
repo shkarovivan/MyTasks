@@ -8,6 +8,8 @@
     <string name="medium_tasks">Medium</string>
     <string name="large_tasks">Large</string>
     <string name="task_title">Title</string>
+    <string name="save_button_text">Save</string>
+    <string name="record_button_text">Record</string>
     <string name="task_description_text">Task description (option)</string>
     <string name="task_type_text">Type</string>
     <string name="task_start_date_text">Date</string>

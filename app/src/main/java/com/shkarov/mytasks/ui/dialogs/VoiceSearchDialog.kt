@@ -23,10 +23,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.shkarov.mytasks.R
 import com.shkarov.mytasks.viewmodels.SpeechRecognitionViewModel
 
 @Composable
@@ -43,7 +45,6 @@ fun VoiceSearchDialog(
             ActivityResultContracts.RequestPermission()
         ) { isGranted ->
             if (isGranted) {
-                viewModel.stopRecord()
                 viewModel.startRecord()
             }
         }
@@ -53,7 +54,10 @@ fun VoiceSearchDialog(
         }
 
         Dialog(
-            onDismissRequest = onDismiss
+            onDismissRequest = {
+                viewModel.stopRecognition()
+                onDismiss()
+            }
         ) {
             // Кастомный UI диалога
             Surface(
@@ -88,16 +92,15 @@ fun VoiceSearchDialog(
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
                         TextButton(onClick = {
-                            viewModel.stopRecord()
-                            onDismiss()
+                            viewModel.startRecord()
                         }) {
-                            Text("Отмена")
+                            Text(stringResource(id = R.string.record_button_text))
                         }
                         Button(onClick = {
-                            viewModel.stopRecord()
+                            viewModel.stopRecognition()
                             onDismiss()
                         }) {
-                            Text("OK")
+                            Text(stringResource(id = R.string.save_button_text))
                         }
                     }
                 }

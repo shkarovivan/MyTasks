@@ -26,14 +26,8 @@ class SpeechRecognitionViewModel @Inject constructor(
     private val _loadProgress = MutableStateFlow(false)
     val loadProgress = _loadProgress.asStateFlow()
 
-    fun stopRecord() {
-        speechRecognition.stopRecognition()
-    }
-
     init {
         viewModelScope.launch(Dispatchers.Main) {
-            speechRecognition.startRecognize()
-            Timber.d("$TAG startRecognize()")
             speechRecognition.recognitionState
                 .collect { state ->
                     Timber.d("$TAG recognitionState - $state")
@@ -52,9 +46,7 @@ class SpeechRecognitionViewModel @Inject constructor(
                         }
 
                         is SpeechRecognitionState.PartialResult -> {
-
                             Timber.d("${TAG} onPartialResults data - ${state.text}")
-
                             _recognizedText.value = state.text
                         }
 
@@ -84,7 +76,13 @@ class SpeechRecognitionViewModel @Inject constructor(
     }
 
     fun startRecord() {
+        _recognizedText.value = ""
         speechRecognition.startRecognize()
+    }
+
+    fun stopRecognition() {
+        speechRecognition.stopRecognition()
+        _recognizedText.value = ""
     }
 
     companion object {
