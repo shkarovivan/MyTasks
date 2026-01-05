@@ -33,7 +33,7 @@ import com.shkarov.mytasks.viewmodels.SpeechRecognitionViewModel
 @Composable
 fun VoiceSearchDialog(
     showDialog: Boolean,
-    onDismiss: () -> Unit
+    onDismiss: (String) -> Unit
 ) {
     val viewModel: SpeechRecognitionViewModel = hiltViewModel()
     val recognizedText by viewModel.recognizedText.collectAsState()
@@ -56,7 +56,7 @@ fun VoiceSearchDialog(
         Dialog(
             onDismissRequest = {
                 viewModel.stopRecognition()
-                onDismiss()
+                onDismiss("")
             }
         ) {
             Surface(
@@ -101,7 +101,7 @@ fun VoiceSearchDialog(
                             enabled = status,
                             onClick = {
                             viewModel.stopRecognition()
-                            onDismiss()
+                            onDismiss(recognizedText)
                         }) {
                             Text(stringResource(id = R.string.save_button_text))
                         }

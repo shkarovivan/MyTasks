@@ -8,8 +8,6 @@ import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import androidx.core.content.ContextCompat
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import timber.log.Timber
 import android.Manifest
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,14 +25,12 @@ class SpeechRecognitionImpl(
     override fun startRecognize() {
         Timber.d("$TAG startRecognize called")
 
-        // Проверяем разрешение на запись аудио
         if (!hasAudioPermission()) {
             Timber.w("$TAG Audio permission not granted")
             _recognitionState.tryEmit(SpeechRecognitionState.PermissionDenied)
             return
         }
 
-        // Проверяем доступность распознавания речи
         if (!SpeechRecognizer.isRecognitionAvailable(context)) {
             Timber.w("$TAG Speech recognition not available")
             _recognitionState.tryEmit(SpeechRecognitionState.Error("Speech recognition not available"))

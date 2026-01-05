@@ -254,7 +254,7 @@ fun AddTaskScreen(
 
                         // 2. Формируем объект Task
                         val task = Task(
-                            id = System.currentTimeMillis().toString(), // уникальное ID
+                            id = System.currentTimeMillis().toString(),
                             created = SimpleDateFormat(
                                 "dd.MM.yyyy",
                                 Locale.getDefault()
@@ -267,15 +267,12 @@ fun AddTaskScreen(
                                 largeTasksLabel -> Type.LARGE.value
                                 else -> "daily" // дефолт
                             },
-                            deadLine = selectedDeadlineValue.value, // можно улучшить: парсинг даты
-                            deadLineMs = 0L, // опционально: рассчитать миллисекунды
+                            deadLine = selectedDeadlineValue.value,
+                            deadLineMs = 0L,
                             status = Status.STARTED
                         )
 
-                        // 3. Сохраняем в БД
                         viewModel.addTask(task)
-
-                        // 4. Возвращаемся назад (опционально)
                         onBackClick()
                     })
                 {

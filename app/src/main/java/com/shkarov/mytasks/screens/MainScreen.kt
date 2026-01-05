@@ -54,7 +54,10 @@ fun MainScreen() {
 
     VoiceSearchDialog(
         showDialog = showVoiceSearchDialog,
-        onDismiss = { showVoiceSearchDialog = false }
+        onDismiss = { text ->
+            showVoiceSearchDialog = false
+
+        }
     )
 }
 

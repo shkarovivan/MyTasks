@@ -7,12 +7,14 @@ import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.scopes.ViewModelScoped
+import javax.inject.Singleton
 
 @Module
 @InstallIn(ViewModelComponent::class)
 abstract class RepositoryModule {
 
     @Binds
+    @Singleton
     @ViewModelScoped
     abstract fun provideTasksRepository(impl: TasksRepositoryImpl): TasksRepository
 }
