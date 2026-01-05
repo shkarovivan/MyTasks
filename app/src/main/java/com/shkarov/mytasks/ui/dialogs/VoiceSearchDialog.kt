@@ -1,7 +1,6 @@
 package com.shkarov.mytasks.ui.dialogs
 
 import android.Manifest
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -36,9 +35,10 @@ fun VoiceSearchDialog(
     showDialog: Boolean,
     onDismiss: () -> Unit
 ) {
-
     val viewModel: SpeechRecognitionViewModel = hiltViewModel()
     val recognizedText by viewModel.recognizedText.collectAsState()
+    val statusText by viewModel.statusText.collectAsState()
+    val status by viewModel.loadProgress.collectAsState()
     if (showDialog) {
 
         val permissionLauncher = rememberLauncherForActivityResult(
@@ -59,7 +59,6 @@ fun VoiceSearchDialog(
                 onDismiss()
             }
         ) {
-            // Кастомный UI диалога
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -72,7 +71,7 @@ fun VoiceSearchDialog(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "Кастомный диалог",
+                        text = statusText,
                         style = MaterialTheme.typography.headlineSmall,
                         color = MaterialTheme.colorScheme.onSurface
                     )
@@ -81,7 +80,7 @@ fun VoiceSearchDialog(
 
                     Text(
                         text = recognizedText,
-                        style = MaterialTheme.typography.bodyMedium,
+                        style = MaterialTheme.typography.bodyLarge,
                         textAlign = TextAlign.Center
                     )
 
@@ -91,12 +90,16 @@ fun VoiceSearchDialog(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        TextButton(onClick = {
+                        TextButton(
+                            enabled = status,
+                            onClick = {
                             viewModel.startRecord()
                         }) {
                             Text(stringResource(id = R.string.record_button_text))
                         }
-                        Button(onClick = {
+                        Button(
+                            enabled = status,
+                            onClick = {
                             viewModel.stopRecognition()
                             onDismiss()
                         }) {

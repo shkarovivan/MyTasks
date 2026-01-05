@@ -26,4 +26,10 @@
     <string name="deadline_7">  7             </string>
     <string name="deadline_choose_date">Выбрать дату</string>
     <string name="choosen_data_text"> Выбрана дата - </string>
+    <string name="voice_initialization">Инициализация..</string>
+    <string name="voice_ready">Готово к записи..</string>
+    <string name="voice_listening">Говорите задачу..</string>
+    <string name="voice_start">Создать задачу..</string>
+    <string name="voice_permission">Дайте разрешение на микрофон..</string>
+    <string name="voice_stopped">Остановлено..</string>
 </resources>

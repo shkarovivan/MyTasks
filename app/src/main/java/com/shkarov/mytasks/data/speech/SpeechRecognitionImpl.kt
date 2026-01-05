@@ -84,7 +84,14 @@ class SpeechRecognitionImpl(
                 recognitionData?.let {
                     if (it.results.isNotEmpty()) {
                         Timber.d("$TAG onPartialResults data - ${it.results.first()}")
-                        _recognitionState.tryEmit(SpeechRecognitionState.PartialResult(it.results.first()))
+                        val result = it.results.first()
+                        _recognitionState.tryEmit(
+                            if (recognitionData.isFinal) {
+                                SpeechRecognitionState.FinalResult(result)
+                            } else {
+                                SpeechRecognitionState.PartialResult(result)
+                            }
+                        )
                     }
                 }
             }

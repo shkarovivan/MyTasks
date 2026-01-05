@@ -25,6 +25,11 @@
     <string name="deadline_7">  7             </string>
     <string name="deadline_choose_date">Choose date</string>
     <string name="choosen_data_text"> Chosen data - </string>
-
+    <string name="voice_initialization">Initialization..</string>
+    <string name="voice_ready">Ready for record..</string>
+    <string name="voice_listening">Say task..</string>
+    <string name="voice_start">Start record..</string>
+    <string name="voice_permission">Need microphone permission..</string>
+    <string name="voice_stopped">Stopped..</string>
 
 </resources>
