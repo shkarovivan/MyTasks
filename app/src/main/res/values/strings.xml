@@ -32,4 +32,8 @@
     <string name="voice_permission">Need microphone permission..</string>
     <string name="voice_stopped">Stopped..</string>
 
+    <string name="prompt_start">Generate a JSON response based on the provided task description and the request time - </string>
+    <string name="prompt_date">, now </string>
+    <string name="prompt_end">. In the JSON, include the following fields: title (a brief task description, no more than 5 words), description (the full task description), type (the task type: select one of DAILY — for tasks due in less than 1 week, MEDIUM — for tasks due in less than 1 month, LARGE — for tasks due in less than 1 year), date (the deadline date and time); if no deadline is specified, assume the end of the current day; output only the resulting JSON</string>
+
 </resources>

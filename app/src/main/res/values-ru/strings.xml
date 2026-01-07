@@ -32,4 +32,8 @@
     <string name="voice_start">Создать задачу..</string>
     <string name="voice_permission">Дайте разрешение на микрофон..</string>
     <string name="voice_stopped">Остановлено..</string>
+
+    <string name="prompt_start">Сформируй JSON‑ответ на основе приведённого текстового описания задачи и времени запроса - </string>
+    <string name="prompt_date">, сейчас </string>
+    <string name="prompt_end">. В JSON добавь поля: title - краткое описание задачи, не более 5 слов, description - полное описание задачи, type - тип задачи (выбери одно из DAILY — для задач сроком менее 1 недели, MEDIUM — для задач сроком менее 1 месяца, LARGE - для задач сроком менее 1 года), date - дата и время окончания срока задачи. Если срок окончания задачи не указан, считай срок до конца сегодняшнего дня. В ответе выведи только сформированный JSON</string>
 </resources>
