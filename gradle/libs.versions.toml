@@ -23,6 +23,10 @@ hilt-navigation-compose = "1.3.0"
 #Room
 room = "2.8.4"
 
+#Retrofit
+retrofit = "3.0.0"
+okhttp = "4.12.0"
+
 #Timber
 timber = "5.0.1"
 
@@ -71,6 +75,14 @@ androidx-room-compiler = { group = "androidx.room", name = "room-compiler", vers
 
 #Timber
 timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
+
+# Retrofit
+retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
+retrofit-converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
+
+# OkHttp
+okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
+okhttp-logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
 
 # Testing
 junit = { group = "junit", name = "junit", version.ref = "junit" }
