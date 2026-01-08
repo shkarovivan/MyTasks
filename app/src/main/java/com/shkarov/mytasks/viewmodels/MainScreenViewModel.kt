@@ -5,22 +5,29 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.shkarov.mytasks.R
+import com.shkarov.mytasks.domain.model.Status
+import com.shkarov.mytasks.domain.model.Task
+import com.shkarov.mytasks.domain.model.Type
 import com.shkarov.mytasks.network.ApiService
 import com.shkarov.mytasks.network.data.ApiResponse
 import com.shkarov.mytasks.network.data.ChatMessage
 import com.shkarov.mytasks.network.data.ChatRequest
 import com.shkarov.mytasks.network.data.TaskResponse
+import com.shkarov.mytasks.repository.TasksRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
 class MainScreenViewModel @Inject constructor(
     private val application: Application,
-//    private val repository: TasksRepository,
+    private val repository: TasksRepository,
     private val apiService: ApiService,
 ) : AndroidViewModel(application) {
 
@@ -42,7 +49,10 @@ class MainScreenViewModel @Inject constructor(
 
                     val rawJson = extractJsonFromContent(content)
                     val gson = Gson()
-                    val task: TaskResponse = gson.fromJson(rawJson, TaskResponse::class.java)
+                    val taskResponse: TaskResponse =
+                        gson.fromJson(rawJson, TaskResponse::class.java)
+                    val task = taskResponseToTask(taskResponse = taskResponse)
+                    repository.insertTask(task = task)
 
                     Timber.d("$TAG Получена задача: $task")
                 }
@@ -65,6 +75,27 @@ class MainScreenViewModel @Inject constructor(
                 application.getString(R.string.prompt_date) +
                 LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) +
                 application.getString(R.string.prompt_end)
+    }
+
+    private fun taskResponseToTask(taskResponse: TaskResponse): Task{
+        return Task(
+            id = System.currentTimeMillis().toString(),
+            created = SimpleDateFormat(
+                "dd.MM.yyyy",
+                Locale.getDefault()
+            ).format(Date()),
+            title = taskResponse.title,
+            description = taskResponse.description,
+            type = when (taskResponse.type) {
+                "DAILY" -> Type.DAILY.value
+                "MEDIUM"-> Type.MEDIUM.value
+                "LARGE"-> Type.LARGE.value
+                else -> Type.DAILY.value
+            },
+            deadLine = taskResponse.date,
+            deadLineMs = 0L,
+            status = Status.STARTED
+        )
     }
 
     companion object {
