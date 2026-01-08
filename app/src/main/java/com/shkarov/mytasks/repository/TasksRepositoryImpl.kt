@@ -15,6 +15,10 @@ class TasksRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun getTaskByWork(work: String): List<Task> {
+        return tasksDao.getTaskByWork(work)
+    }
+
     override suspend fun getTaskByStatus(status: String): List<Task> {
         return tasksDao.getTaskByStatus(status)
     }

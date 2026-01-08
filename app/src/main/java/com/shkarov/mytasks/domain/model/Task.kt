@@ -24,9 +24,15 @@ data class Task(
     @ColumnInfo(name = TaskDataBaseContract.Columns.DEAD_LINE_MS)
     val deadLineMs: Long,
     @ColumnInfo(name = TaskDataBaseContract.Columns.STATUS)
-    val status: Status
-): Parcelable
+    val status: Status,
+    @ColumnInfo(name = TaskDataBaseContract.Columns.WORK)
+    val work: Work,
+) : Parcelable
 
+enum class Work(val work: String){
+    WORK("work"),
+    HOME("home"),
+}
 
 enum class Status(val status: String){
     STARTED("started"),
@@ -54,6 +60,23 @@ class StatusConverter {
                 ?: Status.valueOf(statusString.uppercase())
         } catch (e: Exception) {
             Status.WAITING
+        }
+    }
+}
+
+class WorkConverter {
+    @TypeConverter
+    fun convertWorkToString(work: Work): String {
+        return work.work
+    }
+
+    @TypeConverter
+    fun convertStringToWork(workString: String): Work {
+        return try {
+            Work.entries.find { it.work == workString }
+                ?: Work.valueOf(workString.uppercase())
+        } catch (e: Exception) {
+            Work.WORK
         }
     }
 }

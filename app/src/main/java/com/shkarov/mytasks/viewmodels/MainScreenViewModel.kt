@@ -8,6 +8,7 @@ import com.shkarov.mytasks.R
 import com.shkarov.mytasks.domain.model.Status
 import com.shkarov.mytasks.domain.model.Task
 import com.shkarov.mytasks.domain.model.Type
+import com.shkarov.mytasks.domain.model.Work
 import com.shkarov.mytasks.network.ApiService
 import com.shkarov.mytasks.network.data.ApiResponse
 import com.shkarov.mytasks.network.data.ChatMessage
@@ -31,7 +32,7 @@ class MainScreenViewModel @Inject constructor(
     private val apiService: ApiService,
 ) : AndroidViewModel(application) {
 
-    fun saveTaskRequest(request: String) {
+    fun saveTaskRequest(request: String, isWorkTask: Boolean) {
         viewModelScope.launch {
             try {
                 val response = apiService.chatRequest(
@@ -51,7 +52,7 @@ class MainScreenViewModel @Inject constructor(
                     val gson = Gson()
                     val taskResponse: TaskResponse =
                         gson.fromJson(rawJson, TaskResponse::class.java)
-                    val task = taskResponseToTask(taskResponse = taskResponse)
+                    val task = taskResponseToTask(taskResponse = taskResponse, isWorkTask = isWorkTask)
                     repository.insertTask(task = task)
 
                     Timber.d("$TAG Получена задача: $task")
@@ -77,7 +78,7 @@ class MainScreenViewModel @Inject constructor(
                 application.getString(R.string.prompt_end)
     }
 
-    private fun taskResponseToTask(taskResponse: TaskResponse): Task{
+    private fun taskResponseToTask(taskResponse: TaskResponse, isWorkTask: Boolean): Task{
         return Task(
             id = System.currentTimeMillis().toString(),
             created = SimpleDateFormat(
@@ -94,7 +95,8 @@ class MainScreenViewModel @Inject constructor(
             },
             deadLine = taskResponse.date,
             deadLineMs = 0L,
-            status = Status.STARTED
+            status = Status.STARTED,
+            work = if(isWorkTask) Work.WORK else Work.HOME
         )
     }
 

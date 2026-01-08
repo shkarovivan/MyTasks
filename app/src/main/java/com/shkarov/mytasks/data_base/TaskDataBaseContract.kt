@@ -12,5 +12,7 @@ object TaskDataBaseContract {
         const val DEAD_LINE = "deadLine"
         const val DEAD_LINE_MS = "deadLineMs"
         const val STATUS = "status"
+
+        const val WORK = "work"
     }
 }

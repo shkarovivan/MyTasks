@@ -33,6 +33,7 @@ import androidx.navigation.NavHostController
 import com.shkarov.mytasks.R
 import com.shkarov.mytasks.domain.model.Status
 import com.shkarov.mytasks.domain.model.Task
+import com.shkarov.mytasks.domain.model.Work
 import com.shkarov.mytasks.ui.theme.*
 import com.shkarov.mytasks.viewmodels.TaskScreenViewModel
 import kotlinx.coroutines.launch
@@ -53,7 +54,7 @@ fun TasksScreen(
     isWorkTasks: Boolean,
     onPageChange: (TaskPages) -> Unit,
     modifier: Modifier = Modifier,
-    pages: Array<TaskPages> = TaskPages.values()
+    pages: Array<TaskPages> = TaskPages.entries.toTypedArray()
 ) {
     val pagerState = rememberPagerState(pageCount = { pages.size })
     val viewModel: TaskScreenViewModel = hiltViewModel()
@@ -271,7 +272,8 @@ private fun TaskViewPreview() {
                 type = "daily",
                 deadLine = "21.04.2023",
                 deadLineMs = 1,
-                status = Status.STARTED
+                status = Status.STARTED,
+                work = Work.WORK
             )
         ){}
     }

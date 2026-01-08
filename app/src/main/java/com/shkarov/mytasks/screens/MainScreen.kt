@@ -3,6 +3,7 @@ package com.shkarov.mytasks.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,6 +34,18 @@ fun MainScreen() {
 
     val viewModel: MainScreenViewModel = hiltViewModel()
 
+    var currentBottomScreen by remember { mutableStateOf<Screens?>(null) }
+    val currentDestination by navController.currentBackStackEntryAsState()
+    LaunchedEffect(currentDestination) {
+        val route = currentDestination?.destination?.route
+        if (route != null) {
+            currentBottomScreen = listOf(Screens.WorkTasks, Screens.HomeTasks)
+                .find { screen -> route.startsWith(screen.route) }
+        } else {
+            currentBottomScreen = null
+        }
+    }
+
     Scaffold(
         bottomBar = { BottomBar(navController = navController) },
         floatingActionButton = {
@@ -60,8 +73,7 @@ fun MainScreen() {
         showDialog = showVoiceSearchDialog,
         onDismiss = { text ->
             showVoiceSearchDialog = false
-            viewModel.saveTaskRequest(text)
-
+            viewModel.saveTaskRequest(text, currentBottomScreen == Screens.WorkTasks)
         }
     )
 }

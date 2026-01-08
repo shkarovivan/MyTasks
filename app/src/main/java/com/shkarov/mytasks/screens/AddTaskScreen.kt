@@ -34,6 +34,7 @@ import com.shkarov.mytasks.R
 import com.shkarov.mytasks.domain.model.Status
 import com.shkarov.mytasks.domain.model.Task
 import com.shkarov.mytasks.domain.model.Type
+import com.shkarov.mytasks.domain.model.Work
 import com.shkarov.mytasks.ui.theme.MyTasksTheme
 import com.shkarov.mytasks.viewmodels.AddTaskViewModel
 import timber.log.Timber
@@ -43,6 +44,7 @@ import java.util.Locale
 
 @Composable
 fun AddTaskScreen(
+    isWorkTask: Boolean = true,
     onBackClick: () -> Unit
 ) {
     var titleValue by remember { mutableStateOf("") }
@@ -252,7 +254,6 @@ fun AddTaskScreen(
                             return@Button
                         }
 
-                        // 2. Формируем объект Task
                         val task = Task(
                             id = System.currentTimeMillis().toString(),
                             created = SimpleDateFormat(
@@ -269,7 +270,8 @@ fun AddTaskScreen(
                             },
                             deadLine = selectedDeadlineValue.value,
                             deadLineMs = 0L,
-                            status = Status.STARTED
+                            status = Status.STARTED,
+                            work = if (isWorkTask) Work.WORK else Work.HOME
                         )
 
                         viewModel.addTask(task)
