@@ -10,6 +10,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -21,6 +22,7 @@ import com.shkarov.mytasks.ui.buttons.FloatingButtonAddByText
 import com.shkarov.mytasks.ui.buttons.FloatingButtonAddByVoice
 import com.shkarov.mytasks.ui.buttons.FloatingButtonSearchByVoice
 import com.shkarov.mytasks.ui.dialogs.VoiceSearchDialog
+import com.shkarov.mytasks.viewmodels.MainScreenViewModel
 
 @Composable
 fun MainScreen() {
@@ -28,6 +30,8 @@ fun MainScreen() {
     var showVoiceSearchDialog by remember { mutableStateOf(false) }
 
     var showFAB by remember { mutableStateOf(true) }
+
+    val viewModel: MainScreenViewModel = hiltViewModel()
 
     Scaffold(
         bottomBar = { BottomBar(navController = navController) },
@@ -56,6 +60,7 @@ fun MainScreen() {
         showDialog = showVoiceSearchDialog,
         onDismiss = { text ->
             showVoiceSearchDialog = false
+            viewModel.saveTaskRequest(text)
 
         }
     )

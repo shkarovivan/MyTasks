@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -9,11 +11,11 @@ plugins {
 }
 
 android {
-    namespace = 'com.shkarov.mytasks'
+    namespace = "com.shkarov.mytasks"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = 'com.shkarov.mytasks'
+        applicationId = "com.shkarov.mytasks"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
@@ -23,13 +25,28 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        // Читаем токен из local.properties (для отладки)
+        val localProperties = Properties()
+        localProperties.load(
+            project.rootProject.file("local.properties").readText().byteInputStream()
+        )
+        val token = localProperties["proxy.token"] as? String ?: ""
+        buildConfigField("String", "API_TOKEN", "\"$token\"")
     }
 
     buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        getByName("release") {
+            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     compileOptions {
@@ -38,7 +55,7 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = '17'
+        jvmTarget = "17"
     }
 
     buildFeatures {
@@ -46,12 +63,12 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = '1.6.10'
+        kotlinCompilerExtensionVersion = "1.6.10"
     }
 
     packaging {
         resources {
-            excludes += '/META-INF/{AL2.0,LGPL2.1}'
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
 
@@ -106,6 +123,9 @@ dependencies {
     // OkHttp
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging.interceptor)
+
+    //Gson
+    implementation(libs.gson)
 
     // Debug
     debugImplementation(libs.androidx.compose.ui.tooling)
