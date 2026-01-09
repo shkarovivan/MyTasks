@@ -31,6 +31,8 @@
     <string name="voice_start">Start record..</string>
     <string name="voice_permission">Need microphone permission..</string>
     <string name="voice_stopped">Stopped..</string>
+    <string name="button_show_details">Show</string>
+    <string name="button_delete_task">Delete</string>
 
     <string name="prompt_start">Generate a JSON response based on the provided task description and the request time - </string>
     <string name="prompt_date">, now </string>

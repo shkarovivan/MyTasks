@@ -4,7 +4,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -37,6 +37,7 @@ import com.shkarov.mytasks.domain.model.Work
 import com.shkarov.mytasks.ui.theme.*
 import com.shkarov.mytasks.viewmodels.TaskScreenViewModel
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 enum class TaskPages(
     @StringRes val titleResId: Int,
@@ -105,20 +106,38 @@ fun TasksScreen(
             ) { index ->
                 when (pages[index]) {
                     TaskPages.DAILY_TASKS -> {
-                        TasksList(navController = navController, tasks = dailyTasks)
+                        TasksList(
+                            navController = navController,
+                            tasks = dailyTasks.filterByWork(isWorkTasks),
+                            onDelete = { taskId ->
+                                viewModel.deleteTaskById(taskId)
+                            })
                     }
                     TaskPages.MEDIUM_TASKS -> {
-                        TasksList(navController = navController, tasks = mediumTasks)
+                        TasksList(
+                            navController = navController,
+                            tasks = mediumTasks.filterByWork(isWorkTasks),
+                            onDelete = { taskId ->
+                                viewModel.deleteTaskById(taskId)
+                            })
                     }
                     TaskPages.LARGE_TASKS -> {
-                        TasksList(navController = navController, tasks = largeTasks)
+                        TasksList(
+                            navController = navController,
+                            tasks = largeTasks.filterByWork(isWorkTasks),
+                            onDelete = { taskId ->
+                                viewModel.deleteTaskById(taskId)
+                            })
                     }
                 }
             }
         }
     }
 
-
+private fun List<Task>.filterByWork(isWorkTasks: Boolean): List<Task> =
+    this.filter {
+        it.work == if (isWorkTasks) Work.WORK else Work.HOME
+    }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -142,7 +161,8 @@ fun Toolbar(
 @Composable
 fun TasksList(
     navController: NavHostController,
-    tasks: List<Task>
+    tasks: List<Task>,
+    onDelete: (String) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier
@@ -155,12 +175,16 @@ fun TasksList(
     ) {
         items(tasks) { itemTask ->
             TaskView(
-                task = itemTask
-            ) {
-                navController.navigate("detail_task_screen/${itemTask.id}") {
-                    popUpTo(Screens.WorkTasks.route)
+                task = itemTask,
+                navigateToDetailTask = {
+                    navController.navigate("detail_task_screen/${itemTask.id}") {
+                        popUpTo(Screens.WorkTasks.route)
+                    }
+                },
+                onDelete = {
+                    onDelete(itemTask.id)
                 }
-            }
+            )
             Divider(
                 modifier = Modifier
                     .padding(start = 16.dp, end = 16.dp),
@@ -174,8 +198,12 @@ fun TasksList(
 @Composable
 fun TaskView(
     task: Task,
-    navigateToDetailTask: ()-> Unit
+    navigateToDetailTask: ()-> Unit,
+    onDelete: (String) -> Unit,
 ) {
+
+    var isLongPressed by remember { mutableStateOf(false) }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -186,7 +214,17 @@ fun TaskView(
             .clip(
                 RoundedCornerShape(dimensionResource(id = R.dimen.corner_radius))
             )
-            .clickable { navigateToDetailTask() },
+            .combinedClickable(
+                onClick = {
+                    if (isLongPressed) {
+                        isLongPressed = false
+                    } else {
+                        navigateToDetailTask()
+                    }
+                },
+                onLongClick = { isLongPressed = true },
+            ),
+
         colors = CardDefaults.cardColors(
             containerColor = when (task.status) {
                 Status.STARTED -> {
@@ -246,6 +284,48 @@ fun TaskView(
                     textAlign = TextAlign.End
                 )
             }
+
+            if (isLongPressed) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            vertical = dimensionResource(id = R.dimen.padding_small),
+                            horizontal = dimensionResource(id = R.dimen.padding_small)),
+                    verticalAlignment = Alignment.CenterVertically
+                ){
+                    Button(
+                        onClick = {
+                            navigateToDetailTask()
+                            isLongPressed = false
+                        },
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(horizontal = dimensionResource(id = R.dimen.padding_small))
+//                            .height(48.dp)
+                            ,
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Blue)
+                    ) {
+                        Text(stringResource(id = R.string.button_show_details), color = MaterialTheme.colorScheme.onBackground)
+                    }
+
+                    Button(
+                        onClick = {
+                            onDelete(task.id)
+                            isLongPressed = false
+                        },
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(horizontal = dimensionResource(id = R.dimen.padding_small))
+//                            .height(48.dp)
+                        ,
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Blue)
+                    ) {
+                        Text(stringResource(id = R.string.button_delete_task), color = MaterialTheme.colorScheme.onBackground,)
+                    }
+                }
+
+            }
         }
     }
 }
@@ -274,7 +354,9 @@ private fun TaskViewPreview() {
                 deadLineMs = 1,
                 status = Status.STARTED,
                 work = Work.WORK
-            )
-        ){}
+            ),
+            navigateToDetailTask = {},
+            onDelete = {}
+        )
     }
 }

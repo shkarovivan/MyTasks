@@ -41,7 +41,7 @@ fun NavGraph(
             LaunchedEffect(Unit) {
                 onFABVisibilityChanged(false)
             }
-            DetailTaskScreen(taskId = taskId!!) {
+            DetailTaskScreen(taskId = taskId.orEmpty()) {
                 navController.navigateUp()
             }
             onFABVisibilityChanged(false)

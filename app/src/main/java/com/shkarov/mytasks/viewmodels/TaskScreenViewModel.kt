@@ -23,6 +23,17 @@ class TaskScreenViewModel @Inject constructor(
     val largeTasks = MutableStateFlow<List<Task>>(emptyList())
 
     init {
+        updateTasks()
+    }
+
+    fun deleteTaskById(taskId: String) {
+        viewModelScope.launch{
+            repository.deleteTaskByID(taskId)
+            updateTasks()
+        }
+    }
+
+    private fun updateTasks(){
         getDailyTasks()
         getMediumTasks()
         getLargeTasks()

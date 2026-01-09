@@ -32,6 +32,8 @@
     <string name="voice_start">Создать задачу..</string>
     <string name="voice_permission">Дайте разрешение на микрофон..</string>
     <string name="voice_stopped">Остановлено..</string>
+    <string name="button_show_details">Посмотреть</string>
+    <string name="button_delete_task">Удалить</string>
 
     <string name="prompt_start">Сформируй JSON‑ответ на основе приведённого текстового описания задачи и времени запроса - </string>
     <string name="prompt_date">, сейчас - </string>
