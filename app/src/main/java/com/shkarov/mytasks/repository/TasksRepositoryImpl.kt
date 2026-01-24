@@ -2,12 +2,19 @@ package com.shkarov.mytasks.repository
 
 import com.shkarov.mytasks.domain.model.Task
 import com.shkarov.mytasks.data_base.TasksDbDao
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOn
 import timber.log.Timber
 import javax.inject.Inject
 
 class TasksRepositoryImpl @Inject constructor(
     private val tasksDao: TasksDbDao
 ) : TasksRepository {
+
+    override fun getTasksFlow(): Flow<List<Task>> {
+        return tasksDao.getAllTasksFlow().flowOn(Dispatchers.IO)
+    }
 
     override suspend fun getTaskByType(type: String): List<Task> {
         return tasksDao.getTaskByType(type).also {
@@ -48,5 +55,9 @@ class TasksRepositoryImpl @Inject constructor(
 
     override suspend fun deleteAllTasks() {
         tasksDao.deleteAllTasks()
+    }
+
+    override suspend fun getTaskCount() {
+        tasksDao.getTaskCount()
     }
 }

@@ -1,6 +1,8 @@
 package com.shkarov.mytasks.viewmodels
 
 import android.app.Application
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
@@ -32,6 +34,7 @@ class MainScreenViewModel @Inject constructor(
     private val apiService: ApiService,
 ) : AndroidViewModel(application) {
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun saveTaskRequest(request: String, isWorkTask: Boolean) {
         viewModelScope.launch {
             try {
@@ -70,6 +73,7 @@ class MainScreenViewModel @Inject constructor(
             .trim()
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun createRequest(request: String): String {
         return application.getString(R.string.prompt_start) +
                 request +

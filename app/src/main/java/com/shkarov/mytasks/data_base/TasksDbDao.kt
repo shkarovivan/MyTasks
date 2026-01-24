@@ -5,6 +5,8 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.shkarov.mytasks.domain.model.Task
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 
 @Dao
 interface TasksDbDao {
@@ -24,9 +26,15 @@ interface TasksDbDao {
     suspend fun deleteTaskByID(id: String)
 
     @Query("SELECT * FROM ${TaskDataBaseContract.TABLE_NAME}")
+    fun getAllTasksFlow(): Flow<List<Task>>
+
+    @Query("SELECT * FROM ${TaskDataBaseContract.TABLE_NAME}")
     suspend fun getAllTasks(): List<Task>
 
     @Query("DELETE FROM ${TaskDataBaseContract.TABLE_NAME}")
     suspend fun deleteAllTasks()
+
+    @Query("SELECT COUNT(*) FROM ${TaskDataBaseContract.TABLE_NAME}")
+    suspend fun getTaskCount(): Int
 }
 
