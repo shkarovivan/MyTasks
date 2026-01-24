@@ -37,33 +37,50 @@ class MainScreenViewModel @Inject constructor(
     @RequiresApi(Build.VERSION_CODES.O)
     fun saveTaskRequest(request: String, isWorkTask: Boolean) {
         viewModelScope.launch {
-            try {
-                val response = apiService.chatRequest(
-                    ChatRequest(
-                        messages = listOf(
-                            ChatMessage(
-                                content = createRequest(request)
-                            )
+
+            val chatResponse = sendRequest(createNewTaskRequest(request))
+
+            if (chatResponse.isSuccessful) {
+                val rawJson = extractJsonFromContent(chatResponse.responseString)
+                val gson = Gson()
+                val taskResponse: TaskResponse =
+                    gson.fromJson(rawJson, TaskResponse::class.java)
+                val task = taskResponseToTask(taskResponse = taskResponse, isWorkTask = isWorkTask)
+                repository.insertTask(task = task)
+
+                Timber.d("$TAG Получена задача: $task")
+            }
+        }
+    }
+
+    fun searchRequest(request: String, isWorkTask: Boolean) {
+        viewModelScope.launch {
+//            val responseString = sendRequest(createSearchRequest(request))
+        }
+    }
+
+    private suspend fun sendRequest(request: String): ChatResponse {
+        var result = ChatResponse(false, "")
+        try {
+            val response = apiService.chatRequest(
+                ChatRequest(
+                    messages = listOf(
+                        ChatMessage(
+                            content = createNewTaskRequest(request)
                         )
                     )
                 )
-                if (response.isSuccessful) {
-                    val apiResponse: ApiResponse = response.body() ?: return@launch
-                    val content = apiResponse.choices[0].message.content
-
-                    val rawJson = extractJsonFromContent(content)
-                    val gson = Gson()
-                    val taskResponse: TaskResponse =
-                        gson.fromJson(rawJson, TaskResponse::class.java)
-                    val task = taskResponseToTask(taskResponse = taskResponse, isWorkTask = isWorkTask)
-                    repository.insertTask(task = task)
-
-                    Timber.d("$TAG Получена задача: $task")
-                }
-            } catch (e: Exception) {
-                Timber.e("$TAG Ошибка запроса: ${e.message}")
+            )
+            if (response.isSuccessful) {
+                val apiResponse: ApiResponse = response.body() ?: return ChatResponse(false, "")
+                val content = apiResponse.choices[0].message.content
+                result = ChatResponse(true, content)
             }
+        } catch (e: Exception) {
+            Timber.e("$TAG Ошибка запроса: ${e.message}")
+            result = ChatResponse(false, e.message ?: "")
         }
+        return result
     }
 
     private fun extractJsonFromContent(content: String): String {
@@ -74,12 +91,17 @@ class MainScreenViewModel @Inject constructor(
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun createRequest(request: String): String {
+    private fun createNewTaskRequest(request: String): String {
         return application.getString(R.string.prompt_start) +
                 request +
                 application.getString(R.string.prompt_date) +
                 LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) +
                 application.getString(R.string.prompt_end)
+    }
+
+    private fun createSearchRequest(request: String): String {
+
+        return "Empty request"
     }
 
     private fun taskResponseToTask(taskResponse: TaskResponse, isWorkTask: Boolean): Task{
@@ -103,6 +125,11 @@ class MainScreenViewModel @Inject constructor(
             work = if(isWorkTask) Work.WORK else Work.HOME
         )
     }
+
+    data class ChatResponse(
+        val isSuccessful: Boolean,
+        val responseString: String
+    )
 
     companion object {
         private const val TAG = "MainScreenViewModel"

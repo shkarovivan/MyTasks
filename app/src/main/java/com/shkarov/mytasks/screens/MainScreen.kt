@@ -1,5 +1,7 @@
 package com.shkarov.mytasks.screens
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -19,16 +21,19 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.shkarov.mytasks.NavGraph
+import com.shkarov.mytasks.domain.model.VoiceRequestType
 import com.shkarov.mytasks.ui.buttons.FloatingButtonAddByText
 import com.shkarov.mytasks.ui.buttons.FloatingButtonAddByVoice
 import com.shkarov.mytasks.ui.buttons.FloatingButtonSearchByVoice
-import com.shkarov.mytasks.ui.dialogs.VoiceSearchDialog
+import com.shkarov.mytasks.ui.dialogs.VoiceDialog
 import com.shkarov.mytasks.viewmodels.MainScreenViewModel
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MainScreen() {
     val navController = rememberNavController()
-    var showVoiceSearchDialog by remember { mutableStateOf(false) }
+    var showVoiceDialog by remember { mutableStateOf(false) }
+    var requestType: VoiceRequestType by remember { mutableStateOf(VoiceRequestType.UNKNOWN) }
 
     var showFAB by remember { mutableStateOf(true) }
 
@@ -53,9 +58,15 @@ fun MainScreen() {
                 Row(
                     //horizontalArrangement = Arrangement.spacedBy(0.dp)
                 ) {
-                    FloatingButtonSearchByVoice(onShowDialog = { showVoiceSearchDialog = true })
+                    FloatingButtonSearchByVoice(onShowDialog = {
+                        requestType = VoiceRequestType.SEARCH
+                        showVoiceDialog = true
+                    })
                     FloatingButtonAddByText(navController)
-                    FloatingButtonAddByVoice(navController)
+                    FloatingButtonAddByVoice(onShowDialog = {
+                        requestType = VoiceRequestType.ADD_TASK
+                        showVoiceDialog = true
+                    })
                 }
             }
         },
@@ -69,11 +80,27 @@ fun MainScreen() {
         }
     }
 
-    VoiceSearchDialog(
-        showDialog = showVoiceSearchDialog,
+    VoiceDialog(
+        showDialog = showVoiceDialog,
+        requestType = requestType,
         onDismiss = { text ->
-            showVoiceSearchDialog = false
-            viewModel.saveTaskRequest(text, currentBottomScreen == Screens.WorkTasks)
+            showVoiceDialog = false
+            if (text.isNotBlank()) {
+                when (requestType) {
+                    VoiceRequestType.ADD_TASK -> viewModel.saveTaskRequest(
+                        request = text,
+                        isWorkTask = currentBottomScreen == Screens.WorkTasks
+                    )
+
+                    VoiceRequestType.SEARCH -> viewModel.searchRequest(
+                        request = text,
+                        isWorkTask = currentBottomScreen == Screens.WorkTasks
+                    )
+
+                    VoiceRequestType.UNKNOWN -> Unit
+                }
+                viewModel.saveTaskRequest(text, currentBottomScreen == Screens.WorkTasks)
+            }
         }
     )
 }

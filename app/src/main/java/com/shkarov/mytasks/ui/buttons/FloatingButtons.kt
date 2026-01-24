@@ -41,14 +41,15 @@ fun FloatingButtonAddByText(navController: NavHostController) {
 }
 
 @Composable
-fun FloatingButtonAddByVoice(navController: NavHostController) {
+fun FloatingButtonAddByVoice(
+    onShowDialog: () -> Unit) {
     FloatingActionButton(
         modifier = Modifier.padding(
             end = dimensionResource(id = dimen.floating_button_padding),
             bottom = dimensionResource(id = dimen.floating_button_padding)
         ),
         onClick = {
-            //TODO
+            onShowDialog()
         },
         containerColor = Color.Blue,
         contentColor = Color.White,
@@ -59,11 +60,13 @@ fun FloatingButtonAddByVoice(navController: NavHostController) {
 }
 
 @Composable
-fun FloatingButtonSearchByVoice(onShowDialog: () -> Unit ) {
+fun FloatingButtonSearchByVoice(
+    onShowDialog: () -> Unit
+) {
     ExtendedFloatingActionButton(
         modifier = Modifier
             .padding(
-                end = dimensionResource(id = dimen.floating_button_padding)*2,
+                end = dimensionResource(id = dimen.floating_button_padding) * 2,
                 bottom = dimensionResource(id = dimen.floating_button_padding)
             )
             .width(dimensionResource(id = dimen.floating_search_button_width)),
@@ -74,6 +77,6 @@ fun FloatingButtonSearchByVoice(onShowDialog: () -> Unit ) {
         contentColor = Color.White,
         shape = RoundedCornerShape(dimensionResource(id = dimen.floating_button_corner_radius)),
     ) {
-        Icon(Icons.Filled.Search,  contentDescription = "Add task by voice")
+        Icon(Icons.Filled.Search, contentDescription = "Add task by voice")
     }
 }

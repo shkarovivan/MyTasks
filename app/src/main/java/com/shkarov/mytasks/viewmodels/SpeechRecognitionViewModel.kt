@@ -34,7 +34,9 @@ class SpeechRecognitionViewModel @Inject constructor(
             speechRecognition.recognitionState
                 .collect { state ->
                     Timber.d("$TAG recognitionState - $state")
+                    _loadProgress.value = false
                     when (state) {
+
                         is SpeechRecognitionState.Initializing -> {
                             _statusText.value = application.getString(R.string.voice_initialization)
                         }
@@ -54,7 +56,7 @@ class SpeechRecognitionViewModel @Inject constructor(
                         }
 
                         is SpeechRecognitionState.FinalResult -> {
-                            _recognizedText.value = "✅ ${state.text}"
+                            _recognizedText.value = state.text
                             _loadProgress.value = true
                             _statusText.value = application.getString(R.string.voice_start)
                         }

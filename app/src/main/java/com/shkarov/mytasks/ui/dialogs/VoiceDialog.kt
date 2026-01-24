@@ -28,11 +28,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.shkarov.mytasks.R
+import com.shkarov.mytasks.domain.model.VoiceRequestType
 import com.shkarov.mytasks.viewmodels.SpeechRecognitionViewModel
 
 @Composable
-fun VoiceSearchDialog(
+fun VoiceDialog(
     showDialog: Boolean,
+    requestType: VoiceRequestType,
     onDismiss: (String) -> Unit
 ) {
     val viewModel: SpeechRecognitionViewModel = hiltViewModel()
@@ -40,7 +42,6 @@ fun VoiceSearchDialog(
     val statusText by viewModel.statusText.collectAsState()
     val status by viewModel.loadProgress.collectAsState()
     if (showDialog) {
-
         val permissionLauncher = rememberLauncherForActivityResult(
             ActivityResultContracts.RequestPermission()
         ) { isGranted ->
@@ -103,7 +104,15 @@ fun VoiceSearchDialog(
                             viewModel.stopRecognition()
                             onDismiss(recognizedText)
                         }) {
-                            Text(stringResource(id = R.string.save_button_text))
+                            Text(
+                                text = stringResource(
+                                    id = when (requestType) {
+                                        VoiceRequestType.ADD_TASK -> R.string.save_button_text
+                                        VoiceRequestType.SEARCH,
+                                        VoiceRequestType.UNKNOWN -> R.string.send_button_text
+                                    }
+                                )
+                            )
                         }
                     }
                 }

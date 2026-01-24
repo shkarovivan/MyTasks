@@ -10,6 +10,7 @@
     <string name="large_tasks">Сложные</string>
     <string name="task_title">Название</string>
     <string name="save_button_text">Сохранить</string>
+    <string name="send_button_text">Отправить</string>
     <string name="record_button_text">Записать</string>
     <string name="task_description_text">Описание задачи (необязательно)</string>
     <string name="task_type_text">Тип задачи</string>
