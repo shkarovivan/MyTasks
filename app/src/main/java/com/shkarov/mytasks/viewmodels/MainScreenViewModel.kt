@@ -6,6 +6,7 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.shkarov.mytasks.R
 import com.shkarov.mytasks.domain.model.Status
 import com.shkarov.mytasks.domain.model.Task
@@ -25,6 +26,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
+import java.util.Locale.getDefault
 import javax.inject.Inject
 
 @HiltViewModel
@@ -33,6 +35,10 @@ class MainScreenViewModel @Inject constructor(
     private val repository: TasksRepository,
     private val apiService: ApiService,
 ) : AndroidViewModel(application) {
+
+    private val gson: Gson = GsonBuilder()
+        .disableHtmlEscaping()
+        .create()
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun saveTaskRequest(request: String, isWorkTask: Boolean) {
@@ -55,7 +61,13 @@ class MainScreenViewModel @Inject constructor(
 
     fun searchRequest(request: String, isWorkTask: Boolean) {
         viewModelScope.launch {
-//            val responseString = sendRequest(createSearchRequest(request))
+            val work = (if (isWorkTask) Work.WORK.name else Work.HOME.name).lowercase(getDefault())
+            val tasks = repository.getTaskByWork(work = work)
+            val prompt = createSearchRequest(request, tasks)
+
+            Timber.d("$TAG prompt - $prompt")
+            val responseString = sendRequest(createSearchRequest(request, tasks))
+            Timber.d("$TAG searchResponse - $responseString")
         }
     }
 
@@ -92,16 +104,26 @@ class MainScreenViewModel @Inject constructor(
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun createNewTaskRequest(request: String): String {
-        return application.getString(R.string.prompt_start) +
+        return application.getString(R.string.prompt_add_task_start) +
                 request +
-                application.getString(R.string.prompt_date) +
+                application.getString(R.string.prompt_add_task_date) +
                 LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) +
-                application.getString(R.string.prompt_end)
+                application.getString(R.string.prompt_add_task_end)
     }
 
-    private fun createSearchRequest(request: String): String {
+    private fun createSearchRequest(request: String, tasks: List<Task>): String {
+        val staticPrompt = application.getString(R.string.task_search_prompt_static).trim()
+        val tasksJson = gson.toJson(tasks)
 
-        return "Empty request"
+        return buildString {
+            append(staticPrompt)
+            append("\n\n")
+            append("Запрос пользователя:\n")
+            append(request.trim())
+            append("\n\n")
+            append("Список задач (JSON, массив Task):\n")
+            append(tasksJson)
+        }
     }
 
     private fun taskResponseToTask(taskResponse: TaskResponse, isWorkTask: Boolean): Task{

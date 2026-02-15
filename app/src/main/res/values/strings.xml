@@ -35,8 +35,50 @@
     <string name="button_show_details">Show</string>
     <string name="button_delete_task">Delete</string>
 
-    <string name="prompt_start">Generate a JSON response based on the provided task description and the request time - </string>
-    <string name="prompt_date">, now </string>
-    <string name="prompt_end">. In the JSON, include the following fields: title (a brief task description, no more than 5 words), description (the full task description), type (the task type: select one of DAILY — for tasks due in less than 1 week, MEDIUM — for tasks due in less than 1 month, LARGE — for tasks due in less than 1 year), date (the deadline date and time); if no deadline is specified, assume the end of the current day; output only the resulting JSON</string>
+    <string name="prompt_add_task_start">Generate a JSON response based on the provided task description and the request time - </string>
+    <string name="prompt_add_task_date">, now </string>
+    <string name="prompt_add_task_end">. In the JSON, include the following fields: title (a brief task description, no more than 5 words), description (the full task description), type (the task type: select one of DAILY — for tasks due in less than 1 week, MEDIUM — for tasks due in less than 1 month, LARGE — for tasks due in less than 1 year), date (the deadline date and time); if no deadline is specified, assume the end of the current day; output only the resulting JSON</string>
+    <string name="task_search_prompt_static">
+You are an assistant for searching tasks in a database.
+As input you receive: (1) a user text query, (2) a list of tasks in JSON format, where each task matches the Task model.
 
+Your goal: find the most relevant tasks and return:
+1) a short answer to the user (in Russian),
+2) a list of ids of matching tasks.
+
+IMPORTANT:
+- Reply STRICTLY in JSON format, without Markdown and without any text outside the JSON.
+- Use only the data from the provided task list. Do not invent anything.
+- If there are no matching tasks, return an empty array ids: [].
+- Select tasks by meaning and by filters from the query. Consider title, description, created, deadLine, deadLineMs, and also work/type/status fields.
+
+Task fields semantics:
+- work: "work" or "home" (query may include: "work", "job", "office", "рабочие", "работа" → work; "home", "personal", "домашние", "дом", "личные" → home)
+- type: "daily" / "medium" / "large" (query may include: "urgent", "daily", "for today", "срочные", "ежедневные", "на сегодня" → daily; "medium-term", "среднесрочные" → medium; "long-term", "долгосрочные" → large)
+- status:
+  "started" (query may include: "started", "in progress", "начатые", "в работе")
+  "waiting" (query may include: "waiting", "to do", "pending", "ожидающие", "к выполнению")
+  "paused"  (query may include: "paused", "on hold", "приостановленные", "на паузе")
+  "stopped" (query may include: "completed", "done", "finished", "завершенные", "выполненные", "stopped")
+
+Search and selection rules:
+1) If the query explicitly contains filters by work/type/status, apply those filters first.
+2) If the query contains topic keywords/phrases, search in title and description (partial and semantic matches).
+3) If the query contains deadline/date conditions (e.g., "today", "tomorrow", "by Friday", "overdue"), use deadLine (if present) as the primary basis for comparison.
+4) If no filters are specified, select tasks by maximum relevance to the text.
+5) If the query asks for "all" within a filter, return all matching ids.
+6) Do not include tasks that violate explicit user constraints.
+
+Output format (strict):
+{
+  "answer": string,
+  "ids": string[]
+}
+
+If nothing is found:
+{
+  "answer": "Nothing found for the query.",
+  "ids": []
+}
+</string>
 </resources>

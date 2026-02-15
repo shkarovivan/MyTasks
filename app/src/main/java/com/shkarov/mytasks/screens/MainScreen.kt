@@ -99,7 +99,6 @@ fun MainScreen() {
 
                     VoiceRequestType.UNKNOWN -> Unit
                 }
-                viewModel.saveTaskRequest(text, currentBottomScreen == Screens.WorkTasks)
             }
         }
     )
