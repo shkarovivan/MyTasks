@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.shkarov.mytasks.R
+import com.shkarov.mytasks.domain.model.SearchResult
 import com.shkarov.mytasks.domain.model.Status
 import com.shkarov.mytasks.domain.model.Task
 import com.shkarov.mytasks.domain.model.Type
@@ -19,6 +20,9 @@ import com.shkarov.mytasks.network.data.ChatRequest
 import com.shkarov.mytasks.network.data.TaskResponse
 import com.shkarov.mytasks.repository.TasksRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.text.SimpleDateFormat
@@ -35,6 +39,9 @@ class MainScreenViewModel @Inject constructor(
     private val repository: TasksRepository,
     private val apiService: ApiService,
 ) : AndroidViewModel(application) {
+
+    private val _searchResultFlow: MutableStateFlow<SearchResult?> = MutableStateFlow(null)
+    val searchResultFlow: StateFlow<SearchResult?> = _searchResultFlow.asStateFlow()
 
     private val gson: Gson = GsonBuilder()
         .disableHtmlEscaping()
@@ -58,7 +65,6 @@ class MainScreenViewModel @Inject constructor(
             }
         }
     }
-
     fun searchRequest(request: String, isWorkTask: Boolean) {
         viewModelScope.launch {
             val work = (if (isWorkTask) Work.WORK.name else Work.HOME.name).lowercase(getDefault())
@@ -66,8 +72,24 @@ class MainScreenViewModel @Inject constructor(
             val prompt = createSearchRequest(request, tasks)
 
             Timber.d("$TAG prompt - $prompt")
-            val responseString = sendRequest(createSearchRequest(request, tasks))
-            Timber.d("$TAG searchResponse - $responseString")
+            val response= sendRequest(createSearchRequest(request, tasks))
+            Timber.d("$TAG searchResponse - $response")
+            _searchResultFlow.value = extractSearchRequest(response).also {
+                Timber.d("$TAG searchResults2- $it")
+            }
+
+        }
+    }
+
+    private fun extractSearchRequest(chatResponse: ChatResponse): SearchResult? {
+        return if (chatResponse.isSuccessful) {
+            val rawJson = extractJsonFromContent(chatResponse.responseString)
+            val gson = Gson()
+            val searchResult: SearchResult =
+                gson.fromJson(rawJson, SearchResult::class.java)
+            searchResult
+        } else {
+            null
         }
     }
 

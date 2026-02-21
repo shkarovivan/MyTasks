@@ -43,7 +43,7 @@ You are an assistant for searching tasks in a database.
 As input you receive: (1) a user text query, (2) a list of tasks in JSON format, where each task matches the Task model.
 
 Your goal: find the most relevant tasks and return:
-1) a short answer to the user (in Russian),
+1) a detailed answer to the user in English
 2) a list of ids of matching tasks.
 
 IMPORTANT:

@@ -7,6 +7,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.shkarov.mytasks.domain.model.SearchResult
 import com.shkarov.mytasks.screens.*
 
 @Composable
@@ -58,5 +59,14 @@ fun NavGraph(
             }
         }
 
+        composable(ResponseScreen.SearchScreen.route) {
+            val response = navController.previousBackStackEntry
+                ?.savedStateHandle
+                ?.get<SearchResult>("searchResponse")
+
+            navController.previousBackStackEntry?.savedStateHandle?.remove<SearchResult>("searchResponse")
+
+            SearchResultsScreen(response ?: SearchResult())
+        }
     }
 }

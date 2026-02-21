@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,6 +49,18 @@ fun MainScreen() {
                 .find { screen -> route.startsWith(screen.route) }
         } else {
             currentBottomScreen = null
+        }
+    }
+
+    val searchResponse by viewModel.searchResultFlow.collectAsState(initial = null)
+
+    LaunchedEffect(searchResponse) {
+        if (searchResponse != null) {
+            navController.currentBackStackEntry
+                ?.savedStateHandle
+                ?.set("searchResponse", searchResponse)
+
+            navController.navigate(ResponseScreen.SearchScreen.route)
         }
     }
 
