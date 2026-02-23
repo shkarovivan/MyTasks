@@ -42,9 +42,12 @@ fun NavGraph(
             LaunchedEffect(Unit) {
                 onFABVisibilityChanged(false)
             }
-            DetailTaskScreen(taskId = taskId.orEmpty()) {
-                navController.navigateUp()
+            DetailTaskScreen(
+                taskId = taskId.orEmpty()
+            ) {
+                navController.popBackStack()
             }
+
             onFABVisibilityChanged(false)
         }
 
@@ -64,9 +67,10 @@ fun NavGraph(
                 ?.savedStateHandle
                 ?.get<SearchResult>("searchResponse")
 
-            navController.previousBackStackEntry?.savedStateHandle?.remove<SearchResult>("searchResponse")
-
-            SearchResultsScreen(response ?: SearchResult())
+            SearchResultsScreen(
+                response = response ?: SearchResult(),
+                navController = navController
+            )
         }
     }
 }

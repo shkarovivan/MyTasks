@@ -18,6 +18,9 @@ interface TasksDbDao {
     @Query("SELECT * FROM ${TaskDataBaseContract.TABLE_NAME} WHERE ${TaskDataBaseContract.Columns.WORK} = :work")
     suspend fun getTaskByWork(work: String): List<Task>
 
+    @Query("SELECT * FROM ${TaskDataBaseContract.TABLE_NAME} WHERE ${TaskDataBaseContract.Columns.ID} = :id")
+    suspend fun getTaskById(id: String): Task
+
     @Query("SELECT * FROM ${TaskDataBaseContract.TABLE_NAME} WHERE ${TaskDataBaseContract.Columns.STATUS} = :status")
     suspend fun getTaskByStatus(status: String):List<Task>
 

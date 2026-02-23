@@ -7,7 +7,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import timber.log.Timber
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class TasksRepositoryImpl @Inject constructor(
     private val tasksDao: TasksDbDao
 ) : TasksRepository {
@@ -24,6 +26,10 @@ class TasksRepositoryImpl @Inject constructor(
 
     override suspend fun getTaskByWork(work: String): List<Task> {
         return tasksDao.getTaskByWork(work)
+    }
+
+    override suspend fun getTaskById(id: String): Task {
+        return tasksDao.getTaskById(id)
     }
 
     override suspend fun getTaskByStatus(status: String): List<Task> {
