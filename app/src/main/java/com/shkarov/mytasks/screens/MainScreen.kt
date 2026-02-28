@@ -32,7 +32,6 @@ import com.shkarov.mytasks.ui.buttons.FloatingButtonAddByVoice
 import com.shkarov.mytasks.ui.buttons.FloatingButtonSearchByVoice
 import com.shkarov.mytasks.ui.dialogs.VoiceDialog
 import com.shkarov.mytasks.ui.theme.LoaderColor
-import com.shkarov.mytasks.ui.theme.WaitingTaskColor
 import com.shkarov.mytasks.viewmodels.MainScreenViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)

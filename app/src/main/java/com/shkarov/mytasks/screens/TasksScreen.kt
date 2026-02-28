@@ -37,7 +37,6 @@ import com.shkarov.mytasks.domain.model.Work
 import com.shkarov.mytasks.ui.theme.*
 import com.shkarov.mytasks.viewmodels.TaskScreenViewModel
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 enum class TaskPages(
     @StringRes val titleResId: Int,
