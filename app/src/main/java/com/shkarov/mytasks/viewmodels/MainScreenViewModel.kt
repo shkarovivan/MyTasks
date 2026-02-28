@@ -19,6 +19,7 @@ import com.shkarov.mytasks.network.data.ChatMessage
 import com.shkarov.mytasks.network.data.ChatRequest
 import com.shkarov.mytasks.network.data.TaskResponse
 import com.shkarov.mytasks.repository.TasksRepository
+import com.shkarov.mytasks.utils.toEpochMillis
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -27,6 +28,7 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
@@ -40,6 +42,8 @@ class MainScreenViewModel @Inject constructor(
     private val apiService: ApiService,
 ) : AndroidViewModel(application) {
 
+    private val _loading: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val loading: MutableStateFlow<Boolean> = _loading
     private val _searchResultFlow: MutableStateFlow<SearchResult?> = MutableStateFlow(null)
     val searchResultFlow: StateFlow<SearchResult?> = _searchResultFlow.asStateFlow()
 
@@ -50,9 +54,7 @@ class MainScreenViewModel @Inject constructor(
     @RequiresApi(Build.VERSION_CODES.O)
     fun saveTaskRequest(request: String, isWorkTask: Boolean) {
         viewModelScope.launch {
-
             val chatResponse = sendRequest(createNewTaskRequest(request))
-
             if (chatResponse.isSuccessful) {
                 val rawJson = extractJsonFromContent(chatResponse.responseString)
                 val gson = Gson()
@@ -65,6 +67,7 @@ class MainScreenViewModel @Inject constructor(
             }
         }
     }
+
     fun searchRequest(request: String, isWorkTask: Boolean) {
         viewModelScope.launch {
             val work = (if (isWorkTask) Work.WORK.name else Work.HOME.name).lowercase(getDefault())
@@ -72,7 +75,7 @@ class MainScreenViewModel @Inject constructor(
             val prompt = createSearchRequest(request, tasks)
 
             Timber.d("$TAG prompt - $prompt")
-            val response= sendRequest(createSearchRequest(request, tasks))
+            val response = sendRequest(createSearchRequest(request, tasks))
             Timber.d("$TAG searchResponse - $response")
             _searchResultFlow.value = extractSearchRequest(response).also {
                 Timber.d("$TAG searchResults2- $it")
@@ -96,6 +99,7 @@ class MainScreenViewModel @Inject constructor(
     private suspend fun sendRequest(request: String): ChatResponse {
         var result = ChatResponse(false, "")
         try {
+            _loading.value = true
             val response = apiService.chatRequest(
                 ChatRequest(
                     messages = listOf(
@@ -110,9 +114,12 @@ class MainScreenViewModel @Inject constructor(
                 val content = apiResponse.choices[0].message.content
                 result = ChatResponse(true, content)
             }
+            _loading.value = false
         } catch (e: Exception) {
             Timber.e("$TAG Ошибка запроса: ${e.message}")
             result = ChatResponse(false, e.message ?: "")
+        } finally {
+            _loading.value = false
         }
         return result
     }
@@ -126,10 +133,10 @@ class MainScreenViewModel @Inject constructor(
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun createNewTaskRequest(request: String): String {
-        return application.getString(R.string.prompt_add_task_start) +
-                request +
-                application.getString(R.string.prompt_add_task_date) +
+        return application.getString(R.string.prompt_add_task_date) +
                 LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) +
+                application.getString(R.string.prompt_add_task_start) +
+                request +
                 application.getString(R.string.prompt_add_task_end)
     }
 
@@ -148,7 +155,7 @@ class MainScreenViewModel @Inject constructor(
         }
     }
 
-    private fun taskResponseToTask(taskResponse: TaskResponse, isWorkTask: Boolean): Task{
+    private fun taskResponseToTask(taskResponse: TaskResponse, isWorkTask: Boolean): Task {
         return Task(
             id = System.currentTimeMillis().toString(),
             created = SimpleDateFormat(
@@ -159,14 +166,14 @@ class MainScreenViewModel @Inject constructor(
             description = taskResponse.description,
             type = when (taskResponse.type) {
                 "DAILY" -> Type.DAILY.value
-                "MEDIUM"-> Type.MEDIUM.value
-                "LARGE"-> Type.LARGE.value
+                "MEDIUM" -> Type.MEDIUM.value
+                "LARGE" -> Type.LARGE.value
                 else -> Type.DAILY.value
             },
             deadLine = taskResponse.date,
-            deadLineMs = 0L,
+            deadLineMs = taskResponse.date.toEpochMillis(),
             status = Status.STARTED,
-            work = if(isWorkTask) Work.WORK else Work.HOME
+            work = if (isWorkTask) Work.WORK else Work.HOME
         )
     }
 

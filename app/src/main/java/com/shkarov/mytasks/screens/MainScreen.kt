@@ -11,9 +11,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -22,11 +25,14 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.shkarov.mytasks.NavGraph
+import com.shkarov.mytasks.R
 import com.shkarov.mytasks.domain.model.VoiceRequestType
 import com.shkarov.mytasks.ui.buttons.FloatingButtonAddByText
 import com.shkarov.mytasks.ui.buttons.FloatingButtonAddByVoice
 import com.shkarov.mytasks.ui.buttons.FloatingButtonSearchByVoice
 import com.shkarov.mytasks.ui.dialogs.VoiceDialog
+import com.shkarov.mytasks.ui.theme.LoaderColor
+import com.shkarov.mytasks.ui.theme.WaitingTaskColor
 import com.shkarov.mytasks.viewmodels.MainScreenViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -53,6 +59,20 @@ fun MainScreen() {
     }
 
     val searchResponse by viewModel.searchResultFlow.collectAsState(initial = null)
+
+    val loading by viewModel.loading.collectAsState(initial = false)
+
+    if (loading) {
+        Dialog(onDismissRequest = {  }) {
+            Box(
+                modifier = Modifier
+                    .size(dimensionResource(id = R.dimen.loader_size)),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = LoaderColor)
+            }
+        }
+    }
 
     LaunchedEffect(searchResponse) {
         if (searchResponse != null) {

@@ -41,6 +41,16 @@ import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.runtime.saveable.rememberSaveable
+import com.shkarov.mytasks.utils.toEpochMillis
+import java.time.Instant
+import java.time.ZoneId
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun AddTaskScreen(
@@ -65,13 +75,19 @@ fun AddTaskScreen(
     val mediumTasksLabel = stringResource(id = R.string.medium_tasks)
     val largeTasksLabel = stringResource(id = R.string.large_tasks)
 
-    val typeItems =  listOf(
+    var chosenDateText by rememberSaveable { mutableStateOf("") }
+    var chosenDateMs by rememberSaveable { mutableStateOf<Long?>(null) }
+    var showDatePicker by rememberSaveable { mutableStateOf(false) }
+    val datePickerState = rememberDatePickerState()
+    val chooseDateItem = stringResource(id = R.string.deadline_choose_date)
+
+    val typeItems = listOf(
         stringResource(id = R.string.daily_tasks),
         stringResource(id = R.string.medium_tasks),
         stringResource(id = R.string.large_tasks)
     )
 
-    val deadlineItems =  mutableListOf(
+    val deadlineItems = mutableListOf(
         stringResource(id = R.string.deadline_1),
         stringResource(id = R.string.deadline_2),
         stringResource(id = R.string.deadline_3),
@@ -157,10 +173,11 @@ fun AddTaskScreen(
                             horizontal = dimensionResource(id = R.dimen.padding_main)
                         )
                         .fillMaxWidth()
-                ){
+                ) {
                     RadioButton(
                         selected = isSelectedTypeItem(item),
-                        onClick = null)
+                        onClick = null
+                    )
                     Text(
                         text = item,
                         fontWeight = FontWeight.SemiBold,
@@ -189,7 +206,14 @@ fun AddTaskScreen(
                     modifier = Modifier
                         .selectable(
                             selected = isSelectedDeadlineItem(item),
-                            onClick = { onChangeDeadlineState(item) },
+                            onClick = {
+                                if (item == chooseDateItem) {
+                                    onChangeDeadlineState(item)     // оставляем выбранным радио "выбрать дату"
+                                    showDatePicker = true
+                                } else {
+                                    onChangeDeadlineState(item)
+                                }
+                            },
                             role = Role.RadioButton
                         )
                         .padding(
@@ -197,10 +221,11 @@ fun AddTaskScreen(
                             horizontal = dimensionResource(id = R.dimen.padding_main)
                         )
                         .fillMaxWidth()
-                ){
+                ) {
                     RadioButton(
                         selected = isSelectedDeadlineItem(item),
-                        onClick = null)
+                        onClick = null
+                    )
                     Text(
                         text = item,
                         fontWeight = FontWeight.SemiBold,
@@ -210,31 +235,56 @@ fun AddTaskScreen(
                 }
             }
 
-        //    if (!chosenData.isNullOrEmpty()) {
-                Row{
+            if (showDatePicker) {
+                DatePickerDialog(
+                    onDismissRequest = { showDatePicker = false },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                val ms = datePickerState.selectedDateMillis
+                                if (ms != null) {
+                                    chosenDateMs = ms
+                                    chosenDateText = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
+                                        .format(Date(ms))
+                                }
+                                showDatePicker = false
+                            }
+                        ) {
+                            Text(text = stringResource(id = android.R.string.ok))
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showDatePicker = false }) {
+                            Text(text = stringResource(id = android.R.string.cancel))
+                        }
+                    }
+                ) {
+                    DatePicker(state = datePickerState)
+                }
+            }
+
+            if (chosenDateText.isNotBlank()) {
+                Row {
                     Text(
                         text = stringResource(id = R.string.choosen_data_text),
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier
-                            .padding(
-                                start = dimensionResource(id = R.dimen.padding_main),
-                                top = dimensionResource(id = R.dimen.padding_main)
-                            )
+                        modifier = Modifier.padding(
+                            start = dimensionResource(id = R.dimen.padding_main),
+                            top = dimensionResource(id = R.dimen.padding_main)
+                        )
                     )
 
                     Text(
-                        text = chosenData!!,
+                        text = chosenDateText,
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier
-                            .padding(
-                                start = dimensionResource(id = R.dimen.padding_main),
-                                top = dimensionResource(id = R.dimen.padding_main)
-                            )
+                        modifier = Modifier.padding(
+                            start = dimensionResource(id = R.dimen.padding_main),
+                            top = dimensionResource(id = R.dimen.padding_main)
+                        )
                     )
                 }
-        //    }
-
-
+                Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_main)))
+            }
 
             Row(
                 verticalAlignment = Alignment.Bottom,
@@ -253,6 +303,23 @@ fun AddTaskScreen(
                             Timber.w("Заголовок задачи не может быть пустым")
                             return@Button
                         }
+                        val zone = ZoneId.systemDefault()
+                        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+
+                        val deadlineTextToSave =
+                            if (selectedDeadlineValue.value == chooseDateItem && chosenDateMs != null) {
+
+                                val localDate = Instant.ofEpochMilli(chosenDateMs!!)
+                                    .atZone(ZoneOffset.UTC)
+                                    .toLocalDate()
+
+                                localDate
+                                    .atStartOfDay(zone)
+                                    .format(formatter)
+
+                            } else {
+                                selectedDeadlineValue.value
+                            }
 
                         val task = Task(
                             id = System.currentTimeMillis().toString(),
@@ -261,15 +328,15 @@ fun AddTaskScreen(
                                 Locale.getDefault()
                             ).format(Date()),
                             title = titleValue,
-                            description = descriptionValue,
+                            description = descriptionValue.takeIf { !descriptionValue.isEmpty() } ?: titleValue,
                             type = when (selectedTypeValue.value) {
                                 dailyTasksLabel -> Type.DAILY.value
                                 mediumTasksLabel -> Type.MEDIUM.value
                                 largeTasksLabel -> Type.LARGE.value
                                 else -> "daily" // дефолт
                             },
-                            deadLine = selectedDeadlineValue.value,
-                            deadLineMs = 0L,
+                            deadLine = deadlineTextToSave,
+                            deadLineMs = deadlineTextToSave.toEpochMillis(),
                             status = Status.STARTED,
                             work = if (isWorkTask) Work.WORK else Work.HOME
                         )
@@ -281,11 +348,8 @@ fun AddTaskScreen(
                     Text(
                         text = stringResource(id = R.string.save_text),
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier
-                            .padding(
-                                start = dimensionResource(id = R.dimen.padding_main),
-                                top = dimensionResource(id = R.dimen.padding_main)
-                            )
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
             }
@@ -301,7 +365,7 @@ fun TextInput(
     value: String,
     onValueChange: (String) -> Unit,
     minLines: Int
-){
+) {
     BasicTextField(
         modifier = Modifier
             .padding(
@@ -354,7 +418,7 @@ fun TextInput(
                 )
                 Box(
                     modifier = Modifier
-                        .padding(start = dimensionResource(id =R.dimen.padding_small))
+                        .padding(start = dimensionResource(id = R.dimen.padding_small))
                 ) {
                     innerTextField()
                 }

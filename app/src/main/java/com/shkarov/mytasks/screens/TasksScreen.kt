@@ -228,7 +228,7 @@ fun TaskView(
         colors = CardDefaults.cardColors(
             containerColor = when (task.status) {
                 Status.STARTED -> {
-                    if (task.deadLineMs > System.currentTimeMillis()) LatedTaskColor
+                    if (task.deadLineMs < System.currentTimeMillis()) LatedTaskColor
                     else StartedTaskColor
                 }
                 Status.STOPPED -> StoppedTaskColor

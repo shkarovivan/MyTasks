@@ -12,4 +12,5 @@
     <dimen name="floating_button_corner_radius">16dp</dimen>
     <dimen name="floating_button_padding">16dp</dimen>
     <dimen name="floating_search_button_width">120dp</dimen>
+    <dimen name="loader_size">196dp</dimen>
 </resources>
