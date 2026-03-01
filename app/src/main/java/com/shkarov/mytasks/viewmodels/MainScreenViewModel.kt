@@ -60,8 +60,9 @@ class MainScreenViewModel @Inject constructor(
                 val taskResponse: TaskResponse =
                     gson.fromJson(rawJson, TaskResponse::class.java)
                 val task = taskResponseToTask(taskResponse = taskResponse, isWorkTask = isWorkTask)
-                repository.insertTask(task = task)
-
+                task?.let {
+                    repository.insertTask(task = task)
+                }
                 Timber.d("$TAG Получена задача: $task")
             }
         }
@@ -154,26 +155,31 @@ class MainScreenViewModel @Inject constructor(
         }
     }
 
-    private fun taskResponseToTask(taskResponse: TaskResponse, isWorkTask: Boolean): Task {
-        return Task(
-            id = System.currentTimeMillis().toString(),
-            created = SimpleDateFormat(
-                "dd.MM.yyyy",
-                Locale.getDefault()
-            ).format(Date()),
-            title = taskResponse.title,
-            description = taskResponse.description,
-            type = when (taskResponse.type) {
-                "DAILY" -> Type.DAILY.value
-                "MEDIUM" -> Type.MEDIUM.value
-                "LARGE" -> Type.LARGE.value
-                else -> Type.DAILY.value
-            },
-            deadLine = taskResponse.date,
-            deadLineMs = taskResponse.date.toEpochMillis(),
-            status = Status.STARTED,
-            work = if (isWorkTask) Work.WORK else Work.HOME
-        )
+    private fun taskResponseToTask(taskResponse: TaskResponse, isWorkTask: Boolean): Task? {
+        return try {
+            Task(
+                id = System.currentTimeMillis().toString(),
+                created = SimpleDateFormat(
+                    "dd.MM.yyyy",
+                    Locale.getDefault()
+                ).format(Date()),
+                title = taskResponse.title,
+                description = taskResponse.description,
+                type = when (taskResponse.type) {
+                    "DAILY" -> Type.DAILY.value
+                    "MEDIUM" -> Type.MEDIUM.value
+                    "LARGE" -> Type.LARGE.value
+                    else -> Type.DAILY.value
+                },
+                deadLine = taskResponse.date,
+                deadLineMs = taskResponse.date.toEpochMillis(),
+                status = Status.STARTED,
+                work = if (isWorkTask) Work.WORK else Work.HOME
+            )
+        } catch (e: Exception) {
+            Timber.e("$TAG обработки TASK  ${e.message}")
+            null
+        }
     }
 
     data class ChatResponse(
