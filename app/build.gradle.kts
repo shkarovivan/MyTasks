@@ -107,6 +107,9 @@ dependencies {
     // Hilt
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
+    implementation(libs.androidx.hilt.common)
+    implementation(libs.androidx.hilt.work)
+    kapt(libs.androidx.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
 
     // Testing
@@ -127,9 +130,13 @@ dependencies {
     //Gson
     implementation(libs.gson)
 
+    //WorkManager
+    implementation(libs.work.manager)
+
     // Debug
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+
 }
 
 kapt {
