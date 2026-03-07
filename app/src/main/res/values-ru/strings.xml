@@ -35,6 +35,10 @@
     <string name="voice_stopped">Остановлено..</string>
     <string name="button_show_details">Посмотреть</string>
     <string name="button_delete_task">Удалить</string>
+    <string name="permission_notify_text">Разрешение на уведомления</string>
+    <string name="permission_notify_hint_text">Без разрешения на уведомления вы не будете получать ежедневные напоминания о задачах.Откройте настройки и включите уведомления.</string>
+    <string name="open_settings_text">Открыть настройки</string>
+    <string name="cancel_text">Отмена</string>
 
     <string name="prompt_add_task_date">Сейчас - </string>
     <string name="prompt_add_task_start">. Сформируй JSON‑ответ на основе приведённого текстового описания задачи и времени запроса - </string>

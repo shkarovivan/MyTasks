@@ -8,6 +8,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import com.shkarov.mytasks.R
 
 @Composable
 fun NotificationPermissionDialog(
@@ -23,23 +25,19 @@ fun NotificationPermissionDialog(
             )
         },
         title = {
-            Text("Разрешение на уведомления")
+            Text(stringResource(id = R.string.permission_notify_text))
         },
         text = {
-            Text(
-                "Без разрешения на уведомления вы не будете " +
-                        "получать ежедневные напоминания о задачах. " +
-                        "Откройте настройки и включите уведомления."
-            )
+            Text(stringResource(id = R.string.permission_notify_hint_text))
         },
         confirmButton = {
             Button(onClick = onConfirm) {
-                Text("Открыть настройки")
+                Text(stringResource(id = R.string.open_settings_text))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Отмена")
+                Text(stringResource(id = R.string.cancel_text))
             }
         }
     )

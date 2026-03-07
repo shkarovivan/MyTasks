@@ -34,6 +34,10 @@
     <string name="voice_stopped">Stopped..</string>
     <string name="button_show_details">Show</string>
     <string name="button_delete_task">Delete</string>
+    <string name="permission_notify_text">Permission to notify</string>
+    <string name="permission_notify_hint_text">Without notification permission, you will not receive daily task reminders.Open the settings and turn on notifications.</string>
+    <string name="open_settings_text">Open settings</string>
+    <string name="cancel_text">Cancel</string>
 
     <string name="prompt_add_task_start">Generate a JSON response based on the provided task description and the request time - </string>
     <string name="prompt_add_task_date">, now </string>
