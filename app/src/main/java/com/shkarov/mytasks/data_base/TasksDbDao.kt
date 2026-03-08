@@ -6,7 +6,6 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.shkarov.mytasks.domain.model.Task
 import kotlinx.coroutines.flow.Flow
-import java.sql.Timestamp
 
 @Dao
 interface TasksDbDao {
