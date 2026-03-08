@@ -6,6 +6,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import timber.log.Timber
+import java.sql.Timestamp
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -53,6 +54,10 @@ class TasksRepositoryImpl @Inject constructor(
             Timber.e(e, "getAllTasks: error occurred")
             emptyList()
         }
+    }
+
+    override suspend fun getTimedTasks(timestamp: Long): List<Task> {
+        return tasksDao.getTimedTasks(timestamp)
     }
 
     override suspend fun deleteTaskByID(id: String) {

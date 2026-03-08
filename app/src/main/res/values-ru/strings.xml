@@ -39,6 +39,8 @@
     <string name="permission_notify_hint_text">Без разрешения на уведомления вы не будете получать ежедневные напоминания о задачах.Откройте настройки и включите уведомления.</string>
     <string name="open_settings_text">Открыть настройки</string>
     <string name="cancel_text">Отмена</string>
+    <string name="notification_title_text">Задачи на сегодня</string>
+    <string name="notification_summary_text">Невыполненные:</string>
 
     <string name="prompt_add_task_date">Сейчас - </string>
     <string name="prompt_add_task_start">. Сформируй JSON‑ответ на основе приведённого текстового описания задачи и времени запроса - </string>

@@ -12,6 +12,8 @@ interface TasksRepository {
     suspend fun insertTask(task: Task)
     suspend fun deleteTaskByID(id: String)
     suspend fun getAllTasks(): List<Task>
+
+    suspend fun getTimedTasks(timestamp: Long): List<Task>
     suspend fun deleteAllTasks()
 
     suspend fun getTaskCount()

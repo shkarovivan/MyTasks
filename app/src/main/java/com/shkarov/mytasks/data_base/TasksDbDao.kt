@@ -6,6 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.shkarov.mytasks.domain.model.Task
 import kotlinx.coroutines.flow.Flow
+import java.sql.Timestamp
 
 @Dao
 interface TasksDbDao {
@@ -32,6 +33,9 @@ interface TasksDbDao {
 
     @Query("SELECT * FROM ${TaskDataBaseContract.TABLE_NAME}")
     suspend fun getAllTasks(): List<Task>
+
+    @Query("SELECT * FROM ${TaskDataBaseContract.TABLE_NAME} WHERE ${TaskDataBaseContract.Columns.DEAD_LINE_MS} < :timestamp")
+    suspend fun getTimedTasks(timestamp: Long): List<Task>
 
     @Query("DELETE FROM ${TaskDataBaseContract.TABLE_NAME}")
     suspend fun deleteAllTasks()

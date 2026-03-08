@@ -6,6 +6,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import androidx.compose.ui.res.stringResource
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.hilt.work.HiltWorker
@@ -18,6 +19,8 @@ import com.shkarov.mytasks.repository.TasksRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import timber.log.Timber
+import java.time.LocalDate
+import java.time.ZoneId
 
 @HiltWorker
 class TaskReminderWorker @AssistedInject constructor(
@@ -26,36 +29,35 @@ class TaskReminderWorker @AssistedInject constructor(
     private val repository: TasksRepository
 ) : CoroutineWorker(context, workerParams) {
 
-    companion object {
-        const val CHANNEL_ID = "task_reminder_channel_V2"
-        const val NOTIFICATION_ID = 1001
-    }
-
     override suspend fun doWork(): Result {
         return try {
             Timber.w("createNotificationChannel")
             createNotificationChannel()
 
-            val tasks = repository.getAllTasks()
+            val tasks = repository.getTimedTasks(getTomorrowTimestamp())
             showNotification(tasks)
 
             Result.success()
         } catch (e: Exception) {
-            android.util.Log.e("TaskReminderWorker", "Ошибка: ${e.message}")
-            // Result.retry() — WorkManager повторит попытку через backoffDelay
+            Timber.e("Ошибка: ${e.message}")
             Result.retry()
         }
+    }
+
+    fun getTomorrowTimestamp(): Long {
+        val today = LocalDate.now()
+        val tomorrow = today.plusDays(1)
+        return tomorrow.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
     }
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 CHANNEL_ID,
-                "Напоминания о задачах",
+                NOTIFICATION_NAME,
                 NotificationManager.IMPORTANCE_DEFAULT
             ).apply {
-                description = "Ежедневные напоминания о задачах"
-                // Уведомление не будет издавать звук повторно если уже показано
+                description = NOTIFICATION_DESCRIPTION
                 setSound(null, null)
                 enableVibration(true)
                 vibrationPattern = longArrayOf(0, 500, 200, 500)
@@ -80,19 +82,19 @@ class TaskReminderWorker @AssistedInject constructor(
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val taskText = tasks.joinToString("\n") { it.title }
+        val taskText = tasks.joinToString("\n") { "- ${it.title}" }
 
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_baseline_work_24)
-            .setContentTitle("📋 Задачи на сегодня (${tasks.size})")
-            .setContentText(tasks.first().let { it.title })
+            .setSmallIcon(R.drawable.ic_notify)
+            .setContentTitle(context.getString(R.string.notification_title_text) + " (${tasks.size})")
+            .setContentText(tasks.firstOrNull()?.title)
             .setStyle(
                 NotificationCompat.BigTextStyle()
                     .bigText(taskText)
-                    .setBigContentTitle("📋 Задачи на сегодня (${tasks.size})")
-                    .setSummaryText("Невыполненных: ${tasks.size}")
+                    .setBigContentTitle(context.getString(R.string.notification_title_text) + " (${tasks.size})")
+                    .setSummaryText(context.getString(R.string.notification_summary_text) + " ${tasks.size}")
             )
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
             .build()
@@ -101,4 +103,14 @@ class TaskReminderWorker @AssistedInject constructor(
             notify(NOTIFICATION_ID, notification)
         }
     }
+
+
+    companion object {
+        const val CHANNEL_ID = "task_reminder_channel_V3"
+        const val NOTIFICATION_ID = 1001
+
+        private const val NOTIFICATION_NAME = "tasks notifications"
+        private const val NOTIFICATION_DESCRIPTION= "daily notifications about tasks"
+    }
+
 }
