@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.util.Properties
 
 plugins {
@@ -35,6 +36,11 @@ android {
         buildConfigField("String", "API_TOKEN", "\"$token\"")
     }
 
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
+    }
+
     buildTypes {
         getByName("release") {
             isMinifyEnabled = false
@@ -47,15 +53,6 @@ android {
 
     buildFeatures {
         buildConfig = true
-    }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-
-    kotlinOptions {
-        jvmTarget = "17"
     }
 
     buildFeatures {
@@ -74,6 +71,14 @@ android {
 
     room {
         schemaDirectory("$projectDir/schemas")
+    }
+}
+
+kotlin {
+    jvmToolchain(21)
+
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_21)
     }
 }
 
@@ -103,6 +108,9 @@ dependencies {
 
     //Timber
     implementation(libs.timber)
+
+    //Data store
+    implementation(libs.androidx.data.store)
 
     // Hilt
     implementation(libs.hilt.android)

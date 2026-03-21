@@ -56,6 +56,12 @@
     <string name="speech_error_unknown">Неизвестная ошибка (код: %1$d)</string>
     <string name="speech_recognition_prompt">Скажите что-нибудь…</string>
 
+    <string name="settings_title">Настройки</string>
+    <string name="settings_notifications">Уведомления</string>
+    <string name="settings_notifications_desc">Включить напоминания о задачах</string>
+    <string name="settings_dark_theme">Тёмная тема</string>
+    <string name="settings_dark_theme_desc">Использовать тёмное оформление</string>
+
     <string name="prompt_add_task_date">Сейчас - </string>
     <string name="prompt_add_task_start">. Сформируй JSON‑ответ на основе приведённого текстового описания задачи и времени запроса - </string>
     <string name="prompt_add_task_end">. В JSON добавь поля: title - краткое описание задачи, не более 5 слов, description - полное описание задачи, type - тип задачи (выбери одно из DAILY — для задач сроком менее 1 недели, MEDIUM — для задач сроком менее 1 месяца, LARGE - для задач сроком менее 1 года), date - дата и время окончания срока задачи в формате "yyyy-MM-dd HH:mm:ss". Если срок окончания задачи не указан, считай срок до конца сегодняшнего дня. В ответе выведи только сформированный JSON</string>

@@ -42,6 +42,12 @@
     <string name="notification_summary_text">Unfulfilled:</string>
     <string name="speech_recognition_prompt">Say something…</string>
 
+    <string name="settings_title">Settings</string>
+    <string name="settings_notifications">Notifications</string>
+    <string name="settings_notifications_desc">Enable task reminders</string>
+    <string name="settings_dark_theme">Dark theme</string>
+    <string name="settings_dark_theme_desc">Use dark appearance</string>
+
     <string name="speech_error_audio">Audio recording error</string>
     <string name="speech_error_client">Client side error</string>
     <string name="speech_error_insufficient_permissions">Insufficient permissions</string>

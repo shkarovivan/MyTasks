@@ -1,5 +1,9 @@
 package com.shkarov.mytasks.screens
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
@@ -33,7 +37,9 @@ import com.shkarov.mytasks.ui.buttons.FloatingButtonSearchByVoice
 import com.shkarov.mytasks.ui.dialogs.VoiceDialog
 import com.shkarov.mytasks.ui.theme.LoaderColor
 import com.shkarov.mytasks.viewmodels.MainScreenViewModel
+import com.shkarov.mytasks.viewmodels.ThemeViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MainScreen() {
@@ -43,7 +49,14 @@ fun MainScreen() {
 
     var showFAB by remember { mutableStateOf(true) }
 
-    val viewModel: MainScreenViewModel = hiltViewModel()
+    val mainScreenViewModel: MainScreenViewModel = hiltViewModel()
+    val themeViewModel: ThemeViewModel = hiltViewModel()
+    val darkThemeEnabled by themeViewModel.darkThemeEnabled.collectAsState()
+
+    var notificationsEnabled by remember { mutableStateOf(true) }
+
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
 
     var currentBottomScreen by remember { mutableStateOf<Screens?>(null) }
     val currentDestination by navController.currentBackStackEntryAsState()
@@ -57,9 +70,9 @@ fun MainScreen() {
         }
     }
 
-    val searchResponse by viewModel.searchResultFlow.collectAsState(initial = null)
+    val searchResponse by mainScreenViewModel.searchResultFlow.collectAsState(initial = null)
 
-    val loading by viewModel.loading.collectAsState(initial = false)
+    val loading by mainScreenViewModel.loading.collectAsState(initial = false)
 
     if (loading) {
         Dialog(onDismissRequest = {  }) {
@@ -83,32 +96,62 @@ fun MainScreen() {
         }
     }
 
-    Scaffold(
-        bottomBar = { BottomBar(navController = navController) },
-        floatingActionButton = {
-            if (showFAB) {
-                Row(
-                    //horizontalArrangement = Arrangement.spacedBy(0.dp)
-                ) {
-                    FloatingButtonSearchByVoice(onShowDialog = {
-                        requestType = VoiceRequestType.SEARCH
-                        showVoiceDialog = true
-                    })
-                    FloatingButtonAddByText(navController)
-                    FloatingButtonAddByVoice(onShowDialog = {
-                        requestType = VoiceRequestType.ADD_TASK
-                        showVoiceDialog = true
-                    })
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            AppDrawerContent(
+                notificationsEnabled = notificationsEnabled,
+                darkThemeEnabled = darkThemeEnabled,
+                onNotificationsChanged = { notificationsEnabled = it },
+                onDarkThemeChanged = { themeViewModel.setDarkThemeEnabled(it) }
+            )
+        }
+    ) {
+
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text("Мои задачи") },
+                    navigationIcon = {
+                        IconButton(
+                            onClick = {
+                                scope.launch { drawerState.open() }
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Menu,
+                                contentDescription = "Открыть меню"
+                            )
+                        }
+                    }
+                )
+            },
+            bottomBar = { BottomBar(navController = navController) },
+            floatingActionButton = {
+                if (showFAB) {
+                    Row(
+                        //horizontalArrangement = Arrangement.spacedBy(0.dp)
+                    ) {
+                        FloatingButtonSearchByVoice(onShowDialog = {
+                            requestType = VoiceRequestType.SEARCH
+                            showVoiceDialog = true
+                        })
+                        FloatingButtonAddByText(navController)
+                        FloatingButtonAddByVoice(onShowDialog = {
+                            requestType = VoiceRequestType.ADD_TASK
+                            showVoiceDialog = true
+                        })
+                    }
                 }
+            },
+        ) { paddingValue ->
+            Box(modifier = Modifier.padding(paddingValue)) {
+                NavGraph(
+                    navController = navController,
+                    onFABVisibilityChanged = { visible ->
+                        showFAB = visible
+                    })
             }
-        },
-    ) { paddingValue ->
-        Box(modifier = Modifier.padding(paddingValue)) {
-            NavGraph(
-                navController = navController,
-                onFABVisibilityChanged = { visible ->
-                    showFAB = visible
-                })
         }
     }
 
@@ -119,12 +162,12 @@ fun MainScreen() {
             showVoiceDialog = false
             if (text.isNotBlank()) {
                 when (requestType) {
-                    VoiceRequestType.ADD_TASK -> viewModel.saveTaskRequest(
+                    VoiceRequestType.ADD_TASK -> mainScreenViewModel.saveTaskRequest(
                         request = text,
                         isWorkTask = currentBottomScreen == Screens.WorkTasks
                     )
 
-                    VoiceRequestType.SEARCH -> viewModel.searchRequest(
+                    VoiceRequestType.SEARCH -> mainScreenViewModel.searchRequest(
                         request = text,
                         isWorkTask = currentBottomScreen == Screens.WorkTasks
                     )

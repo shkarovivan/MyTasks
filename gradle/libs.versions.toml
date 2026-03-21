@@ -1,20 +1,20 @@
 [versions]
 # Core
-agp = "8.13.1"
-kotlin = "2.0.0"
+agp = "8.13.2"
+kotlin = "2.3.20"
 #ksp = "2.0.0-1.0.24"
 
 # AndroidX Core
-core-ktx = "1.17.0"
+core-ktx = "1.18.0"
 lifecycle = "2.10.0"
 
 # Compose
-activity-compose = "1.12.0"
-composeBom = "2025.11.00"
+activity-compose = "1.13.0"
+composeBom = "2026.03.00"
 compose-gradle-plugin = "1.5.10"
 
 # Navigation
-navigation = "2.9.6"
+navigation = "2.9.7"
 
 # Hilt
 hilt = "2.57.2"
@@ -25,17 +25,20 @@ androidxHilt = "1.2.0"
 room = "2.8.4"
 
 # WorkManager
-work-manager = "2.9.0"
+work-manager = "2.11.1"
 
 #Retrofit
 retrofit = "3.0.0"
-okhttp = "4.12.0"
+okhttp = "5.3.2"
 
 #Gson
-gson = "2.10.1'"
+gson = "2.13.2"
 
 #Timber
 timber = "5.0.1"
+
+#Data store
+data-store = "1.2.1"
 
 # Other
 appcompat = "1.7.1"
@@ -88,6 +91,9 @@ androidx-room-compiler = { group = "androidx.room", name = "room-compiler", vers
 
 #Timber
 timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
+
+#Data store
+androidx-data-store = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "data-store" }
 
 # Retrofit
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
