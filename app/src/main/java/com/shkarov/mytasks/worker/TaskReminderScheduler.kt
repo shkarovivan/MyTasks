@@ -14,40 +14,40 @@ object TaskReminderScheduler {
 
     fun schedule(context: Context) {
         Timber.w("schedule")
+        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+            WORK_NAME,
+            ExistingPeriodicWorkPolicy.KEEP,
+            buildRequest()
+        )
+    }
+
+    fun reschedule(context: Context) {
+        cancel(context)
+        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+            WORK_NAME,
+            ExistingPeriodicWorkPolicy.REPLACE,
+            buildRequest()
+        )
+    }
+
+    private fun buildRequest(): PeriodicWorkRequest {
         val initialDelayMs = calculateDelayUntilNextTimeMs(
             hour = NOTIFICATION_HOUR,
             minute = NOTIFICATION_MINUTE
         )
 
-        /**
-         * For Production Notification
-         */
-
-        val request = PeriodicWorkRequestBuilder<TaskReminderWorker>(
+        return PeriodicWorkRequestBuilder<TaskReminderWorker>(
             repeatInterval = 1,
             repeatIntervalTimeUnit = TimeUnit.DAYS
         )
             .setBackoffCriteria(
-                BackoffPolicy.LINEAR,
-                30,
+                BackoffPolicy.EXPONENTIAL,
+                1,
                 TimeUnit.MINUTES
             )
             .addTag(WORK_NAME)
             .setInitialDelay(initialDelayMs, TimeUnit.MILLISECONDS)
             .build()
-
-        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
-            WORK_NAME,
-            ExistingPeriodicWorkPolicy.REPLACE,
-            request
-        )
-
-        /**
-         * For Test Notification
-         */
-//            val request = OneTimeWorkRequestBuilder<TaskReminderWorker>().build()
-//            WorkManager.getInstance(context).enqueue(request)
-
     }
 
     fun cancel(context: Context) {
