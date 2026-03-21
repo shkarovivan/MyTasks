@@ -40,6 +40,20 @@
     <string name="cancel_text">Cancel</string>
     <string name="notification_title_text">Tasks for today</string>
     <string name="notification_summary_text">Unfulfilled:</string>
+    <string name="speech_recognition_prompt">Say something…</string>
+
+    <string name="speech_error_audio">Audio recording error</string>
+    <string name="speech_error_client">Client side error</string>
+    <string name="speech_error_insufficient_permissions">Insufficient permissions</string>
+    <string name="speech_error_network">Network error</string>
+    <string name="speech_error_network_timeout">Network timeout</string>
+    <string name="speech_error_no_match">No speech recognized</string>
+    <string name="speech_error_recognizer_busy">Recognition service busy</string>
+    <string name="speech_error_server">Server error</string>
+    <string name="speech_error_speech_timeout">No speech input detected</string>
+    <string name="speech_error_too_many_requests">Too many requests</string>
+    <string name="speech_error_server_disconnected">Recognition service disconnected</string>
+    <string name="speech_error_unknown">Unknown error (code: %1$d)</string>
 
     <string name="prompt_add_task_start">Generate a JSON response based on the provided task description and the request time - </string>
     <string name="prompt_add_task_date">, now </string>
