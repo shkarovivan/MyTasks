@@ -22,6 +22,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -37,7 +38,7 @@ import com.shkarov.mytasks.ui.buttons.FloatingButtonSearchByVoice
 import com.shkarov.mytasks.ui.dialogs.VoiceDialog
 import com.shkarov.mytasks.ui.theme.LoaderColor
 import com.shkarov.mytasks.viewmodels.MainScreenViewModel
-import com.shkarov.mytasks.viewmodels.ThemeViewModel
+import com.shkarov.mytasks.viewmodels.SettingsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
@@ -50,10 +51,11 @@ fun MainScreen() {
     var showFAB by remember { mutableStateOf(true) }
 
     val mainScreenViewModel: MainScreenViewModel = hiltViewModel()
-    val themeViewModel: ThemeViewModel = hiltViewModel()
-    val darkThemeEnabled by themeViewModel.darkThemeEnabled.collectAsState()
+    val settingsViewModel: SettingsViewModel = hiltViewModel()
+    val darkThemeEnabled by settingsViewModel.darkThemeEnabled.collectAsState()
 
-    var notificationsEnabled by remember { mutableStateOf(true) }
+    val notificationsEnabled by settingsViewModel.notificationsEnabled.collectAsStateWithLifecycle()
+    val notificationTime by settingsViewModel.notificationTime.collectAsStateWithLifecycle()
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -102,8 +104,14 @@ fun MainScreen() {
             AppDrawerContent(
                 notificationsEnabled = notificationsEnabled,
                 darkThemeEnabled = darkThemeEnabled,
-                onNotificationsChanged = { notificationsEnabled = it },
-                onDarkThemeChanged = { themeViewModel.setDarkThemeEnabled(it) }
+                notificationTime = notificationTime,
+                onNotificationsChanged = { enabled ->
+                    settingsViewModel.onNotificationsEnabled(enabled)
+                },
+                onDarkThemeChanged = { settingsViewModel.setDarkThemeEnabled(it) },
+                onNotificationTimeChanged = { hour, minute ->
+                    settingsViewModel.updateNotificationTime(hour, minute)
+                }
             )
         }
     ) {

@@ -1,26 +1,47 @@
 package com.shkarov.mytasks.worker
 
-import android.Manifest
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import androidx.annotation.RequiresApi
-import androidx.annotation.RequiresPermission
+import com.shkarov.mytasks.settings.notifications.NotificationPreferences
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import java.util.Calendar
 import timber.log.Timber
 import java.util.Date
-
 object TaskReminderScheduler {
 
-    private const val NOTIFICATION_HOUR = 7
-    private const val NOTIFICATION_MINUTE = 30
+    fun updateTime(context: Context, hour: Int, minute: Int) {
+        Timber.d("Notification time updated to %02d:%02d", hour, minute)
+        schedule(context, hour, minute)
+    }
 
-    @RequiresApi(Build.VERSION_CODES.S)
-    @RequiresPermission(Manifest.permission.SCHEDULE_EXACT_ALARM)
-    fun schedule(context: Context) {
-        Timber.d("TaskReminderScheduler: schedule via AlarmManager")
+    fun schedule(context: Context, hour: Int? = null, minute: Int? = null) {
+        Timber.d("TaskReminderScheduler: schedule")
+
+        CoroutineScope(Dispatchers.IO + SupervisorJob()).launch {
+            val prefs = NotificationPreferences(context)
+            val notificationsEnabled = prefs.notificationsEnabledFlow.first()
+
+            if (!notificationsEnabled) {
+                Timber.d("TaskReminderScheduler: notifications disabled, skipping")
+                return@launch
+            }
+
+            val scheduleHour = hour ?: prefs.notificationTimeFlow.first().hour
+            val scheduleMinute = minute ?: prefs.notificationTimeFlow.first().minute
+
+            doSchedule(context, scheduleHour, scheduleMinute)
+        }
+    }
+
+    private fun doSchedule(context: Context, hour: Int, minute: Int) {
+        Timber.d("TaskReminderScheduler: scheduling at %02d:%02d", hour, minute)
 
         val alarmMgr = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
@@ -31,23 +52,24 @@ object TaskReminderScheduler {
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
+
         alarmMgr.cancel(pendingIntent)
 
-        val triggerTime = calculateNextTriggerTime()
+        val triggerTime = calculateNextTriggerTime(hour, minute)
 
-        if (!alarmMgr.canScheduleExactAlarms()) {
-            Timber.d("TaskReminderScheduler: schedule via setInexactRepeating")
+        if (canScheduleExact(alarmMgr)) {
+            Timber.d("TaskReminderScheduler: using setExact")
+            alarmMgr.setExact(
+                AlarmManager.RTC_WAKEUP,
+                triggerTime,
+                pendingIntent
+            )
+        } else {
+            Timber.d("TaskReminderScheduler: using setInexactRepeating")
             alarmMgr.setInexactRepeating(
                 AlarmManager.RTC_WAKEUP,
                 triggerTime,
                 AlarmManager.INTERVAL_DAY,
-                pendingIntent
-            )
-        } else {
-            Timber.d("TaskReminderScheduler: schedule via setExact")
-            alarmMgr.setExact(
-                AlarmManager.RTC_WAKEUP,
-                triggerTime,
                 pendingIntent
             )
         }
@@ -55,12 +77,36 @@ object TaskReminderScheduler {
         Timber.d("Alarm set for: $triggerTime (${Date(triggerTime)})")
     }
 
-    private fun calculateNextTriggerTime(): Long {
+    fun cancel(context: Context) {
+        Timber.d("TaskReminderScheduler: cancel")
+
+        val alarmMgr = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val intent = Intent(context, TaskReminderReceiver::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            0,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        alarmMgr.cancel(pendingIntent)
+        Timber.d("Notification cancelled")
+    }
+
+    private fun canScheduleExact(alarmMgr: AlarmManager): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            alarmMgr.canScheduleExactAlarms()
+        } else {
+            true
+        }
+    }
+
+    private fun calculateNextTriggerTime(hour: Int, minute: Int): Long {
         val now = Calendar.getInstance()
 
         val target = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, NOTIFICATION_HOUR)
-            set(Calendar.MINUTE, NOTIFICATION_MINUTE)
+            set(Calendar.HOUR_OF_DAY, hour)
+            set(Calendar.MINUTE, minute)
             set(Calendar.SECOND, 0)
             set(Calendar.MILLISECOND, 0)
         }
@@ -70,7 +116,7 @@ object TaskReminderScheduler {
         }
 
         val delay = target.timeInMillis - now.timeInMillis
-        Timber.d("Next alarm in ${delay / 1000 / 60} minutes")
+        Timber.d("Next alarm at %02d:%02d in ${delay / 1000 / 60} minutes", hour, minute)
 
         return target.timeInMillis
     }

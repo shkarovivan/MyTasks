@@ -43,6 +43,12 @@
     <string name="speech_recognition_prompt">Say something…</string>
     <string name="days_test"> days </string>
 
+    <string name="settings_notification_time">Notification time</string>
+    <string name="settings_notification_time_desc">Daily at %1$s</string>
+    <string name="settings_select_time">Select time</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+
     <string name="settings_title">Settings</string>
     <string name="settings_notifications">Notifications</string>
     <string name="settings_notifications_desc">Enable task reminders</string>

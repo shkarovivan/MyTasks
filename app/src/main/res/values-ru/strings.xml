@@ -57,6 +57,12 @@
     <string name="speech_recognition_prompt">Скажите что-нибудь…</string>
     <string name="days_test"> дней </string>
 
+    <string name="settings_notification_time">Время уведомления</string>
+    <string name="settings_notification_time_desc">Ежедневно в %1$s</string>
+    <string name="settings_select_time">Выберите время</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Отмена</string>
+
     <string name="settings_title">Настройки</string>
     <string name="settings_notifications">Уведомления</string>
     <string name="settings_notifications_desc">Включить напоминания о задачах</string>

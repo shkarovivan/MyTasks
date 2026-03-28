@@ -15,7 +15,7 @@ import com.shkarov.mytasks.permissions.NotificationPermissionDialog
 import com.shkarov.mytasks.permissions.PermissionHandler
 import com.shkarov.mytasks.screens.MainScreen
 import com.shkarov.mytasks.ui.theme.MyTasksTheme
-import com.shkarov.mytasks.viewmodels.ThemeViewModel
+import com.shkarov.mytasks.viewmodels.SettingsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -30,8 +30,8 @@ class MainActivity : ComponentActivity() {
         permissionHandler.requestNotificationPermission()
 
         setContent {
-            val themeViewModel: ThemeViewModel = hiltViewModel()
-            val darkThemeEnabled by themeViewModel.darkThemeEnabled.collectAsState()
+            val settingsViewModel: SettingsViewModel = hiltViewModel()
+            val darkThemeEnabled by settingsViewModel.darkThemeEnabled.collectAsState()
             MyTasksTheme(
                 darkTheme = darkThemeEnabled
             ) {
