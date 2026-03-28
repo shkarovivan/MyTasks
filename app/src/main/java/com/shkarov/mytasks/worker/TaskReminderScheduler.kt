@@ -58,18 +58,17 @@ object TaskReminderScheduler {
         val triggerTime = calculateNextTriggerTime(hour, minute)
 
         if (canScheduleExact(alarmMgr)) {
-            Timber.d("TaskReminderScheduler: using setExact")
-            alarmMgr.setExact(
+            Timber.d("TaskReminderScheduler: using setExactAndAllowWhileIdle")
+            alarmMgr.setExactAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP,
                 triggerTime,
                 pendingIntent
             )
         } else {
-            Timber.d("TaskReminderScheduler: using setInexactRepeating")
-            alarmMgr.setInexactRepeating(
+            Timber.d("TaskReminderScheduler: using setAndAllowWhileIdle")
+            alarmMgr.setAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP,
                 triggerTime,
-                AlarmManager.INTERVAL_DAY,
                 pendingIntent
             )
         }

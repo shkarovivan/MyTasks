@@ -32,7 +32,6 @@ class TaskReminderReceiver : BroadcastReceiver() {
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     @SuppressLint("UnsafeProtectedBroadcastReceiver")
-    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     override fun onReceive(context: Context, intent: Intent) {
         Timber.d("TaskReminderReceiver: onReceive")
 
@@ -47,7 +46,10 @@ class TaskReminderReceiver : BroadcastReceiver() {
                 val tasks = repository.getTimedTasks(getTomorrowTimestamp())
                 showNotification(context, tasks)
             } catch (e: Exception) {
-                Timber.e(e, "Error fetching tasks in TaskReminderReceiver")
+                Timber.e(e, "Error fetching tasks")
+            } finally {
+                // Перепланируем на следующий день
+                TaskReminderScheduler.schedule(context)
             }
         }
     }
