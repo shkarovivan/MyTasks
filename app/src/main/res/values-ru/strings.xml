@@ -55,6 +55,7 @@
     <string name="speech_error_server_disconnected">Соединение с сервисом распознавания разорвано</string>
     <string name="speech_error_unknown">Неизвестная ошибка (код: %1$d)</string>
     <string name="speech_recognition_prompt">Скажите что-нибудь…</string>
+    <string name="days_test"> дней </string>
 
     <string name="settings_title">Настройки</string>
     <string name="settings_notifications">Уведомления</string>

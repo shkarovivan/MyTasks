@@ -41,6 +41,7 @@
     <string name="notification_title_text">Tasks for today</string>
     <string name="notification_summary_text">Unfulfilled:</string>
     <string name="speech_recognition_prompt">Say something…</string>
+    <string name="days_test"> days </string>
 
     <string name="settings_title">Settings</string>
     <string name="settings_notifications">Notifications</string>

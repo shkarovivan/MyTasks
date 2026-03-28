@@ -1,6 +1,8 @@
 package com.shkarov.mytasks.screens
 
+import android.os.Build
 import androidx.annotation.DrawableRes
+import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -37,6 +39,8 @@ import com.shkarov.mytasks.domain.model.Work
 import com.shkarov.mytasks.ui.theme.*
 import com.shkarov.mytasks.viewmodels.TaskScreenViewModel
 import kotlinx.coroutines.launch
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 enum class TaskPages(
     @StringRes val titleResId: Int,
@@ -157,6 +161,7 @@ fun Toolbar(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun TasksList(
     navController: NavHostController,
@@ -194,6 +199,7 @@ fun TasksList(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun TaskView(
     task: Task,
@@ -276,7 +282,10 @@ fun TaskView(
                 )
 
                 Text(
-                    text = task.deadLine,
+                    text = ChronoUnit.DAYS.between(
+                        Instant.now(),
+                        Instant.ofEpochMilli(task.deadLineMs)
+                    ).toString() + " " + stringResource(id = R.string.days_test),
                     maxLines = 1,
                     fontWeight = FontWeight.Bold,
                     fontSize = dimensionResource(id = R.dimen.main_text_size).value.sp,
@@ -290,7 +299,8 @@ fun TaskView(
                         .fillMaxWidth()
                         .padding(
                             vertical = dimensionResource(id = R.dimen.padding_small),
-                            horizontal = dimensionResource(id = R.dimen.padding_small)),
+                            horizontal = dimensionResource(id = R.dimen.padding_small)
+                        ),
                     verticalAlignment = Alignment.CenterVertically
                 ){
                     Button(
@@ -338,6 +348,7 @@ private fun TasksScreenPreview() {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Preview
 @Composable
 private fun TaskViewPreview() {

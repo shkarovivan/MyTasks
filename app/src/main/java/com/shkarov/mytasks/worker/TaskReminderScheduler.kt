@@ -1,81 +1,66 @@
 package com.shkarov.mytasks.worker
 
+import android.Manifest
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.Context
-import androidx.work.BackoffPolicy
-import androidx.work.ExistingWorkPolicy
-import androidx.work.OneTimeWorkRequest
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
-import timber.log.Timber
+import android.content.Intent
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.annotation.RequiresPermission
 import java.util.Calendar
-import java.util.concurrent.TimeUnit
+import timber.log.Timber
+import java.util.Date
 
 object TaskReminderScheduler {
 
-    private const val WORK_NAME = "daily_task_reminder"
     private const val NOTIFICATION_HOUR = 7
     private const val NOTIFICATION_MINUTE = 30
 
+    @RequiresApi(Build.VERSION_CODES.S)
+    @RequiresPermission(Manifest.permission.SCHEDULE_EXACT_ALARM)
     fun schedule(context: Context) {
-        Timber.d("TaskReminderScheduler: schedule")
+        Timber.d("TaskReminderScheduler: schedule via AlarmManager")
 
-        WorkManager.getInstance(context.applicationContext)
-            .enqueueUniqueWork(
-                WORK_NAME,
-                ExistingWorkPolicy.KEEP,
-                buildRequest()
-            )
-    }
+        val alarmMgr = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-    fun reschedule(context: Context) {
-        Timber.d("TaskReminderScheduler: reschedule")
-
-        WorkManager.getInstance(context.applicationContext)
-            .enqueueUniqueWork(
-                WORK_NAME,
-                ExistingWorkPolicy.REPLACE,
-                buildRequest()
-            )
-    }
-
-    fun cancel(context: Context) {
-        Timber.d("TaskReminderScheduler: cancel")
-
-        WorkManager.getInstance(context.applicationContext)
-            .cancelUniqueWork(WORK_NAME)
-    }
-
-    private fun buildRequest(): OneTimeWorkRequest {
-        val initialDelayMs = calculateDelayUntilNextTimeMs(
-            hour = NOTIFICATION_HOUR,
-            minute = NOTIFICATION_MINUTE
+        val intent = Intent(context, TaskReminderReceiver::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            0,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
+        alarmMgr.cancel(pendingIntent)
 
-        Timber.d("TaskReminderScheduler: initialDelayMs=$initialDelayMs")
+        val triggerTime = calculateNextTriggerTime()
 
-        return OneTimeWorkRequestBuilder<TaskReminderWorker>()
-            .setInitialDelay(initialDelayMs, TimeUnit.MILLISECONDS)
-            .setBackoffCriteria(
-                BackoffPolicy.EXPONENTIAL,
-                1,
-                TimeUnit.MINUTES
+        if (!alarmMgr.canScheduleExactAlarms()) {
+            Timber.d("TaskReminderScheduler: schedule via setInexactRepeating")
+            alarmMgr.setInexactRepeating(
+                AlarmManager.RTC_WAKEUP,
+                triggerTime,
+                AlarmManager.INTERVAL_DAY,
+                pendingIntent
             )
-            .addTag(WORK_NAME)
-            .build()
+        } else {
+            Timber.d("TaskReminderScheduler: schedule via setExact")
+            alarmMgr.setExact(
+                AlarmManager.RTC_WAKEUP,
+                triggerTime,
+                pendingIntent
+            )
+        }
+
+        Timber.d("Alarm set for: $triggerTime (${Date(triggerTime)})")
     }
 
-    /**
-     * Считает миллисекунды до следующего наступления указанного времени.
-     * Например:
-     * - сейчас 10:00, указали 09:00 -> вернет задержку до 09:00 следующего дня
-     * - сейчас 08:00, указали 09:00 -> вернет задержку до 09:00 сегодня
-     */
-    private fun calculateDelayUntilNextTimeMs(hour: Int, minute: Int): Long {
+    private fun calculateNextTriggerTime(): Long {
         val now = Calendar.getInstance()
 
         val target = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, hour)
-            set(Calendar.MINUTE, minute)
+            set(Calendar.HOUR_OF_DAY, NOTIFICATION_HOUR)
+            set(Calendar.MINUTE, NOTIFICATION_MINUTE)
             set(Calendar.SECOND, 0)
             set(Calendar.MILLISECOND, 0)
         }
@@ -85,8 +70,8 @@ object TaskReminderScheduler {
         }
 
         val delay = target.timeInMillis - now.timeInMillis
-        Timber.d("Следующее уведомление через ${delay / 1000 / 60} минут")
+        Timber.d("Next alarm in ${delay / 1000 / 60} minutes")
 
-        return delay
+        return target.timeInMillis
     }
 }
