@@ -9,29 +9,31 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.shkarov.mytasks.domain.model.SearchResult
 import com.shkarov.mytasks.screens.*
+import com.shkarov.mytasks.worker.TaskReminderReceiver
 
 @Composable
 fun NavGraph(
     navController: NavHostController,
-    onFABVisibilityChanged: (Boolean) -> Unit) {
+    onFABVisibilityChanged: (Boolean) -> Unit,
+    onGraphReady: () -> Unit = {}
+) {
     NavHost(
         navController = navController,
         startDestination = Screens.WorkTasks.route
     ) {
-        composable(
-            route = Screens.WorkTasks.route
-        ) {
+        composable(route = Screens.WorkTasks.route) {
             LaunchedEffect(Unit) {
                 onFABVisibilityChanged(true)
+                onGraphReady()  // граф точно готов когда первый экран отрисовался
             }
-            TasksScreen(navController, true,{})
+            TasksScreen(navController, true, {})
         }
 
         composable(route = Screens.HomeTasks.route) {
             LaunchedEffect(Unit) {
                 onFABVisibilityChanged(true)
             }
-            TasksScreen(navController,false,{})
+            TasksScreen(navController, false, {})
         }
 
         composable(
@@ -47,13 +49,9 @@ fun NavGraph(
             ) {
                 navController.popBackStack()
             }
-
-            onFABVisibilityChanged(false)
         }
 
-        composable(
-            route = CreateTaskScreen.CreatedTaskScreen.route
-        ){
+        composable(route = CreateTaskScreen.CreatedTaskScreen.route) {
             LaunchedEffect(Unit) {
                 onFABVisibilityChanged(false)
             }
@@ -66,9 +64,18 @@ fun NavGraph(
             val response = navController.previousBackStackEntry
                 ?.savedStateHandle
                 ?.get<SearchResult>("searchResponse")
-
             SearchResultsScreen(
                 response = response ?: SearchResult(),
+                navController = navController
+            )
+        }
+
+        composable(TaskReminderReceiver.NAVIGATE_TO_ROUTE) {
+            LaunchedEffect(Unit) {
+                onFABVisibilityChanged(false)
+            }
+            SearchResultsScreen(
+                response = null,
                 navController = navController
             )
         }

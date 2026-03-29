@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.shkarov.mytasks.domain.model.Task
 import com.shkarov.mytasks.repository.TasksRepository
+import com.shkarov.mytasks.utils.getTomorrowTimestamp
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -27,6 +28,12 @@ class SearchResultScreenViewModel @Inject constructor(
     fun getTasks(ids: List<String>) {
         this.ids = ids.toMutableList()
         updateTasks()
+    }
+
+    fun getTodayTasks() {
+        viewModelScope.launch(Dispatchers.IO) {
+            _tasks.value = repository.getTimedTasks(getTomorrowTimestamp())
+        }
     }
     private fun updateTasks() {
         viewModelScope.launch(Dispatchers.IO) {

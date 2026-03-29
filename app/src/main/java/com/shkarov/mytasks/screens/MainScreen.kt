@@ -4,8 +4,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -39,11 +37,14 @@ import com.shkarov.mytasks.ui.dialogs.VoiceDialog
 import com.shkarov.mytasks.ui.theme.LoaderColor
 import com.shkarov.mytasks.viewmodels.MainScreenViewModel
 import com.shkarov.mytasks.viewmodels.SettingsViewModel
+import kotlinx.coroutines.delay
+import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun MainScreen() {
+fun MainScreen(
+    navigateTo: String? = null
+) {
     val navController = rememberNavController()
     var showVoiceDialog by remember { mutableStateOf(false) }
     var requestType: VoiceRequestType by remember { mutableStateOf(VoiceRequestType.UNKNOWN) }
@@ -62,6 +63,7 @@ fun MainScreen() {
 
     var currentBottomScreen by remember { mutableStateOf<Screens?>(null) }
     val currentDestination by navController.currentBackStackEntryAsState()
+
     LaunchedEffect(currentDestination) {
         val route = currentDestination?.destination?.route
         if (route != null) {
@@ -71,6 +73,29 @@ fun MainScreen() {
             currentBottomScreen = null
         }
     }
+
+    var navGraphReady by remember { mutableStateOf(false) }
+    var handled by remember { mutableStateOf(false) }
+
+    LaunchedEffect(navigateTo, navGraphReady) {
+        if (navGraphReady && navigateTo != null && !handled) {
+            delay(100)
+            try {
+                Timber.d("MainScreen: navigating to $navigateTo")
+                navController.navigate(navigateTo) {
+                    launchSingleTop = true
+                }
+                handled = true
+            } catch (e: IllegalArgumentException) {
+                Timber.e(e, "Navigation route not found: $navigateTo")
+            }
+        }
+    }
+
+    LaunchedEffect(navigateTo) {
+        handled = false
+    }
+
 
     val searchResponse by mainScreenViewModel.searchResultFlow.collectAsState(initial = null)
 
@@ -158,7 +183,9 @@ fun MainScreen() {
                     navController = navController,
                     onFABVisibilityChanged = { visible ->
                         showFAB = visible
-                    })
+                    },
+                    onGraphReady = { navGraphReady = true }
+                )
             }
         }
     }

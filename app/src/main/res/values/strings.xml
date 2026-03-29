@@ -49,6 +49,8 @@
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
 
+    <string name="today_task_text">Your tasks for today</string>
+
     <string name="settings_title">Settings</string>
     <string name="settings_notifications">Notifications</string>
     <string name="settings_notifications_desc">Enable task reminders</string>

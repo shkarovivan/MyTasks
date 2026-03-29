@@ -17,11 +17,10 @@ import com.shkarov.mytasks.MainActivity
 import com.shkarov.mytasks.R
 import com.shkarov.mytasks.domain.model.Task
 import com.shkarov.mytasks.repository.TasksRepository
+import com.shkarov.mytasks.utils.getTomorrowTimestamp
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 import timber.log.Timber
-import java.time.LocalDate
-import java.time.ZoneId
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -48,17 +47,9 @@ class TaskReminderReceiver : BroadcastReceiver() {
             } catch (e: Exception) {
                 Timber.e(e, "Error fetching tasks")
             } finally {
-                // Перепланируем на следующий день
                 TaskReminderScheduler.schedule(context)
             }
         }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun getTomorrowTimestamp(): Long {
-        val today = LocalDate.now()
-        val tomorrow = today.plusDays(1)
-        return tomorrow.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
     }
 
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
@@ -67,6 +58,7 @@ class TaskReminderReceiver : BroadcastReceiver() {
 
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            putExtra(NAVIGATE_TO, NAVIGATE_TO_ROUTE)
         }
 
         val pendingIntent = PendingIntent.getActivity(
@@ -106,5 +98,7 @@ class TaskReminderReceiver : BroadcastReceiver() {
     companion object {
         private const val CHANNEL_ID = "task_reminder_channel_V4"
         private const val NOTIFICATION_ID = 1001
+        const val NAVIGATE_TO = "navigate_to"
+        const val NAVIGATE_TO_ROUTE = "today_tasks"
     }
 }

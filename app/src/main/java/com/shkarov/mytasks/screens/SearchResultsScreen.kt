@@ -10,6 +10,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -20,7 +21,7 @@ import com.shkarov.mytasks.viewmodels.SearchResultScreenViewModel
 
 @Composable
 fun SearchResultsScreen(
-    response: SearchResult,
+    response: SearchResult? = null,
     navController: NavHostController,
 ) {
 
@@ -29,7 +30,9 @@ fun SearchResultsScreen(
     val tasks by viewModel.tasks.collectAsState()
 
     LaunchedEffect(Unit) {
-        viewModel.getTasks(response.ids)
+        response?.let {
+            viewModel.getTasks(response.ids)
+        } ?: viewModel.getTodayTasks()
     }
 
     Column(
@@ -39,7 +42,7 @@ fun SearchResultsScreen(
     ) {
 
         Text(
-            text = response.request,
+            text = response?.request.orEmpty(),
             fontWeight = FontWeight.Bold,
             modifier = Modifier
                 .padding(
@@ -49,7 +52,7 @@ fun SearchResultsScreen(
         )
         GrayDivider()
         Text(
-            text = response.answer,
+            text = response?.answer ?: stringResource(id = R.string.today_task_text),
             fontWeight = FontWeight.Bold,
             modifier = Modifier
                 .padding(

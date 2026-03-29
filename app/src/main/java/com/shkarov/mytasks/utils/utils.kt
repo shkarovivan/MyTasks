@@ -1,6 +1,7 @@
 package com.shkarov.mytasks.utils
 
 import timber.log.Timber
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -18,5 +19,10 @@ fun String.toEpochMillis(
         Timber.e("Ошибка парсинга даты: ${e.message}")
         return 0L
     }
+}
 
+fun getTomorrowTimestamp(): Long {
+    val today = LocalDate.now()
+    val tomorrow = today.plusDays(1)
+    return tomorrow.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
 }

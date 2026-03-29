@@ -63,6 +63,8 @@
     <string name="ok">OK</string>
     <string name="cancel">Отмена</string>
 
+    <string name="today_task_text">Ваши задачи на сегодня</string>
+
     <string name="settings_title">Настройки</string>
     <string name="settings_notifications">Уведомления</string>
     <string name="settings_notifications_desc">Включить напоминания о задачах</string>
