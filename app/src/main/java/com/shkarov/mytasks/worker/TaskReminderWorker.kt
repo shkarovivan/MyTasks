@@ -9,6 +9,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.BitmapFactory
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -84,17 +85,21 @@ class TaskReminderReceiver : BroadcastReceiver() {
         val taskText = tasks.joinToString("\n") { "- ${it.title}" }
         val title = "${context.getString(R.string.notification_title_text)} (${tasks.size})"
 
+        val largeIcon = BitmapFactory.decodeResource(
+            context.resources,
+            R.drawable.icon_notify
+        )
+
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_notify)
+            .setSmallIcon(R.drawable.icon_notify_small)
+            .setLargeIcon(largeIcon)
             .setContentTitle(title)
             .setContentText(taskText)
             .setStyle(
                 NotificationCompat.BigTextStyle()
                     .bigText(taskText)
                     .setBigContentTitle(title)
-                    .setSummaryText(
-                        "${context.getString(R.string.notification_summary_text)} ${tasks.size}"
-                    )
+//                    .setSummaryText("(${tasks.size})")
             )
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(pendingIntent)
