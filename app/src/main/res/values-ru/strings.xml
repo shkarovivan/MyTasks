@@ -71,6 +71,26 @@
     <string name="settings_dark_theme">Тёмная тема</string>
     <string name="settings_dark_theme_desc">Использовать тёмное оформление</string>
 
+    <string name="detail_task_title">Детали задачи</string>
+    <string name="cd_back">Назад</string>
+    <string name="task_description">Описание</string>
+    <string name="task_information">Информация</string>
+    <string name="task_created">Создано</string>
+    <string name="task_deadline">Дедлайн</string>
+    <string name="task_status">Статус</string>
+    <string name="task_type">Тип</string>
+    <string name="task_category">Категория</string>
+    <string name="retry">Повторить</string>
+    <string name="status_started">Начата</string>
+    <string name="status_waiting">Ожидание</string>
+    <string name="status_paused">Пауза</string>
+    <string name="status_stopped">Остановлена</string>
+    <string name="work_work">Работа</string>
+    <string name="work_home">Дом</string>
+    <string name="daily_tasks_description">Краткосрочная</string>
+    <string name="medium_tasks_description">Среднесрочная</string>
+    <string name="large_tasks_description">Долгосрочная</string>
+
     <string name="prompt_add_task_date">Сейчас - </string>
     <string name="prompt_add_task_start">. Сформируй JSON‑ответ на основе приведённого текстового описания задачи и времени запроса - </string>
     <string name="prompt_add_task_end">. В JSON добавь поля: title - краткое описание задачи, не более 5 слов, description - полное описание задачи, type - тип задачи (выбери одно из DAILY — для задач сроком менее 1 недели, MEDIUM — для задач сроком менее 1 месяца, LARGE - для задач сроком менее 1 года), date - дата и время окончания срока задачи в формате "yyyy-MM-dd HH:mm:ss". Если срок окончания задачи не указан, считай срок до конца сегодняшнего дня. В ответе выведи только сформированный JSON</string>

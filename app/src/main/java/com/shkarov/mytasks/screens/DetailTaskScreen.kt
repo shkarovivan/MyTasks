@@ -1,12 +1,12 @@
 package com.shkarov.mytasks.screens
 
+import androidx.annotation.StringRes
 import com.shkarov.mytasks.domain.model.Status
 import com.shkarov.mytasks.domain.model.Work
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -21,13 +21,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.Description
-import androidx.compose.material.icons.filled.Flag
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.Task
 import androidx.compose.material.icons.filled.Work
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
@@ -45,12 +43,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.shkarov.mytasks.R
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.shkarov.mytasks.domain.model.DetailTaskUiState
 import com.shkarov.mytasks.domain.model.Task
+import com.shkarov.mytasks.domain.model.Type
+import com.shkarov.mytasks.ui.theme.PausedTaskColor
+import com.shkarov.mytasks.ui.theme.StartedTaskColor
+import com.shkarov.mytasks.ui.theme.StoppedTaskColor
+import com.shkarov.mytasks.ui.theme.WaitingTaskColor
 import com.shkarov.mytasks.viewmodels.DetailTaskViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -69,12 +74,12 @@ fun DetailTaskScreen(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Детали задачи") },
+                title = { Text(stringResource(R.string.detail_task_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Назад"
+                            contentDescription = stringResource(R.string.cd_back)
                         )
                     }
                 }
@@ -140,32 +145,8 @@ private fun DetailTaskContent(
 
                 if (task.description.isNotBlank()) {
                     InfoBlock(
-                        icon = {
-                            Icon(
-                                imageVector = Icons.Default.Description,
-                                contentDescription = null
-                            )
-                        },
-                        title = "Описание",
+                        title = stringResource(R.string.task_description),
                         value = task.description
-                    )
-                }
-
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    DetailChip(
-                        text = "Статус: ${task.status.toReadable()}",
-                        containerColor = task.status.statusColor()
-                    )
-                    DetailChip(
-                        text = "Тип: ${task.type}",
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer
-                    )
-                    DetailChip(
-                        text = "Категория: ${task.work.toReadable()}",
-                        containerColor = MaterialTheme.colorScheme.tertiaryContainer
                     )
                 }
             }
@@ -180,7 +161,7 @@ private fun DetailTaskContent(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Text(
-                    text = "Информация",
+                    text = stringResource(R.string.task_information),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -192,7 +173,7 @@ private fun DetailTaskContent(
                             contentDescription = null
                         )
                     },
-                    label = "Создано",
+                    label = stringResource(R.string.task_created),
                     value = task.created
                 )
 
@@ -203,30 +184,41 @@ private fun DetailTaskContent(
                             contentDescription = null
                         )
                     },
-                    label = "Дедлайн",
+                    label = stringResource(R.string.task_deadline),
                     value = task.deadLine
                 )
 
                 InfoRow(
                     icon = {
                         Icon(
-                            imageVector = Icons.Default.Flag,
+                            imageVector = Icons.Default.Task,
                             contentDescription = null
                         )
                     },
-                    label = "ID",
-                    value = task.id
+                    label = stringResource(R.string.task_status),
+                    value = stringResource(task.status.toReadableRes())
                 )
 
                 InfoRow(
                     icon = {
                         Icon(
-                            imageVector = Icons.Default.Work,
+                            imageVector = Icons.Default.Task,
                             contentDescription = null
                         )
                     },
-                    label = "Deadline ms",
-                    value = task.deadLineMs.toString()
+                    label = stringResource(R.string.task_type),
+                    value = stringResource(task.type.toReadableRes())
+                )
+
+                InfoRow(
+                    icon = {
+                        Icon(
+                            imageVector = if (task.work == Work.WORK) Icons.Default.Work else Icons.Default.Home,
+                            contentDescription = null
+                        )
+                    },
+                    label = stringResource(R.string.task_category),
+                    value = stringResource(task.work.toReadableRes())
                 )
             }
         }
@@ -260,14 +252,14 @@ private fun ErrorContent(
                 contentDescription = null
             )
             Spacer(modifier = Modifier.width(8.dp))
-            Text("Повторить")
+            Text(stringResource(R.string.retry))
         }
     }
 }
 
 @Composable
 private fun InfoBlock(
-    icon: @Composable () -> Unit,
+    icon: (@Composable () -> Unit)? = null,
     title: String,
     value: String
 ) {
@@ -278,7 +270,7 @@ private fun InfoBlock(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            icon()
+            icon?.let { it() }
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleSmall,
@@ -301,7 +293,7 @@ private fun InfoBlock(
 
 @Composable
 private fun InfoRow(
-    icon: @Composable () -> Unit,
+    icon: (@Composable () -> Unit)? = null,
     label: String,
     value: String
 ) {
@@ -315,7 +307,7 @@ private fun InfoRow(
             .padding(14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        icon()
+        icon?.let { it() }
 
         Column(
             modifier = Modifier.padding(start = 12.dp)
@@ -334,40 +326,24 @@ private fun InfoRow(
     }
 }
 
-@Composable
-private fun DetailChip(
-    text: String,
-    containerColor: Color
-) {
-    AssistChip(
-        onClick = {},
-        enabled = false,
-        label = {
-            Text(text)
-        },
-        colors = AssistChipDefaults.assistChipColors(
-            disabledContainerColor = containerColor,
-            disabledLabelColor = MaterialTheme.colorScheme.onSurface
-        )
-    )
+@StringRes
+private fun Status.toReadableRes(): Int = when (this) {
+    Status.STARTED -> R.string.status_started
+    Status.WAITING -> R.string.status_waiting
+    Status.PAUSED -> R.string.status_paused
+    Status.STOPPED -> R.string.status_stopped
 }
 
-private fun Status.toReadable(): String = when (this) {
-    Status.STARTED -> "Начата"
-    Status.WAITING -> "Ожидание"
-    Status.PAUSED -> "Пауза"
-    Status.STOPPED -> "Остановлена"
-}
-
-private fun Work.toReadable(): String = when (this) {
-    Work.WORK -> "Работа"
-    Work.HOME -> "Дом"
+@StringRes
+private fun Work.toReadableRes(): Int = when (this) {
+    Work.WORK -> R.string.work_work
+    Work.HOME -> R.string.work_home
 }
 
 @Composable
-private fun Status.statusColor(): Color = when (this) {
-    Status.STARTED -> Color(0xFFA5D6A7)
-    Status.WAITING -> Color(0xFFFFF59D)
-    Status.PAUSED -> Color(0xFFFFCC80)
-    Status.STOPPED -> Color(0xFFEF9A9A)
+private fun String.toReadableRes(): Int = when (this) {
+    Type.DAILY.value -> R.string.daily_tasks_description
+    Type.MEDIUM.value -> R.string.medium_tasks_description
+    Type.LARGE.value -> R.string.large_tasks_description
+    else -> R.string.daily_tasks_description
 }

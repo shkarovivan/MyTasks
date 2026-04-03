@@ -70,6 +70,26 @@
     <string name="speech_error_server_disconnected">Recognition service disconnected</string>
     <string name="speech_error_unknown">Unknown error (code: %1$d)</string>
 
+    <string name="detail_task_title">Task Details</string>
+    <string name="cd_back">Back</string>
+    <string name="task_description">Description</string>
+    <string name="task_information">Information</string>
+    <string name="task_created">Created</string>
+    <string name="task_deadline">Deadline</string>
+    <string name="task_status">Status</string>
+    <string name="task_type">Type</string>
+    <string name="task_category">Category</string>
+    <string name="retry">Retry</string>
+    <string name="status_started">Started</string>
+    <string name="status_waiting">Waiting</string>
+    <string name="status_paused">Paused</string>
+    <string name="status_stopped">Stopped</string>
+    <string name="work_work">Work</string>
+    <string name="work_home">Home</string>
+    <string name="daily_tasks_description">Daily</string>
+    <string name="medium_tasks_description">Medium</string>
+    <string name="large_tasks_description">Large</string>
+
     <string name="prompt_add_task_start">Generate a JSON response based on the provided task description and the request time - </string>
     <string name="prompt_add_task_date">, now </string>
     <string name="prompt_add_task_end">. In the JSON, include the following fields: title (a brief task description, no more than 5 words), description (the full task description), type (the task type: select one of DAILY — for tasks due in less than 1 week, MEDIUM — for tasks due in less than 1 month, LARGE — for tasks due in less than 1 year), date (the deadline date and time); if no deadline is specified, assume the end of the current day; output only the resulting JSON</string>

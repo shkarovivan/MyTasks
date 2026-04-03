@@ -258,7 +258,7 @@ fun TaskView(
                     modifier = Modifier
                         .weight(1f)
                         .padding(horizontal = dimensionResource(id = R.dimen.padding_small)),
-                    text = task.description,
+                    text = task.title,
                     fontWeight = FontWeight.Bold,
                     fontSize = dimensionResource(id = R.dimen.main_text_size).value.sp,
                     textAlign = TextAlign.Start
