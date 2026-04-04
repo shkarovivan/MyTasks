@@ -4,7 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.shkarov.mytasks.settings.ThemeSettings
-import com.shkarov.mytasks.settings.notifications.NotificationPreferences
+import com.shkarov.mytasks.settings.notifications.SettingsStore
 import com.shkarov.mytasks.settings.notifications.NotificationTime
 import com.shkarov.mytasks.worker.TaskReminderScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,12 +20,20 @@ class SettingsViewModel @Inject constructor(
     private val themeSettings: ThemeSettings
 ) : AndroidViewModel(application) {
 
-    private val notificationPrefs = NotificationPreferences(application)
+    private val settingsStore = SettingsStore(application)
 
-    val notificationTime: StateFlow<NotificationTime> = notificationPrefs.notificationTimeFlow
+    val lastTabRoute = settingsStore.lastTabRouteFlow
+
+    fun saveLastTabRoute(route: String) {
+        viewModelScope.launch {
+            settingsStore.saveLastTabRoute(route)
+        }
+    }
+
+    val notificationTime: StateFlow<NotificationTime> = settingsStore.notificationTimeFlow
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), NotificationTime())
 
-    val notificationsEnabled: StateFlow<Boolean> = notificationPrefs.notificationsEnabledFlow
+    val notificationsEnabled: StateFlow<Boolean> = settingsStore.notificationsEnabledFlow
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     val darkThemeEnabled = themeSettings.darkThemeFlow
@@ -43,14 +51,14 @@ class SettingsViewModel @Inject constructor(
 
     fun updateNotificationTime(hour: Int, minute: Int) {
         viewModelScope.launch {
-            notificationPrefs.saveTime(hour, minute)
+            settingsStore.saveTime(hour, minute)
             TaskReminderScheduler.updateTime(getApplication(), hour, minute)
         }
     }
 
     fun onNotificationsEnabled(enabled: Boolean) {
         viewModelScope.launch {
-            notificationPrefs.saveEnabled(enabled)
+            settingsStore.saveEnabled(enabled)
             if (enabled) {
                 TaskReminderScheduler.schedule(getApplication())
             } else {

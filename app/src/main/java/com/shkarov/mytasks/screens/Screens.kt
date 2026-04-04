@@ -37,6 +37,10 @@ sealed class CreateTaskScreen(
 
 }
 
-sealed class ResponseScreen(val route: String) {
-    object SearchScreen : ResponseScreen("search_screen")
+sealed class ResponseScreen(
+    val route: String
+) {
+    object SearchScreen : ResponseScreen(
+        route = "search_screen"
+    )
 }

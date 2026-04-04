@@ -161,7 +161,6 @@ fun Toolbar(
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun TasksList(
     navController: NavHostController,
@@ -181,9 +180,7 @@ fun TasksList(
             TaskView(
                 task = itemTask,
                 navigateToDetailTask = {
-                    navController.navigate("detail_task_screen/${itemTask.id}") {
-                        popUpTo(Screens.WorkTasks.route)
-                    }
+                    navController.navigate("detail_task_screen/${itemTask.id}")
                 },
                 onDelete = {
                     onDelete(itemTask.id)
@@ -199,7 +196,6 @@ fun TasksList(
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun TaskView(
     task: Task,
@@ -348,7 +344,6 @@ private fun TasksScreenPreview() {
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Preview
 @Composable
 private fun TaskViewPreview() {

@@ -37,20 +37,20 @@ class SearchResultScreenViewModel @Inject constructor(
     }
     private fun updateTasks() {
         viewModelScope.launch(Dispatchers.IO) {
-            _tasks.value = ids.map { id ->
-                async {
-                    repository.getTaskById(id)
+            _tasks.value = ids
+                .map { id ->
+                    async { repository.getTaskById(id) }
                 }
-            }.awaitAll()
+                .awaitAll()
         }
     }
 
     fun deleteTaskById(taskId: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             repository.deleteTaskByID(taskId)
+            ids.remove(taskId)
+            updateTasks()
         }
-        ids.remove(taskId)
-        updateTasks()
     }
 
 }

@@ -14,12 +14,13 @@ import com.shkarov.mytasks.worker.TaskReminderReceiver
 @Composable
 fun NavGraph(
     navController: NavHostController,
+    startDestination: String,
     onFABVisibilityChanged: (Boolean) -> Unit,
     onGraphReady: () -> Unit = {}
 ) {
     NavHost(
         navController = navController,
-        startDestination = Screens.WorkTasks.route
+        startDestination = startDestination
     ) {
         composable(route = Screens.WorkTasks.route) {
             LaunchedEffect(Unit) {
@@ -64,8 +65,9 @@ fun NavGraph(
             val response = navController.previousBackStackEntry
                 ?.savedStateHandle
                 ?.get<SearchResult>("searchResponse")
+
             SearchResultsScreen(
-                response = response ?: SearchResult(),
+                response = response,
                 navController = navController
             )
         }

@@ -5,7 +5,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import com.shkarov.mytasks.settings.notifications.NotificationPreferences
+import com.shkarov.mytasks.settings.notifications.SettingsStore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -25,7 +25,7 @@ object TaskReminderScheduler {
         Timber.d("TaskReminderScheduler: schedule")
 
         CoroutineScope(Dispatchers.IO + SupervisorJob()).launch {
-            val prefs = NotificationPreferences(context)
+            val prefs = SettingsStore(context)
             val notificationsEnabled = prefs.notificationsEnabledFlow.first()
 
             if (!notificationsEnabled) {

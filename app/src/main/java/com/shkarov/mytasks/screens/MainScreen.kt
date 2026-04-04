@@ -32,6 +32,7 @@ import com.shkarov.mytasks.R
 import com.shkarov.mytasks.domain.model.VoiceRequestType
 import com.shkarov.mytasks.ui.buttons.FloatingButtonAddByText
 import com.shkarov.mytasks.ui.buttons.FloatingButtonAddByVoice
+import com.shkarov.mytasks.ui.buttons.FloatingButtonFiredTasks
 import com.shkarov.mytasks.ui.buttons.FloatingButtonSearchByVoice
 import com.shkarov.mytasks.ui.dialogs.VoiceDialog
 import com.shkarov.mytasks.ui.theme.LoaderColor
@@ -63,6 +64,28 @@ fun MainScreen(
 
     var currentBottomScreen by remember { mutableStateOf<Screens?>(null) }
     val currentDestination by navController.currentBackStackEntryAsState()
+
+    val lastTabRoute by settingsViewModel.lastTabRoute.collectAsStateWithLifecycle(
+        initialValue = null
+    )
+
+    if (lastTabRoute == null) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator()
+        }
+        return
+    }
+
+    LaunchedEffect(currentDestination) {
+        val route = currentDestination?.destination?.route
+
+        if (route == Screens.WorkTasks.route || route == Screens.HomeTasks.route) {
+            settingsViewModel.saveLastTabRoute(route)
+        }
+    }
 
     LaunchedEffect(currentDestination) {
         val route = currentDestination?.destination?.route
@@ -165,6 +188,7 @@ fun MainScreen(
                     Row(
                         //horizontalArrangement = Arrangement.spacedBy(0.dp)
                     ) {
+                        FloatingButtonFiredTasks(navController)
                         FloatingButtonSearchByVoice(onShowDialog = {
                             requestType = VoiceRequestType.SEARCH
                             showVoiceDialog = true
@@ -179,13 +203,16 @@ fun MainScreen(
             },
         ) { paddingValue ->
             Box(modifier = Modifier.padding(paddingValue)) {
-                NavGraph(
-                    navController = navController,
-                    onFABVisibilityChanged = { visible ->
-                        showFAB = visible
-                    },
-                    onGraphReady = { navGraphReady = true }
-                )
+                lastTabRoute?.let {
+                    NavGraph(
+                        navController = navController,
+                        startDestination = lastTabRoute!!,
+                        onFABVisibilityChanged = { visible ->
+                            showFAB = visible
+                        },
+                        onGraphReady = { navGraphReady = true }
+                    )
+                }
             }
         }
     }
