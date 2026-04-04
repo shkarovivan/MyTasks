@@ -7,8 +7,6 @@ import com.shkarov.mytasks.repository.TasksRepository
 import com.shkarov.mytasks.utils.getTomorrowTimestamp
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,36 +18,38 @@ class SearchResultScreenViewModel @Inject constructor(
     private val repository: TasksRepository
 ) : ViewModel() {
 
-    private var ids = mutableListOf<String>()
+    private var taskIds = mutableListOf<String>()
 
     private val _tasks: MutableStateFlow<List<Task>> = MutableStateFlow(emptyList())
     val tasks: StateFlow<List<Task>> = _tasks.asStateFlow()
 
     fun getTasks(ids: List<String>) {
-        this.ids = ids.toMutableList()
-        updateTasks()
+        taskIds = ids.toMutableList()
+        collectAllTasks(taskIds)
     }
 
     fun getTodayTasks() {
-        viewModelScope.launch(Dispatchers.IO) {
-            _tasks.value = repository.getTimedTasks(getTomorrowTimestamp())
-        }
+        collectAllTasks(null)
     }
-    private fun updateTasks() {
-        viewModelScope.launch(Dispatchers.IO) {
-            _tasks.value = ids
-                .map { id ->
-                    async { repository.getTaskById(id) }
+
+    fun collectAllTasks(ids: List<String>?) {
+        viewModelScope.launch {
+            repository.getTasksFlow().collect { tasks ->
+                _tasks.value = tasks.filter { task ->
+                    if (ids == null) {
+                        task.deadLineMs < getTomorrowTimestamp()
+                    } else {
+                        task.id in taskIds
+                    }
                 }
-                .awaitAll()
+            }
         }
     }
 
     fun deleteTaskById(taskId: String) {
         viewModelScope.launch(Dispatchers.IO) {
+            taskIds.remove(taskId)
             repository.deleteTaskByID(taskId)
-            ids.remove(taskId)
-            updateTasks()
         }
     }
 
