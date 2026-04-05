@@ -25,7 +25,7 @@ fun NavGraph(
         composable(route = Screens.WorkTasks.route) {
             LaunchedEffect(Unit) {
                 onFABVisibilityChanged(true)
-                onGraphReady()  // граф точно готов когда первый экран отрисовался
+                onGraphReady()
             }
             TasksScreen(navController, true, {})
         }
