@@ -19,11 +19,12 @@ class AiProvidersRepositoryImpl @Inject constructor(): AiProvidersRepository {
             name = "ProxyAi",
             host = "https://api.proxyapi.ru",
             models = listOf(
-                AiModel("openai/gpt-5.4"),
-                AiModel("openai/o4-mini"),
-                AiModel("anthropic/claude-opus-4-6"),
-                AiModel("anthropic/claude-sonnet-4-6"),
-                AiModel("gemini/gemini-2.5-pro"),
+                AiModel("GPT-5.4 mini", "gpt-5.4-mini"),
+                AiModel("GPT-o4 mini", "o4-mini"),
+                AiModel("GPT-5.4", "gpt-5.4"),
+//                AiModel("Claude Opus 4.6", "claude-opus-4-6"),
+//                AiModel("Claude Sonnet 4.6", "claude-sonnet-4-6"),
+//                AiModel("Gemini 2.5 pro", "gemini-2.5-pro"),
             )
         )
 

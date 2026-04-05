@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
@@ -32,6 +34,7 @@ import com.shkarov.mytasks.settings.TimePickerDialog
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.res.dimensionResource
 import com.shkarov.mytasks.repository.AiProvider
 
 
@@ -54,11 +57,15 @@ fun AppDrawerContent(
 
     var showTimePicker by remember { mutableStateOf(false) }
 
+    val scrollState = rememberScrollState()
+
     ModalDrawerSheet {
         Text(
             text = stringResource(R.string.settings_title),
             style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier
+                .padding(16.dp)
+                .verticalScroll(scrollState)
         )
 
         HorizontalDivider()
@@ -99,7 +106,7 @@ fun AppDrawerContent(
                     }
                 },
                 modifier = Modifier
-                    .padding(start = 16.dp) // небольшой отступ — вложенная настройка
+                    .padding(start = dimensionResource(R.dimen.padding_main))
                     .clickable { showTimePicker = true }
             )
         }
@@ -142,20 +149,52 @@ fun AppDrawerContent(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { omLlmProviderChanged(provider)}
-                            .padding(horizontal = 16.dp, vertical = 12.dp),
+                            .clickable { omLlmProviderChanged(provider) }
+                            .padding(
+                                horizontal = dimensionResource(R.dimen.padding_main),
+                                vertical = dimensionResource(R.dimen.padding_small)
+                            ),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         RadioButton(
                             selected = provider.name == llmProvider,
-                            onClick = { omLlmProviderChanged(provider)}
+                            onClick = { omLlmProviderChanged(provider) }
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(text = provider.name)
                     }
                 }
+
+                HorizontalDivider()
+
+                ListItem(
+                    headlineContent = { Text(stringResource(R.string.settings_llm_model)) },
+                    supportingContent = { Text(stringResource(R.string.settings_llm_model_choice)) },
+                )
+
+                providers.firstOrNull { it.name == llmProvider }?.let { currentProvider ->
+                    currentProvider.models.forEach { model ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { omLlmModelChanged(model.path) }
+                                .padding(
+                                    horizontal = dimensionResource(R.dimen.padding_main),
+                                ),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = model.path == llmModel,
+                                onClick = { omLlmModelChanged(model.path) }
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(text = model.name)
+                        }
+                    }
+                }
             }
         }
+
     }
 
     if (showTimePicker) {

@@ -19,11 +19,14 @@ import com.shkarov.mytasks.network.data.ChatMessage
 import com.shkarov.mytasks.network.data.ChatRequest
 import com.shkarov.mytasks.network.data.TaskResponse
 import com.shkarov.mytasks.repository.TasksRepository
+import com.shkarov.mytasks.settings.SettingsStore
 import com.shkarov.mytasks.utils.toEpochMillis
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.text.SimpleDateFormat
@@ -39,12 +42,19 @@ class MainScreenViewModel @Inject constructor(
     private val application: Application,
     private val repository: TasksRepository,
     private val apiService: ApiService,
+    settingsStore: SettingsStore
 ) : AndroidViewModel(application) {
 
     private val _loading: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val loading: MutableStateFlow<Boolean> = _loading
     private val _searchResultFlow: MutableStateFlow<SearchResult?> = MutableStateFlow(null)
     val searchResultFlow: StateFlow<SearchResult?> = _searchResultFlow.asStateFlow()
+
+    val aiModel = settingsStore.llmModelFlow
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = "")
 
     private val gson: Gson = GsonBuilder()
         .disableHtmlEscaping()
@@ -102,6 +112,7 @@ class MainScreenViewModel @Inject constructor(
             _loading.value = true
             val response = apiService.chatRequest(
                 ChatRequest(
+                    model = aiModel.value,
                     messages = listOf(
                         ChatMessage(
                             content = createNewTaskRequest(request)
@@ -161,7 +172,7 @@ class MainScreenViewModel @Inject constructor(
                 id = System.currentTimeMillis().toString(),
                 created = SimpleDateFormat(
                     "dd.MM.yyyy",
-                    Locale.getDefault()
+                    getDefault()
                 ).format(Date()),
                 title = taskResponse.title,
                 description = taskResponse.description,

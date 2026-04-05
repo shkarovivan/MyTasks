@@ -11,5 +11,6 @@ data class AiProvider(
 )
 
 data class AiModel(
-    val name: String
+    val name: String,
+    val path: String,
 )

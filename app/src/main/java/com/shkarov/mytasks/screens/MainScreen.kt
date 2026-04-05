@@ -129,7 +129,7 @@ fun MainScreen(
     val loading by mainScreenViewModel.loading.collectAsState(initial = false)
 
     if (loading) {
-        Dialog(onDismissRequest = {  }) {
+        Dialog(onDismissRequest = { }) {
             Box(
                 modifier = Modifier
                     .size(dimensionResource(id = R.dimen.loader_size)),

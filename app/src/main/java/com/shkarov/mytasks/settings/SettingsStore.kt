@@ -9,12 +9,17 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.shkarov.mytasks.screens.Screens
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import timber.log.Timber
+import javax.inject.Inject
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "notification_settings")
 
-class SettingsStore(private val context: Context) {
+class SettingsStore @Inject constructor(
+    @ApplicationContext private val context: Context
+){
 
     private companion object {
         val KEY_HOUR = intPreferencesKey("notification_hour")
@@ -45,7 +50,6 @@ class SettingsStore(private val context: Context) {
     val llmModelFlow : Flow<String> = context.dataStore.data.map { preferences ->
         preferences[LLM_MODEL] ?: ""
     }
-
 
     suspend fun saveLastTabRoute(route: String) {
         context.dataStore.edit { preferences ->
@@ -89,9 +93,10 @@ class SettingsStore(private val context: Context) {
         }
     }
 
-    suspend fun saveLlmModel(provider:  String) {
+    suspend fun saveLlmModel(model:  String) {
+        Timber.d("saveLlmModel - $model")
         context.dataStore.edit { prefs ->
-            prefs[LLM_MODEL] = provider
+            prefs[LLM_MODEL] = model
         }
     }
 }
