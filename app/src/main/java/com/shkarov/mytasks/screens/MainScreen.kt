@@ -57,6 +57,8 @@ fun MainScreen(
     val darkThemeEnabled by settingsViewModel.darkThemeEnabled.collectAsStateWithLifecycle()
 
     val llmDirectConnectionType by settingsViewModel.llmConnectionDirectType.collectAsStateWithLifecycle()
+    val llmProvider by settingsViewModel.llmProvider.collectAsStateWithLifecycle()
+    val llmModel by settingsViewModel.llmModel.collectAsStateWithLifecycle()
 
     val notificationsEnabled by settingsViewModel.notificationsEnabled.collectAsStateWithLifecycle()
     val notificationTime by settingsViewModel.notificationTime.collectAsStateWithLifecycle()
@@ -165,9 +167,18 @@ fun MainScreen(
                 onDarkThemeChanged = { enabled ->
                     settingsViewModel.setDarkThemeEnabled(enabled)
                 },
+                llmProvider = llmProvider,
+                omLlmProviderChanged = { provider ->
+                    settingsViewModel.setLlmProvider(provider)
+                },
+                llmModel = llmModel,
+                omLlmModelChanged = { model ->
+                    settingsViewModel.setLlmModel(model)
+                },
+                providers = settingsViewModel.aiProviders,
                 onNotificationTimeChanged = { hour, minute ->
                     settingsViewModel.updateNotificationTime(hour, minute)
-                }
+                },
             )
         }
     ) {

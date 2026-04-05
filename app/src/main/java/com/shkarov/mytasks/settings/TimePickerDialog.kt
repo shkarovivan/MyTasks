@@ -1,4 +1,4 @@
-package com.shkarov.mytasks.settings.notifications
+package com.shkarov.mytasks.settings
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth

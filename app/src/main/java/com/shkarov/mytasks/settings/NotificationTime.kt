@@ -1,4 +1,4 @@
-package com.shkarov.mytasks.settings.notifications
+package com.shkarov.mytasks.settings
 
 data class NotificationTime(
     val hour: Int = 9,

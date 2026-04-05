@@ -1,4 +1,4 @@
-package com.shkarov.mytasks.settings.notifications
+package com.shkarov.mytasks.settings
 
 import android.content.Context
 import androidx.datastore.core.DataStore
@@ -22,6 +22,10 @@ class SettingsStore(private val context: Context) {
         val KEY_ENABLED = booleanPreferencesKey("notifications_enabled")
         val LAST_TAB_ROUTE = stringPreferencesKey("last_tab_route")
         val LLM_DIRECT_CONNECTION = booleanPreferencesKey("llm_direct_connection")
+
+        val LLM_PROVIDER = stringPreferencesKey("llm_provider")
+
+        val LLM_MODEL = stringPreferencesKey("llm_model")
         const val DEFAULT_HOUR = 7
         const val DEFAULT_MINUTE = 30
     }
@@ -32,6 +36,14 @@ class SettingsStore(private val context: Context) {
 
     val llmDirectConnectionFlow : Flow<Boolean> = context.dataStore.data.map { preferences ->
         preferences[LLM_DIRECT_CONNECTION] ?: true
+    }
+
+    val llmProviderFlow : Flow<String> = context.dataStore.data.map { preferences ->
+        preferences[LLM_PROVIDER] ?: ""
+    }
+
+    val llmModelFlow : Flow<String> = context.dataStore.data.map { preferences ->
+        preferences[LLM_MODEL] ?: ""
     }
 
 
@@ -68,6 +80,18 @@ class SettingsStore(private val context: Context) {
     suspend fun saveLlmConnectionDirectType(enabled: Boolean) {
         context.dataStore.edit { prefs ->
             prefs[LLM_DIRECT_CONNECTION] = enabled
+        }
+    }
+
+    suspend fun saveLlmProvider(provider:  String) {
+        context.dataStore.edit { prefs ->
+            prefs[LLM_PROVIDER] = provider
+        }
+    }
+
+    suspend fun saveLlmModel(provider:  String) {
+        context.dataStore.edit { prefs ->
+            prefs[LLM_MODEL] = provider
         }
     }
 }

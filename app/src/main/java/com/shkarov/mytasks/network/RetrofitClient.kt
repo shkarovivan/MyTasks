@@ -9,14 +9,18 @@ import java.util.concurrent.TimeUnit
 object RetrofitClient {
     const val USE_UNSAFE = false
 
-    fun create(baseUrl: String, enableLogging: Boolean = true): ApiService {
+    fun create(
+        dynamicUrlInterceptor: DynamicUrlInterceptor,
+        baseUrl: String,
+        enableLogging: Boolean = true
+    ): ApiService {
         val clientBuilder = OkHttpClient.Builder()
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)
+            .addInterceptor(dynamicUrlInterceptor)
             .addInterceptor(AuthInterceptor())
 
-        // Добавляем логирование
         if (enableLogging) {
             val loggingInterceptor = HttpLoggingInterceptor().apply {
                 level = HttpLoggingInterceptor.Level.BODY

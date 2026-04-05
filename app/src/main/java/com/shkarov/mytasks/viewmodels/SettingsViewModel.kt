@@ -3,9 +3,12 @@ package com.shkarov.mytasks.viewmodels
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.shkarov.mytasks.network.DynamicUrlInterceptor
+import com.shkarov.mytasks.repository.AiProvider
+import com.shkarov.mytasks.repository.AiProvidersRepository
 import com.shkarov.mytasks.settings.ThemeSettings
-import com.shkarov.mytasks.settings.notifications.SettingsStore
-import com.shkarov.mytasks.settings.notifications.NotificationTime
+import com.shkarov.mytasks.settings.SettingsStore
+import com.shkarov.mytasks.settings.NotificationTime
 import com.shkarov.mytasks.worker.TaskReminderScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -19,12 +22,16 @@ import javax.inject.Inject
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     application: Application,
-    private val themeSettings: ThemeSettings
+    private val themeSettings: ThemeSettings,
+    private val dynamicUrlInterceptor: DynamicUrlInterceptor,
+    aiProviderRepository: AiProvidersRepository
 ) : AndroidViewModel(application) {
 
     private val settingsStore = SettingsStore(application)
 
     val lastTabRoute = settingsStore.lastTabRouteFlow
+
+    val aiProviders = aiProviderRepository.getAiProviders()
 
     fun saveLastTabRoute(route: String) {
         viewModelScope.launch {
@@ -50,6 +57,31 @@ class SettingsViewModel @Inject constructor(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = true)
+
+    val llmProvider: StateFlow<String> = settingsStore.llmProviderFlow
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = "")
+
+    val llmModel: StateFlow<String> = settingsStore.llmModelFlow
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = "")
+
+    fun setLlmProvider(provider: AiProvider) {
+        viewModelScope.launch {
+            settingsStore.saveLlmProvider(provider.name)
+            dynamicUrlInterceptor.baseUrl = provider.host
+        }
+    }
+
+    fun setLlmModel(model: String) {
+        viewModelScope.launch {
+            settingsStore.saveLlmModel(model)
+        }
+    }
 
     fun setConnectionDirectType(enabled: Boolean) {
         viewModelScope.launch {
