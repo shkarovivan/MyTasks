@@ -45,6 +45,18 @@ class SettingsViewModel @Inject constructor(
             initialValue = runBlocking { themeSettings.darkThemeFlow.first() }
         )
 
+    val llmConnectionDirectType: StateFlow<Boolean> = settingsStore.llmDirectConnectionFlow
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = true)
+
+    fun setConnectionDirectType(enabled: Boolean) {
+        viewModelScope.launch {
+            settingsStore.saveLlmConnectionDirectType(enabled = enabled)
+        }
+    }
+
     fun setDarkThemeEnabled(enabled: Boolean) {
         viewModelScope.launch {
             themeSettings.setDarkThemeEnabled(enabled)

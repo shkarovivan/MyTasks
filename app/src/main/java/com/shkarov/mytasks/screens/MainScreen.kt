@@ -54,7 +54,9 @@ fun MainScreen(
 
     val mainScreenViewModel: MainScreenViewModel = hiltViewModel()
     val settingsViewModel: SettingsViewModel = hiltViewModel()
-    val darkThemeEnabled by settingsViewModel.darkThemeEnabled.collectAsState()
+    val darkThemeEnabled by settingsViewModel.darkThemeEnabled.collectAsStateWithLifecycle()
+
+    val llmDirectConnectionType by settingsViewModel.llmConnectionDirectType.collectAsStateWithLifecycle()
 
     val notificationsEnabled by settingsViewModel.notificationsEnabled.collectAsStateWithLifecycle()
     val notificationTime by settingsViewModel.notificationTime.collectAsStateWithLifecycle()
@@ -156,7 +158,13 @@ fun MainScreen(
                 onNotificationsChanged = { enabled ->
                     settingsViewModel.onNotificationsEnabled(enabled)
                 },
-                onDarkThemeChanged = { settingsViewModel.setDarkThemeEnabled(it) },
+                llmConnectionDirectType = llmDirectConnectionType,
+                omLlmTypeChanged = { enabled ->
+                    settingsViewModel.setConnectionDirectType(enabled)
+                },
+                onDarkThemeChanged = { enabled ->
+                    settingsViewModel.setDarkThemeEnabled(enabled)
+                },
                 onNotificationTimeChanged = { hour, minute ->
                     settingsViewModel.updateNotificationTime(hour, minute)
                 }

@@ -70,6 +70,8 @@
     <string name="settings_notifications_desc">Включить напоминания о задачах</string>
     <string name="settings_dark_theme">Тёмная тема</string>
     <string name="settings_dark_theme_desc">Использовать тёмное оформление</string>
+    <string name="settings_llm_connection">Подключение к нейросети</string>
+    <string name="settings_llm_connection_type">Напрямую (нужен токен)</string>
 
     <string name="detail_task_title">Детали задачи</string>
     <string name="cd_back">Назад</string>

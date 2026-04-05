@@ -33,6 +33,8 @@ fun AppDrawerContent(
     darkThemeEnabled: Boolean,
     notificationTime: NotificationTime,
     onNotificationsChanged: (Boolean) -> Unit,
+    llmConnectionDirectType: Boolean,
+    omLlmTypeChanged: (Boolean) -> Unit,
     onDarkThemeChanged: (Boolean) -> Unit,
     onNotificationTimeChanged: (Int, Int) -> Unit // час, минута
 ) {
@@ -102,6 +104,21 @@ fun AppDrawerContent(
                 )
             }
         )
+
+        HorizontalDivider()
+
+        ListItem(
+            headlineContent = { Text(stringResource(R.string.settings_llm_connection)) },
+            supportingContent = { Text(stringResource(R.string.settings_llm_connection_type)) },
+            trailingContent = {
+                Switch(
+                    checked = llmConnectionDirectType,
+                    onCheckedChange = omLlmTypeChanged,
+                    enabled = false
+                )
+            }
+        )
+
     }
 
     if (showTimePicker) {

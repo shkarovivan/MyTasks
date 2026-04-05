@@ -20,15 +20,20 @@ class SettingsStore(private val context: Context) {
         val KEY_HOUR = intPreferencesKey("notification_hour")
         val KEY_MINUTE = intPreferencesKey("notification_minute")
         val KEY_ENABLED = booleanPreferencesKey("notifications_enabled")
+        val LAST_TAB_ROUTE = stringPreferencesKey("last_tab_route")
+        val LLM_DIRECT_CONNECTION = booleanPreferencesKey("llm_direct_connection")
         const val DEFAULT_HOUR = 7
         const val DEFAULT_MINUTE = 30
     }
 
-    private val LAST_TAB_ROUTE = stringPreferencesKey("last_tab_route")
-
     val lastTabRouteFlow: Flow<String> = context.dataStore.data.map { preferences ->
         preferences[LAST_TAB_ROUTE] ?: Screens.WorkTasks.route
     }
+
+    val llmDirectConnectionFlow : Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[LLM_DIRECT_CONNECTION] ?: true
+    }
+
 
     suspend fun saveLastTabRoute(route: String) {
         context.dataStore.edit { preferences ->
@@ -57,6 +62,12 @@ class SettingsStore(private val context: Context) {
         context.dataStore.edit { prefs ->
             prefs[KEY_HOUR] = hour
             prefs[KEY_MINUTE] = minute
+        }
+    }
+
+    suspend fun saveLlmConnectionDirectType(enabled: Boolean) {
+        context.dataStore.edit { prefs ->
+            prefs[LLM_DIRECT_CONNECTION] = enabled
         }
     }
 }

@@ -56,6 +56,8 @@
     <string name="settings_notifications_desc">Enable task reminders</string>
     <string name="settings_dark_theme">Dark theme</string>
     <string name="settings_dark_theme_desc">Use dark appearance</string>
+    <string name="settings_llm_connection">AI Connection Type</string>
+    <string name="settings_llm_connection_type">Direct (use token)</string>
 
     <string name="speech_error_audio">Audio recording error</string>
     <string name="speech_error_client">Client side error</string>
