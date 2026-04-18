@@ -10,7 +10,7 @@ object RetrofitClient {
     const val USE_UNSAFE = false
 
     fun create(
-        dynamicUrlInterceptor: DynamicUrlInterceptor,
+        aiProviderInterceptor: AiProviderInterceptor,
         baseUrl: String,
         enableLogging: Boolean = true
     ): ApiService {
@@ -18,8 +18,7 @@ object RetrofitClient {
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)
-            .addInterceptor(dynamicUrlInterceptor)
-            .addInterceptor(AuthInterceptor())
+            .addInterceptor(aiProviderInterceptor)
 
         if (enableLogging) {
             val loggingInterceptor = HttpLoggingInterceptor().apply {

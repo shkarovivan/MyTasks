@@ -1,7 +1,7 @@
 package com.shkarov.mytasks.di
 
 import com.shkarov.mytasks.network.ApiService
-import com.shkarov.mytasks.network.DynamicUrlInterceptor
+import com.shkarov.mytasks.network.AiProviderInterceptor
 import com.shkarov.mytasks.network.RetrofitClient
 import dagger.Module
 import dagger.Provides
@@ -17,15 +17,15 @@ object RetrofitModule {
 
     @Provides
     @Singleton
-    fun provideDynamicUrlInterceptor(): DynamicUrlInterceptor {
-        return DynamicUrlInterceptor(DEFAULT_URL)
+    fun provideDynamicUrlInterceptor(): AiProviderInterceptor {
+        return AiProviderInterceptor(DEFAULT_URL)
     }
 
     @Provides
     @Singleton
-    fun provideApiService(dynamicUrlInterceptor: DynamicUrlInterceptor): ApiService {
+    fun provideApiService(aiProviderInterceptor: AiProviderInterceptor): ApiService {
         return RetrofitClient.create(
-            dynamicUrlInterceptor = dynamicUrlInterceptor,
+            aiProviderInterceptor = aiProviderInterceptor,
             baseUrl = DEFAULT_URL)
     }
 }

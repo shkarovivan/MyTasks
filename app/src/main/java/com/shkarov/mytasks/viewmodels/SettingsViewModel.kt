@@ -3,7 +3,8 @@ package com.shkarov.mytasks.viewmodels
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.shkarov.mytasks.network.DynamicUrlInterceptor
+import com.shkarov.mytasks.domain.provider.ProviderKey
+import com.shkarov.mytasks.network.AiProviderInterceptor
 import com.shkarov.mytasks.repository.AiProvider
 import com.shkarov.mytasks.repository.AiProvidersRepository
 import com.shkarov.mytasks.settings.ThemeSettings
@@ -14,16 +15,18 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     application: Application,
     private val themeSettings: ThemeSettings,
-    private val dynamicUrlInterceptor: DynamicUrlInterceptor,
+    private val providerInterceptor: AiProviderInterceptor,
     aiProviderRepository: AiProvidersRepository
 ) : AndroidViewModel(application) {
 
@@ -52,6 +55,12 @@ class SettingsViewModel @Inject constructor(
             initialValue = runBlocking { themeSettings.darkThemeFlow.first() }
         )
 
+    val providerKeyFlow: StateFlow<String> = settingsStore.providerKeyFlow
+        .onEach { key ->
+            providerInterceptor.providerToken = key
+        }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, "")
+
     val llmConnectionDirectType: StateFlow<Boolean> = settingsStore.llmDirectConnectionFlow
         .stateIn(
             scope = viewModelScope,
@@ -59,21 +68,23 @@ class SettingsViewModel @Inject constructor(
             initialValue = true)
 
     val llmProvider: StateFlow<String> = settingsStore.llmProviderFlow
+        .onEach { Timber.d("llmProvider - $it") }
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
+            started = SharingStarted.Eagerly,
             initialValue = "")
 
     val llmModel: StateFlow<String> = settingsStore.llmModelFlow
+        .onEach { Timber.d("llmModel - $it") }
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
+            started = SharingStarted.Eagerly,
             initialValue = "")
 
     fun setLlmProvider(provider: AiProvider) {
         viewModelScope.launch {
             settingsStore.saveLlmProvider(provider.name)
-            dynamicUrlInterceptor.baseUrl = provider.host
+            providerInterceptor.baseUrl = provider.host
         }
     }
 
@@ -110,6 +121,13 @@ class SettingsViewModel @Inject constructor(
             } else {
                 TaskReminderScheduler.cancel(getApplication())
             }
+        }
+    }
+
+    fun updateProviderKey(providerKey: ProviderKey) {
+        viewModelScope.launch {
+            settingsStore.saveProviderKey(providerKey)
+            providerInterceptor.providerToken = providerKey.key
         }
     }
 }

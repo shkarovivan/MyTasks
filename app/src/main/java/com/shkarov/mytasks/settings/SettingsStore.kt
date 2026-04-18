@@ -8,11 +8,11 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.shkarov.mytasks.domain.provider.ProviderKey
 import com.shkarov.mytasks.screens.Screens
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import timber.log.Timber
 import javax.inject.Inject
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "notification_settings")
@@ -22,6 +22,8 @@ class SettingsStore @Inject constructor(
 ){
 
     private companion object {
+
+        private const val TAG = "SettingsStore"
         val KEY_HOUR = intPreferencesKey("notification_hour")
         val KEY_MINUTE = intPreferencesKey("notification_minute")
         val KEY_ENABLED = booleanPreferencesKey("notifications_enabled")
@@ -31,6 +33,8 @@ class SettingsStore @Inject constructor(
         val LLM_PROVIDER = stringPreferencesKey("llm_provider")
 
         val LLM_MODEL = stringPreferencesKey("llm_model")
+
+        val CURRENT_PROVIDER_KEY = stringPreferencesKey("current_provider_key")
         const val DEFAULT_HOUR = 7
         const val DEFAULT_MINUTE = 30
     }
@@ -68,6 +72,10 @@ class SettingsStore @Inject constructor(
         )
     }
 
+    val providerKeyFlow: Flow<String> = context.dataStore.data.map { prefs ->
+        prefs[CURRENT_PROVIDER_KEY].orEmpty()
+    }
+
     suspend fun saveEnabled(enabled: Boolean) {
         context.dataStore.edit { prefs ->
             prefs[KEY_ENABLED] = enabled
@@ -90,13 +98,20 @@ class SettingsStore @Inject constructor(
     suspend fun saveLlmProvider(provider:  String) {
         context.dataStore.edit { prefs ->
             prefs[LLM_PROVIDER] = provider
+            prefs[CURRENT_PROVIDER_KEY] = prefs[stringPreferencesKey(provider)].orEmpty()
         }
     }
 
     suspend fun saveLlmModel(model:  String) {
-        Timber.d("saveLlmModel - $model")
         context.dataStore.edit { prefs ->
             prefs[LLM_MODEL] = model
+        }
+    }
+
+    suspend fun saveProviderKey(providerKey: ProviderKey) {
+        context.dataStore.edit { prefs ->
+            prefs[stringPreferencesKey(providerKey.providerName)] = providerKey.key
+            prefs[CURRENT_PROVIDER_KEY] = providerKey.key
         }
     }
 }

@@ -14,7 +14,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
@@ -22,6 +27,7 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,7 +41,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.unit.sp
+import com.shkarov.mytasks.domain.provider.ProviderKey
 import com.shkarov.mytasks.repository.AiProvider
+import timber.log.Timber
 
 
 @Composable
@@ -47,10 +56,11 @@ fun AppDrawerContent(
     llmConnectionDirectType: Boolean,
     omLlmTypeChanged: (Boolean) -> Unit,
     llmProvider: String,
-    omLlmProviderChanged: (AiProvider) -> Unit,
+    onLlmProviderChanged: (AiProvider) -> Unit,
     llmModel: String,
-    omLlmModelChanged: (String) -> Unit,
+    onLlmModelChanged: (String) -> Unit,
     providers: List<AiProvider>,
+    onProviderKeyChanged: (ProviderKey) -> Unit,
     onDarkThemeChanged: (Boolean) -> Unit,
     onNotificationTimeChanged: (Int, Int) -> Unit,
 ) {
@@ -58,6 +68,10 @@ fun AppDrawerContent(
     var showTimePicker by remember { mutableStateOf(false) }
 
     val scrollState = rememberScrollState()
+
+    var showDialog by remember { mutableStateOf(false) }
+    var dialogInput by remember { mutableStateOf("") }
+    var selectedProviderName by remember { mutableStateOf<String?>(null) }
 
     ModalDrawerSheet {
         Text(
@@ -149,7 +163,7 @@ fun AppDrawerContent(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { omLlmProviderChanged(provider) }
+                            .clickable { onLlmProviderChanged(provider) }
                             .padding(
                                 horizontal = dimensionResource(R.dimen.padding_main),
                                 vertical = dimensionResource(R.dimen.padding_small)
@@ -157,11 +171,32 @@ fun AppDrawerContent(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         RadioButton(
-                            selected = provider.name == llmProvider,
-                            onClick = { omLlmProviderChanged(provider) }
+                            selected = if (llmProvider.isNotEmpty()) {
+                                provider.name == llmProvider
+                            } else {
+                                provider.name == providers.first().name
+                            },
+                            onClick = { onLlmProviderChanged(provider) }
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(text = provider.name)
+                        IconButton(
+                            enabled = provider.name == llmProvider,
+                            onClick = {
+                                selectedProviderName = provider.name
+                                dialogInput = ""
+                                showDialog = true
+                            }
+                        ) {
+                            Icon(
+                                modifier = Modifier
+                                    .padding(
+                                        horizontal = dimensionResource(R.dimen.padding_small),
+                                    ),
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = stringResource(R.string.settings_llm_model_token)
+                            )
+                        }
                     }
                 }
 
@@ -172,29 +207,37 @@ fun AppDrawerContent(
                     supportingContent = { Text(stringResource(R.string.settings_llm_model_choice)) },
                 )
 
-                providers.firstOrNull { it.name == llmProvider }?.let { currentProvider ->
-                    currentProvider.models.forEach { model ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { omLlmModelChanged(model.path) }
-                                .padding(
-                                    horizontal = dimensionResource(R.dimen.padding_main),
-                                ),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            RadioButton(
-                                selected = model.path == llmModel,
-                                onClick = { omLlmModelChanged(model.path) }
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(text = model.name)
-                        }
+                val currentProvider =
+                    providers.firstOrNull { it.name == llmProvider } ?: providers.first()
+
+                Timber.d("currentProvider - ${currentProvider.name}")
+
+                currentProvider.models.forEach { model ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onLlmModelChanged(model.path) }
+                            .padding(
+                                horizontal = dimensionResource(R.dimen.padding_main),
+                            ),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RadioButton(
+                            selected = if (llmModel.isNotEmpty()
+                                && currentProvider.models.map { it.path }.contains(llmModel)
+                            ) {
+                                model.path == llmModel
+                            } else {
+                                model.path == providers.first().models.first().path
+                            },
+                            onClick = { onLlmModelChanged(model.path) }
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(text = model.name)
                     }
                 }
             }
         }
-
     }
 
     if (showTimePicker) {
@@ -206,6 +249,43 @@ fun AppDrawerContent(
                 showTimePicker = false
             },
             onDismiss = { showTimePicker = false }
+        )
+    }
+
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = {
+                Text(
+                    text = selectedProviderName + stringResource(R.string.settings_llm_model_token_description),
+                    fontSize = dimensionResource(R.dimen.main_text_size).value.sp,
+                )
+            },
+            text = {
+                TextField(
+                    value = dialogInput,
+                    onValueChange = { dialogInput = it },
+                    singleLine = true
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    selectedProviderName?.let {
+                        onProviderKeyChanged(ProviderKey(
+                            providerName = it,
+                            key = dialogInput
+                        ))
+                    }
+                    showDialog = false
+                }) {
+                    Text(stringResource(R.string.save_text))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDialog = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
         )
     }
 }

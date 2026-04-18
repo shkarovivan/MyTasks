@@ -60,6 +60,10 @@
     <string name="settings_llm_connection_type">Direct (use token)</string>
     <string name="settings_llm_model">AI model</string>
     <string name="settings_llm_model_choice">choice Ai model</string>
+    <string name="settings_llm_model_token">Token</string>
+    <string name="settings_llm_model_token_title">Enter provider key</string>
+    <string name="settings_llm_model_token_description">-enter the individual key you received from the provider. The model cannot be accessed without a key.</string>
+
 
     <string name="speech_error_audio">Audio recording error</string>
     <string name="speech_error_client">Client side error</string>

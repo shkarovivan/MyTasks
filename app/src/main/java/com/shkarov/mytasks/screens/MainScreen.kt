@@ -168,14 +168,17 @@ fun MainScreen(
                     settingsViewModel.setDarkThemeEnabled(enabled)
                 },
                 llmProvider = llmProvider,
-                omLlmProviderChanged = { provider ->
+                onLlmProviderChanged = { provider ->
                     settingsViewModel.setLlmProvider(provider)
                 },
                 llmModel = llmModel,
-                omLlmModelChanged = { model ->
+                onLlmModelChanged = { model ->
                     settingsViewModel.setLlmModel(model)
                 },
                 providers = settingsViewModel.aiProviders,
+                onProviderKeyChanged = { providerKey ->
+                    settingsViewModel.updateProviderKey(providerKey)
+                },
                 onNotificationTimeChanged = { hour, minute ->
                     settingsViewModel.updateNotificationTime(hour, minute)
                 },

@@ -4,10 +4,10 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class AiProvidersRepositoryImpl @Inject constructor(): AiProvidersRepository {
+class AiProvidersRepositoryImpl @Inject constructor() : AiProvidersRepository {
     private val providers: List<AiProvider> = listOf(
         proxyAi,
-//        eliza
+        //eliza
     )
 
     override fun getAiProviders(): List<AiProvider> {
@@ -29,10 +29,13 @@ class AiProvidersRepositoryImpl @Inject constructor(): AiProvidersRepository {
         )
 
         private val eliza: AiProvider = AiProvider(
-            name = "Eliza",
-            host = "",
+            name = "Yandex Eliza",
+            host = "https://api.eliza.yandex.net",
             models = listOf(
-
+                AiModel("GPT-5.4 mini", "gpt-5.4-mini"),
+                AiModel("GPT-5.4 nano", "gpt-5.4-nano"),
+                AiModel("GPT-4.1", "gpt-4.1"),
+                AiModel("GPT-5.4", "gpt-5.4"),
             )
         )
     }

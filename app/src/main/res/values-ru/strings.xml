@@ -74,6 +74,9 @@
     <string name="settings_llm_connection_type">Напрямую (нужен токен)</string>
     <string name="settings_llm_model">AI модель</string>
     <string name="settings_llm_model_choice">Выберите Ai модель</string>
+    <string name="settings_llm_model_token">Ключ</string>
+    <string name="settings_llm_model_token_title">Введите ключ провайдера</string>
+    <string name="settings_llm_model_token_description">-введите индивидульный ключ, полученный у провайдера. Без ключа доступ у модели невозможен</string>
 
     <string name="detail_task_title">Детали задачи</string>
     <string name="cd_back">Назад</string>
