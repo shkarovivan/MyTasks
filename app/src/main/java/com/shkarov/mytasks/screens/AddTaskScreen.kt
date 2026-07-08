@@ -101,10 +101,10 @@ fun AddTaskScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(bottom = dimensionResource(id = R.dimen.bottom_height))
     ) {
         Column(
             modifier = Modifier
+                .weight(1f)
                 .verticalScroll(rememberScrollState())
                 .padding(all = dimensionResource(id = R.dimen.padding_small))
         ) {
@@ -286,74 +286,74 @@ fun AddTaskScreen(
                 Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_main)))
             }
 
-            Row(
-                verticalAlignment = Alignment.Bottom,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Button(
-                    modifier = Modifier
-                        .padding(
-                            vertical = dimensionResource(id = R.dimen.padding_smallest),
-                            horizontal = dimensionResource(id = R.dimen.padding_main)
-                        )
-                        .fillMaxWidth(),
-                    onClick = {
-                        // 1. Проверяем, что поля заполнены
-                        if (titleValue.isBlank()) {
-                            Timber.w("Заголовок задачи не может быть пустым")
-                            return@Button
-                        }
-                        val zone = ZoneId.systemDefault()
-                        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+        }
 
-                        val deadlineTextToSave =
-                            if (selectedDeadlineValue.value == chooseDateItem && chosenDateMs != null) {
-
-                                val localDate = Instant.ofEpochMilli(chosenDateMs!!)
-                                    .atZone(ZoneOffset.UTC)
-                                    .toLocalDate()
-
-                                localDate
-                                    .atStartOfDay(zone)
-                                    .format(formatter)
-
-                            } else {
-                                selectedDeadlineValue.value
-                            }
-
-                        val task = Task(
-                            id = System.currentTimeMillis().toString(),
-                            created = SimpleDateFormat(
-                                "dd.MM.yyyy",
-                                Locale.getDefault()
-                            ).format(Date()),
-                            title = titleValue,
-                            description = descriptionValue.takeIf { !descriptionValue.isEmpty() } ?: titleValue,
-                            type = when (selectedTypeValue.value) {
-                                dailyTasksLabel -> Type.DAILY.value
-                                mediumTasksLabel -> Type.MEDIUM.value
-                                largeTasksLabel -> Type.LARGE.value
-                                else -> "daily" // дефолт
-                            },
-                            deadLine = deadlineTextToSave,
-                            deadLineMs = deadlineTextToSave.toEpochMillis(),
-                            status = Status.STARTED,
-                            work = if (isWorkTask) Work.WORK else Work.HOME
-                        )
-
-                        viewModel.addTask(task)
-                        onBackClick()
-                    })
-                {
-                    Text(
-                        text = stringResource(id = R.string.save_text),
-                        fontWeight = FontWeight.Bold,
-                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth()
+        Row(
+            verticalAlignment = Alignment.Bottom,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Button(
+                modifier = Modifier
+                    .padding(
+                        vertical = dimensionResource(id = R.dimen.padding_smallest),
+                        horizontal = dimensionResource(id = R.dimen.padding_main)
                     )
-                }
-            }
+                    .fillMaxWidth(),
+                onClick = {
+                    // 1. Проверяем, что поля заполнены
+                    if (titleValue.isBlank()) {
+                        Timber.w("Заголовок задачи не может быть пустым")
+                        return@Button
+                    }
+                    val zone = ZoneId.systemDefault()
+                    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
 
+                    val deadlineTextToSave =
+                        if (selectedDeadlineValue.value == chooseDateItem && chosenDateMs != null) {
+
+                            val localDate = Instant.ofEpochMilli(chosenDateMs!!)
+                                .atZone(ZoneOffset.UTC)
+                                .toLocalDate()
+
+                            localDate
+                                .atStartOfDay(zone)
+                                .format(formatter)
+
+                        } else {
+                            selectedDeadlineValue.value
+                        }
+
+                    val task = Task(
+                        id = System.currentTimeMillis().toString(),
+                        created = SimpleDateFormat(
+                            "dd.MM.yyyy",
+                            Locale.getDefault()
+                        ).format(Date()),
+                        title = titleValue,
+                        description = descriptionValue.takeIf { !descriptionValue.isEmpty() } ?: titleValue,
+                        type = when (selectedTypeValue.value) {
+                            dailyTasksLabel -> Type.DAILY.value
+                            mediumTasksLabel -> Type.MEDIUM.value
+                            largeTasksLabel -> Type.LARGE.value
+                            else -> "daily" // дефолт
+                        },
+                        deadLine = deadlineTextToSave,
+                        deadLineMs = deadlineTextToSave.toEpochMillis(),
+                        status = Status.STARTED,
+                        work = if (isWorkTask) Work.WORK else Work.HOME
+                    )
+
+                    viewModel.addTask(task)
+                    onBackClick()
+                })
+            {
+                Text(
+                    text = stringResource(id = R.string.save_text),
+                    fontWeight = FontWeight.Bold,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
         }
 
     }
