@@ -9,6 +9,7 @@ interface TasksRepository {
     suspend fun getTaskByStatus(status: String): List<Task>
     suspend fun getTaskByWork(work: String): List<Task>
     suspend fun getTaskById(id: String): Task
+    fun getTaskByIdFlow(id: String): Flow<Task?>
     suspend fun insertTask(task: Task)
     suspend fun deleteTaskByID(id: String)
     suspend fun getAllTasks(): List<Task>

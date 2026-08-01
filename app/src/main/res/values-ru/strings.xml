@@ -80,6 +80,9 @@
 
     <string name="detail_task_title">Детали задачи</string>
     <string name="cd_back">Назад</string>
+    <string name="new_task_title">Новая задача</string>
+    <string name="edit_task_title">Редактирование задачи</string>
+    <string name="edit_task">Изменить</string>
     <string name="task_description">Описание</string>
     <string name="task_information">Информация</string>
     <string name="task_created">Создано</string>

@@ -30,6 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.shkarov.mytasks.R
 import com.shkarov.mytasks.domain.model.Status
 import com.shkarov.mytasks.domain.model.Task
@@ -54,15 +55,23 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun AddTaskScreen(
+    taskId: String? = null,
     isWorkTask: Boolean = true,
     onBackClick: () -> Unit
 ) {
+    val isEditing = taskId != null
+    val viewModel: AddTaskViewModel = hiltViewModel()
+    val taskToEdit by viewModel.taskToEdit.collectAsStateWithLifecycle()
+
+    LaunchedEffect(taskId) {
+        if (!taskId.isNullOrEmpty()) viewModel.loadTaskForEdit(taskId)
+    }
+
     var titleValue by remember { mutableStateOf("") }
     var chosenData by remember { mutableStateOf<String?>("") }
     val onChangeData: (String) -> Unit = { chosenData = it }
     var descriptionValue by remember { mutableStateOf("") }
 
-    val viewModel: AddTaskViewModel = hiltViewModel()
     val selectedTypeValue = remember { mutableStateOf("") }
     val isSelectedTypeItem: (String) -> Boolean = { selectedTypeValue.value == it }
     val onChangeTypeState: (String) -> Unit = { selectedTypeValue.value = it }
@@ -98,6 +107,36 @@ fun AddTaskScreen(
         stringResource(id = R.string.deadline_choose_date)
     )
 
+    // Pre-fill the form from the task being edited (runs once it finishes loading).
+    LaunchedEffect(taskToEdit) {
+        val task = taskToEdit ?: return@LaunchedEffect
+        titleValue = task.title
+        descriptionValue = task.description
+        selectedTypeValue.value = when (task.type) {
+            Type.MEDIUM.value -> mediumTasksLabel
+            Type.LARGE.value -> largeTasksLabel
+            else -> dailyTasksLabel
+        }
+        val isQuickDeadline = task.deadLine in deadlineItems && task.deadLine != chooseDateItem
+        when {
+            // A previously picked concrete date (or any non-quick value with a timestamp).
+            !isQuickDeadline && task.deadLineMs > 0L -> {
+                selectedDeadlineValue.value = chooseDateItem
+                chosenDateMs = task.deadLineMs
+                chosenDateText = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
+                    .format(Date(task.deadLineMs))
+            }
+            // One of the "1..7 days" quick options.
+            isQuickDeadline -> {
+                selectedDeadlineValue.value = task.deadLine
+            }
+            else -> {
+                selectedDeadlineValue.value = chooseDateItem
+                chosenDateText = task.deadLine
+            }
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -108,6 +147,20 @@ fun AddTaskScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(all = dimensionResource(id = R.dimen.padding_small))
         ) {
+            Text(
+                text = stringResource(
+                    id = if (isEditing) R.string.edit_task_title else R.string.new_task_title
+                ),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .padding(
+                        start = dimensionResource(id = R.dimen.padding_main),
+                        top = dimensionResource(id = R.dimen.padding_main),
+                        bottom = dimensionResource(id = R.dimen.padding_small)
+                    )
+            )
+
             Text(
                 text = stringResource(id = R.string.task_title),
                 fontWeight = FontWeight.Bold,
@@ -323,9 +376,10 @@ fun AddTaskScreen(
                             selectedDeadlineValue.value
                         }
 
+                    val existing = taskToEdit
                     val task = Task(
-                        id = System.currentTimeMillis().toString(),
-                        created = SimpleDateFormat(
+                        id = existing?.id ?: System.currentTimeMillis().toString(),
+                        created = existing?.created ?: SimpleDateFormat(
                             "dd.MM.yyyy",
                             Locale.getDefault()
                         ).format(Date()),
@@ -335,12 +389,12 @@ fun AddTaskScreen(
                             dailyTasksLabel -> Type.DAILY.value
                             mediumTasksLabel -> Type.MEDIUM.value
                             largeTasksLabel -> Type.LARGE.value
-                            else -> "daily" // дефолт
+                            else -> existing?.type ?: Type.DAILY.value // дефолт
                         },
                         deadLine = deadlineTextToSave,
                         deadLineMs = deadlineTextToSave.toEpochMillis(),
-                        status = Status.STARTED,
-                        work = if (isWorkTask) Work.WORK else Work.HOME
+                        status = existing?.status ?: Status.STARTED,
+                        work = existing?.work ?: if (isWorkTask) Work.WORK else Work.HOME
                     )
 
                     viewModel.addTask(task)

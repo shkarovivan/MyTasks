@@ -21,6 +21,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Schedule
@@ -62,7 +63,8 @@ import com.shkarov.mytasks.viewmodels.DetailTaskViewModel
 @Composable
 fun DetailTaskScreen(
     taskId: String,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onEditClick: (String) -> Unit = {}
 ) {
     val viewModel: DetailTaskViewModel = hiltViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -80,6 +82,14 @@ fun DetailTaskScreen(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.cd_back)
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { onEditClick(taskId) }) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = stringResource(R.string.edit_task)
                         )
                     }
                 }

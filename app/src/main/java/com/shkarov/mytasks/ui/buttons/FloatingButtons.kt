@@ -29,7 +29,7 @@ fun FloatingButtonAddByText(navController: NavHostController) {
             bottom = dimensionResource(id = dimen.floating_button_padding)
         ),
         onClick = {
-            navController.navigate(CreateTaskScreen.CreatedTaskScreen.route) {
+            navController.navigate(CreateTaskScreen.CreatedTaskScreen.routeFor(null)) {
                 launchSingleTop = true
             }
         },

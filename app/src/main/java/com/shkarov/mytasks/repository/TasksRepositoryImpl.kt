@@ -32,6 +32,10 @@ class TasksRepositoryImpl @Inject constructor(
         return tasksDao.getTaskById(id)
     }
 
+    override fun getTaskByIdFlow(id: String): Flow<Task?> {
+        return tasksDao.getTaskByIdFlow(id).flowOn(Dispatchers.IO)
+    }
+
     override suspend fun getTaskByStatus(status: String): List<Task> {
         return tasksDao.getTaskByStatus(status)
     }

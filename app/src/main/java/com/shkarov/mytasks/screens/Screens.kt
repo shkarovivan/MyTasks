@@ -32,8 +32,14 @@ sealed class CreateTaskScreen(
     val route: String
 ) {
     object CreatedTaskScreen : CreateTaskScreen(
-        route = "create_task_screen"
-    )
+        route = "create_task_screen?taskId={taskId}"
+    ) {
+        const val ARG_TASK_ID = "taskId"
+
+        /** Base route creates a new task; passing a [taskId] opens the editor in edit mode. */
+        fun routeFor(taskId: String?): String =
+            if (taskId.isNullOrEmpty()) "create_task_screen" else "create_task_screen?taskId=$taskId"
+    }
 
 }
 

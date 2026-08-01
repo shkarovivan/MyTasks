@@ -80,6 +80,9 @@
 
     <string name="detail_task_title">Task Details</string>
     <string name="cd_back">Back</string>
+    <string name="new_task_title">New task</string>
+    <string name="edit_task_title">Edit task</string>
+    <string name="edit_task">Edit</string>
     <string name="task_description">Description</string>
     <string name="task_information">Information</string>
     <string name="task_created">Created</string>

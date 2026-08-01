@@ -46,19 +46,32 @@ fun NavGraph(
                 onFABVisibilityChanged(false)
             }
             DetailTaskScreen(
-                taskId = taskId.orEmpty()
-            ) {
-                navController.popBackStack()
-            }
+                taskId = taskId.orEmpty(),
+                onBackClick = { navController.popBackStack() },
+                onEditClick = { id ->
+                    navController.navigate(CreateTaskScreen.CreatedTaskScreen.routeFor(id))
+                }
+            )
         }
 
-        composable(route = CreateTaskScreen.CreatedTaskScreen.route) {
+        composable(
+            route = CreateTaskScreen.CreatedTaskScreen.route,
+            arguments = listOf(
+                navArgument(CreateTaskScreen.CreatedTaskScreen.ARG_TASK_ID) {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                }
+            )
+        ) { backStackEntry ->
             LaunchedEffect(Unit) {
                 onFABVisibilityChanged(false)
             }
-            AddTaskScreen {
-                navController.navigateUp()
-            }
+            val taskId = backStackEntry.arguments?.getString(CreateTaskScreen.CreatedTaskScreen.ARG_TASK_ID)
+            AddTaskScreen(
+                taskId = taskId,
+                onBackClick = { navController.navigateUp() }
+            )
         }
 
         composable(ResponseScreen.SearchScreen.route) {
