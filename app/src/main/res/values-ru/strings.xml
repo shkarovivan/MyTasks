@@ -15,7 +15,7 @@
     <string name="task_description_text">Описание задачи (необязательно)</string>
     <string name="task_type_text">Тип задачи</string>
     <string name="task_start_date_text">Дата постановки</string>
-    <string name="task_deadline_text">Дата завершения</string>
+    <string name="task_deadline_text">Срок завершения (дней)</string>
     <string name="task_status_text">Статус</string>
     <string name="save_text">Сохранить</string>
     <string name="deadline_1">  1             </string>

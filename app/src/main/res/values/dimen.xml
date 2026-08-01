@@ -3,7 +3,7 @@
     <dimen name="padding_main">16dp</dimen>
     <dimen name="padding_small">8dp</dimen>
     <dimen name="padding_smallest">4dp</dimen>
-    <dimen name="corner_radius">20dp</dimen>
+    <dimen name="corner_radius">10dp</dimen>
     <dimen name="corner_card_radius">24dp</dimen>
     <dimen name="main_text_size">16sp</dimen>
     <dimen name="bottom_height">50dp</dimen>

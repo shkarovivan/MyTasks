@@ -1,34 +1,51 @@
 package com.shkarov.mytasks.screens
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
-import androidx.compose.material3.Divider
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Text
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.*
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.shkarov.mytasks.R
@@ -37,22 +54,18 @@ import com.shkarov.mytasks.domain.model.Task
 import com.shkarov.mytasks.domain.model.Type
 import com.shkarov.mytasks.domain.model.Work
 import com.shkarov.mytasks.ui.theme.MyTasksTheme
+import com.shkarov.mytasks.utils.toEpochMillis
 import com.shkarov.mytasks.viewmodels.AddTaskViewModel
 import timber.log.Timber
 import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberDatePickerState
-import androidx.compose.runtime.saveable.rememberSaveable
-import com.shkarov.mytasks.utils.toEpochMillis
 import java.time.Instant
 import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
+import java.util.Date
+import java.util.Locale
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddTaskScreen(
     taskId: String? = null,
@@ -68,43 +81,32 @@ fun AddTaskScreen(
     }
 
     var titleValue by remember { mutableStateOf("") }
-    var chosenData by remember { mutableStateOf<String?>("") }
-    val onChangeData: (String) -> Unit = { chosenData = it }
     var descriptionValue by remember { mutableStateOf("") }
 
     val selectedTypeValue = remember { mutableStateOf("") }
-    val isSelectedTypeItem: (String) -> Boolean = { selectedTypeValue.value == it }
-    val onChangeTypeState: (String) -> Unit = { selectedTypeValue.value = it }
-
     val selectedDeadlineValue = remember { mutableStateOf("") }
-    val isSelectedDeadlineItem: (String) -> Boolean = { selectedDeadlineValue.value == it }
-    val onChangeDeadlineState: (String) -> Unit = { selectedDeadlineValue.value = it }
 
-    val dailyTasksLabel = stringResource(id = R.string.daily_tasks)
-    val mediumTasksLabel = stringResource(id = R.string.medium_tasks)
-    val largeTasksLabel = stringResource(id = R.string.large_tasks)
+    val dailyTasksLabel = stringResource(R.string.daily_tasks)
+    val mediumTasksLabel = stringResource(R.string.medium_tasks)
+    val largeTasksLabel = stringResource(R.string.large_tasks)
 
     var chosenDateText by rememberSaveable { mutableStateOf("") }
     var chosenDateMs by rememberSaveable { mutableStateOf<Long?>(null) }
     var showDatePicker by rememberSaveable { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState()
-    val chooseDateItem = stringResource(id = R.string.deadline_choose_date)
+    val chooseDateItem = stringResource(R.string.deadline_choose_date)
 
-    val typeItems = listOf(
-        stringResource(id = R.string.daily_tasks),
-        stringResource(id = R.string.medium_tasks),
-        stringResource(id = R.string.large_tasks)
-    )
+    val typeItems = listOf(dailyTasksLabel, mediumTasksLabel, largeTasksLabel)
 
-    val deadlineItems = mutableListOf(
-        stringResource(id = R.string.deadline_1),
-        stringResource(id = R.string.deadline_2),
-        stringResource(id = R.string.deadline_3),
-        stringResource(id = R.string.deadline_4),
-        stringResource(id = R.string.deadline_5),
-        stringResource(id = R.string.deadline_6),
-        stringResource(id = R.string.deadline_7),
-        stringResource(id = R.string.deadline_choose_date)
+    val deadlineItems = listOf(
+        stringResource(R.string.deadline_1),
+        stringResource(R.string.deadline_2),
+        stringResource(R.string.deadline_3),
+        stringResource(R.string.deadline_4),
+        stringResource(R.string.deadline_5),
+        stringResource(R.string.deadline_6),
+        stringResource(R.string.deadline_7),
+        chooseDateItem
     )
 
     // Pre-fill the form from the task being edited (runs once it finishes loading).
@@ -137,156 +139,194 @@ fun AddTaskScreen(
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
+    val onSave: () -> Unit = {
+        if (titleValue.isBlank()) {
+            Timber.w("Заголовок задачи не может быть пустым")
+        } else {
+            val zone = ZoneId.systemDefault()
+            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+
+            // Quick-pick options ("1..7 days") are stored as N days from now;
+            // "Choose date" stores the picked date. Both produce a real deadLineMs.
+            val quickDays = deadlineItems.indexOf(selectedDeadlineValue.value) + 1
+            val isQuickPick = quickDays in 1..7
+
+            val deadlineTextToSave: String
+            val deadlineMsToSave: Long
+            if (selectedDeadlineValue.value == chooseDateItem && chosenDateMs != null) {
+                val localDate = Instant.ofEpochMilli(chosenDateMs!!)
+                    .atZone(ZoneOffset.UTC)
+                    .toLocalDate()
+                deadlineTextToSave = localDate.atStartOfDay(zone).format(formatter)
+                deadlineMsToSave = deadlineTextToSave.toEpochMillis()
+            } else if (isQuickPick) {
+                val ms = System.currentTimeMillis() + quickDays * 24L * 60 * 60 * 1000
+                deadlineMsToSave = ms
+                deadlineTextToSave = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
+                    .format(Date(ms))
+            } else {
+                deadlineTextToSave = selectedDeadlineValue.value
+                deadlineMsToSave = deadlineTextToSave.toEpochMillis()
+            }
+
+            val existing = taskToEdit
+            val task = Task(
+                id = existing?.id ?: System.currentTimeMillis().toString(),
+                created = existing?.created ?: SimpleDateFormat(
+                    "dd.MM.yyyy",
+                    Locale.getDefault()
+                ).format(Date()),
+                title = titleValue,
+                description = descriptionValue.takeIf { it.isNotEmpty() } ?: titleValue,
+                type = when (selectedTypeValue.value) {
+                    dailyTasksLabel -> Type.DAILY.value
+                    mediumTasksLabel -> Type.MEDIUM.value
+                    largeTasksLabel -> Type.LARGE.value
+                    else -> existing?.type ?: Type.DAILY.value // дефолт
+                },
+                deadLine = deadlineTextToSave,
+                deadLineMs = deadlineMsToSave,
+                status = existing?.status ?: Status.STARTED,
+                work = existing?.work ?: if (isWorkTask) Work.WORK else Work.HOME
+            )
+
+            viewModel.addTask(task)
+            onBackClick()
+        }
+    }
+
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        text = stringResource(
+                            if (isEditing) R.string.edit_task_title else R.string.new_task_title
+                        )
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = onBackClick) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.cd_back)
+                        )
+                    }
+                }
+            )
+        },
+        bottomBar = {
+            Surface(tonalElevation = 3.dp) {
+                Button(
+                    onClick = onSave,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.save_text),
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+        }
+    ) { innerPadding ->
         Column(
             modifier = Modifier
-                .weight(1f)
+                .fillMaxSize()
+                .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
-                .padding(all = dimensionResource(id = R.dimen.padding_small))
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text(
-                text = stringResource(
-                    id = if (isEditing) R.string.edit_task_title else R.string.new_task_title
-                ),
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier
-                    .padding(
-                        start = dimensionResource(id = R.dimen.padding_main),
-                        top = dimensionResource(id = R.dimen.padding_main),
-                        bottom = dimensionResource(id = R.dimen.padding_small)
-                    )
-            )
-
-            Text(
-                text = stringResource(id = R.string.task_title),
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier
-                    .padding(
-                        start = dimensionResource(id = R.dimen.padding_main),
-                        top = dimensionResource(id = R.dimen.padding_main)
-                    )
-            )
-
-            TextInput(
-                value = titleValue,
-                onValueChange = {
-                    titleValue = it
-                },
-                minLines = 2
-            )
-            GrayDivider()
-            Text(
-                text = stringResource(id = R.string.task_description_text),
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier
-                    .padding(
-                        start = dimensionResource(id = R.dimen.padding_main),
-                        top = dimensionResource(id = R.dimen.padding_main)
-                    )
-            )
-
-            TextInput(
-                value = descriptionValue,
-                onValueChange = {
-                    descriptionValue = it
-                },
-                minLines = 5
-            )
-            GrayDivider()
-
-            Text(
-                text = stringResource(id = R.string.task_type_text),
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier
-                    .padding(
-                        start = dimensionResource(id = R.dimen.padding_main),
-                        top = dimensionResource(id = R.dimen.padding_main),
-                        bottom = dimensionResource(id = R.dimen.padding_small),
-                    )
-            )
-
-            typeItems.forEach { item ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
+            // Card: title + description (editable)
+            ElevatedCard(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(24.dp)
+            ) {
+                Column(
                     modifier = Modifier
-                        .selectable(
-                            selected = isSelectedTypeItem(item),
-                            onClick = {
-                                onChangeData("sdvsdgv")
-                                onChangeTypeState(item)
-                            },
-                            role = Role.RadioButton
-                        )
-                        .padding(
-                            vertical = dimensionResource(id = R.dimen.padding_smallest),
-                            horizontal = dimensionResource(id = R.dimen.padding_main)
-                        )
                         .fillMaxWidth()
+                        .padding(20.dp),
+                    verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
-                    RadioButton(
-                        selected = isSelectedTypeItem(item),
-                        onClick = null
+                    EditableField(
+                        label = stringResource(R.string.task_title),
+                        value = titleValue,
+                        onValueChange = { titleValue = it },
+                        minLines = 1
                     )
-                    Text(
-                        text = item,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier
-                            .padding(start = dimensionResource(id = R.dimen.padding_main))
+                    EditableField(
+                        label = stringResource(R.string.task_description),
+                        value = descriptionValue,
+                        onValueChange = { descriptionValue = it },
+                        minLines = 4
                     )
                 }
             }
 
-            GrayDivider()
-
-            Text(
-                text = stringResource(id = R.string.task_deadline_text),
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier
-                    .padding(
-                        start = dimensionResource(id = R.dimen.padding_main),
-                        top = dimensionResource(id = R.dimen.padding_main),
-                        bottom = dimensionResource(id = R.dimen.padding_small),
-                    )
-            )
-
-            deadlineItems.forEach { item ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
+            // Card: information (type + deadline choices)
+            ElevatedCard(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(24.dp)
+            ) {
+                Column(
                     modifier = Modifier
-                        .selectable(
-                            selected = isSelectedDeadlineItem(item),
+                        .fillMaxWidth()
+                        .padding(20.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.task_information),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold
+                    )
+
+                    Text(
+                        text = stringResource(R.string.task_type_text),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    typeItems.forEach { item ->
+                        SelectableOptionRow(
+                            label = item,
+                            selected = selectedTypeValue.value == item,
+                            onClick = { selectedTypeValue.value = item }
+                        )
+                    }
+
+                    Spacer(Modifier.height(4.dp))
+
+                    Text(
+                        text = stringResource(R.string.task_deadline_text),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    deadlineItems.forEach { item ->
+                        SelectableOptionRow(
+                            label = item.trim(),
+                            selected = selectedDeadlineValue.value == item,
                             onClick = {
                                 if (item == chooseDateItem) {
-                                    onChangeDeadlineState(item)     // оставляем выбранным радио "выбрать дату"
+                                    selectedDeadlineValue.value = item
                                     showDatePicker = true
                                 } else {
-                                    onChangeDeadlineState(item)
+                                    selectedDeadlineValue.value = item
                                 }
-                            },
-                            role = Role.RadioButton
+                            }
                         )
-                        .padding(
-                            vertical = dimensionResource(id = R.dimen.padding_smallest),
-                            horizontal = dimensionResource(id = R.dimen.padding_main)
+                    }
+
+                    if (chosenDateText.isNotBlank()) {
+                        InfoValueRow(
+                            label = stringResource(R.string.choosen_data_text),
+                            value = chosenDateText
                         )
-                        .fillMaxWidth()
-                ) {
-                    RadioButton(
-                        selected = isSelectedDeadlineItem(item),
-                        onClick = null
-                    )
-                    Text(
-                        text = item,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier
-                            .padding(start = dimensionResource(id = R.dimen.padding_main))
-                    )
+                    }
                 }
             }
+
+            Spacer(Modifier.height(8.dp))
 
             if (showDatePicker) {
                 DatePickerDialog(
@@ -315,190 +355,130 @@ fun AddTaskScreen(
                     DatePicker(state = datePickerState)
                 }
             }
-
-            if (chosenDateText.isNotBlank()) {
-                Row {
-                    Text(
-                        text = stringResource(id = R.string.choosen_data_text),
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(
-                            start = dimensionResource(id = R.dimen.padding_main),
-                            top = dimensionResource(id = R.dimen.padding_main)
-                        )
-                    )
-
-                    Text(
-                        text = chosenDateText,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(
-                            start = dimensionResource(id = R.dimen.padding_main),
-                            top = dimensionResource(id = R.dimen.padding_main)
-                        )
-                    )
-                }
-                Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_main)))
-            }
-
         }
-
-        Row(
-            verticalAlignment = Alignment.Bottom,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Button(
-                modifier = Modifier
-                    .padding(
-                        vertical = dimensionResource(id = R.dimen.padding_smallest),
-                        horizontal = dimensionResource(id = R.dimen.padding_main)
-                    )
-                    .fillMaxWidth(),
-                onClick = {
-                    // 1. Проверяем, что поля заполнены
-                    if (titleValue.isBlank()) {
-                        Timber.w("Заголовок задачи не может быть пустым")
-                        return@Button
-                    }
-                    val zone = ZoneId.systemDefault()
-                    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-
-                    // Quick-pick options ("1..7 days") are stored as N days from now;
-                    // "Choose date" stores the picked date. Both produce a real deadLineMs
-                    // (previously quick-pick yielded 0 because its padded label string
-                    // couldn't be parsed by toEpochMillis).
-                    val quickDays = deadlineItems.indexOf(selectedDeadlineValue.value) + 1
-                    val isQuickPick = quickDays in 1..7
-
-                    val deadlineTextToSave: String
-                    val deadlineMsToSave: Long
-                    if (selectedDeadlineValue.value == chooseDateItem && chosenDateMs != null) {
-                        val localDate = Instant.ofEpochMilli(chosenDateMs!!)
-                            .atZone(ZoneOffset.UTC)
-                            .toLocalDate()
-                        deadlineTextToSave = localDate.atStartOfDay(zone).format(formatter)
-                        deadlineMsToSave = deadlineTextToSave.toEpochMillis()
-                    } else if (isQuickPick) {
-                        val ms = System.currentTimeMillis() + quickDays * 24L * 60 * 60 * 1000
-                        deadlineMsToSave = ms
-                        deadlineTextToSave = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
-                            .format(Date(ms))
-                    } else {
-                        deadlineTextToSave = selectedDeadlineValue.value
-                        deadlineMsToSave = deadlineTextToSave.toEpochMillis()
-                    }
-
-                    val existing = taskToEdit
-                    val task = Task(
-                        id = existing?.id ?: System.currentTimeMillis().toString(),
-                        created = existing?.created ?: SimpleDateFormat(
-                            "dd.MM.yyyy",
-                            Locale.getDefault()
-                        ).format(Date()),
-                        title = titleValue,
-                        description = descriptionValue.takeIf { !descriptionValue.isEmpty() } ?: titleValue,
-                        type = when (selectedTypeValue.value) {
-                            dailyTasksLabel -> Type.DAILY.value
-                            mediumTasksLabel -> Type.MEDIUM.value
-                            largeTasksLabel -> Type.LARGE.value
-                            else -> existing?.type ?: Type.DAILY.value // дефолт
-                        },
-                        deadLine = deadlineTextToSave,
-                        deadLineMs = deadlineMsToSave,
-                        status = existing?.status ?: Status.STARTED,
-                        work = existing?.work ?: if (isWorkTask) Work.WORK else Work.HOME
-                    )
-
-                    viewModel.addTask(task)
-                    onBackClick()
-                })
-            {
-                Text(
-                    text = stringResource(id = R.string.save_text),
-                    fontWeight = FontWeight.Bold,
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-        }
-
     }
 }
 
-
 @Composable
-fun TextInput(
+private fun EditableField(
+    label: String,
     value: String,
     onValueChange: (String) -> Unit,
-    minLines: Int
+    modifier: Modifier = Modifier,
+    minLines: Int = 1
 ) {
-    BasicTextField(
-        modifier = Modifier
-            .padding(
-                vertical = dimensionResource(id = R.dimen.padding_main)
-            )
-            .fillMaxWidth()
-            .testTag("searchTextFieldTag"),
-
-        singleLine = false,
-        minLines = minLines,
-        value = value,
-        onValueChange = {
-            onValueChange(it)
-        },
-        textStyle = TextStyle(
-            fontSize = dimensionResource(id = R.dimen.main_text_size).value.sp,
-            fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.onBackground
-        ),
-        enabled = true,
-        decorationBox = { innerTextField ->
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.Medium
+        )
+        // Same surfaceVariant block as the details screen, but editable:
+        // the pencil icon + text cursor make clear this is an input, not read-only.
+        Surface(
+            shape = RoundedCornerShape(16.dp),
+            color = MaterialTheme.colorScheme.surfaceVariant,
+            modifier = Modifier.fillMaxWidth()
+        ) {
             Row(
                 modifier = Modifier
-                    .padding(
-                        start = dimensionResource(id = R.dimen.padding_main),
-                        end = dimensionResource(id = R.dimen.padding_main)
-                    )
                     .fillMaxWidth()
-                    .background(
-                        color = MaterialTheme.colorScheme.background,
-                        shape = RoundedCornerShape(
-                            size = dimensionResource(id = R.dimen.corner_radius)
-                        )
-                    )
-                    .border(
-                        width = dimensionResource(id = R.dimen.border_width),
-                        color = MaterialTheme.colorScheme.onBackground,
-                        shape = RoundedCornerShape(size = dimensionResource(id = R.dimen.corner_radius))
-                    )
-                    .padding(
-                        horizontal = dimensionResource(id = R.dimen.padding_main),
-                        vertical = dimensionResource(id = R.dimen.padding_small)
-                    ),
-                verticalAlignment = Alignment.CenterVertically
+                    .padding(horizontal = 14.dp, vertical = 12.dp),
+                verticalAlignment = if (minLines > 1) Alignment.Top else Alignment.CenterVertically
             ) {
                 Icon(
                     imageVector = Icons.Default.Edit,
-                    contentDescription = "Favorite icon",
-                    // tint = Color.DarkGray
-                )
-                Box(
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier
-                        .padding(start = dimensionResource(id = R.dimen.padding_small))
-                ) {
-                    innerTextField()
-                }
+                        .padding(top = 4.dp)
+                        .size(18.dp)
+                )
+                BasicTextField(
+                    value = value,
+                    onValueChange = onValueChange,
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = 10.dp),
+                    minLines = minLines,
+                    textStyle = MaterialTheme.typography.bodyLarge.copy(
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    ),
+                    cursorBrush = androidx.compose.ui.graphics.SolidColor(MaterialTheme.colorScheme.primary),
+                    decorationBox = { innerTextField ->
+                        Box {
+                            if (value.isEmpty()) {
+                                Text(
+                                    text = label,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                                )
+                            }
+                            innerTextField()
+                        }
+                    }
+                )
             }
         }
-    )
+    }
 }
 
 @Composable
-fun GrayDivider() {
-    Divider(
+private fun SelectableOptionRow(
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    Surface(
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = if (selected) 1f else 0.4f),
         modifier = Modifier
-            .padding(start = 16.dp, end = 16.dp),
-        color = Color.DarkGray,
-        thickness = 2.dp
-    )
+            .fillMaxWidth()
+            .selectable(
+                selected = selected,
+                onClick = onClick,
+                role = androidx.compose.ui.semantics.Role.RadioButton
+            )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 14.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            RadioButton(selected = selected, onClick = null)
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
+                modifier = Modifier.padding(start = 10.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun InfoValueRow(label: String, value: String) {
+    Surface(
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(modifier = Modifier.padding(14.dp)) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = value,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.padding(top = 2.dp)
+            )
+        }
+    }
 }
 
 @Preview
