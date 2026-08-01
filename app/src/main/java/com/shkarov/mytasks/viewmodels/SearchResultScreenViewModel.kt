@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.shkarov.mytasks.domain.model.Task
 import com.shkarov.mytasks.repository.TasksRepository
 import com.shkarov.mytasks.utils.getTomorrowTimestamp
+import com.shkarov.mytasks.utils.sortedByOverdueDays
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -41,6 +42,11 @@ class SearchResultScreenViewModel @Inject constructor(
                     } else {
                         task.id in taskIds
                     }
+                }.let { filtered ->
+                    // "Your tasks for today": sort by overdue days ascending —
+                    // the least overdue (closest to their deadline) go to the top.
+                    // Search results keep their relevance order.
+                    if (ids == null) filtered.sortedByOverdueDays() else filtered
                 }
             }
         }

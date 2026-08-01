@@ -1,10 +1,21 @@
 package com.shkarov.mytasks.utils
 
+import com.shkarov.mytasks.domain.model.Task
 import timber.log.Timber
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+
+
+/**
+ * Orders tasks by how overdue they are: tasks with fewer overdue days
+ * (not overdue yet, or the least overdue) come first; the most overdue
+ * sink to the bottom. Tasks that are not past their deadline all tie at 0
+ * and keep their previous relative order (stable sort).
+ */
+fun List<Task>.sortedByOverdueDays(now: Long = System.currentTimeMillis()): List<Task> =
+    sortedBy { (now - it.deadLineMs).coerceAtLeast(0L) }
 
 
 fun String.toEpochMillis(

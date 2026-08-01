@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.shkarov.mytasks.domain.model.Task
 import com.shkarov.mytasks.domain.model.Type
 import com.shkarov.mytasks.repository.TasksRepository
+import com.shkarov.mytasks.utils.sortedByOverdueDays
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -38,15 +39,15 @@ class TaskScreenViewModel @Inject constructor(
 
                 _dailyTasks.value = tasks.filter { task ->
                     task.type == Type.DAILY.value
-                }
+                }.sortedByOverdueDays()
 
                 _mediumTasks.value = tasks.filter { task ->
                     task.type == Type.MEDIUM.value
-                }
+                }.sortedByOverdueDays()
 
                 _largeTasks.value = tasks.filter { task ->
                     task.type == Type.LARGE.value
-                }
+                }.sortedByOverdueDays()
             }
         }
     }

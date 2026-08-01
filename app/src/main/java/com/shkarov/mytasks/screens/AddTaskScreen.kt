@@ -361,20 +361,30 @@ fun AddTaskScreen(
                     val zone = ZoneId.systemDefault()
                     val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
 
-                    val deadlineTextToSave =
-                        if (selectedDeadlineValue.value == chooseDateItem && chosenDateMs != null) {
+                    // Quick-pick options ("1..7 days") are stored as N days from now;
+                    // "Choose date" stores the picked date. Both produce a real deadLineMs
+                    // (previously quick-pick yielded 0 because its padded label string
+                    // couldn't be parsed by toEpochMillis).
+                    val quickDays = deadlineItems.indexOf(selectedDeadlineValue.value) + 1
+                    val isQuickPick = quickDays in 1..7
 
-                            val localDate = Instant.ofEpochMilli(chosenDateMs!!)
-                                .atZone(ZoneOffset.UTC)
-                                .toLocalDate()
-
-                            localDate
-                                .atStartOfDay(zone)
-                                .format(formatter)
-
-                        } else {
-                            selectedDeadlineValue.value
-                        }
+                    val deadlineTextToSave: String
+                    val deadlineMsToSave: Long
+                    if (selectedDeadlineValue.value == chooseDateItem && chosenDateMs != null) {
+                        val localDate = Instant.ofEpochMilli(chosenDateMs!!)
+                            .atZone(ZoneOffset.UTC)
+                            .toLocalDate()
+                        deadlineTextToSave = localDate.atStartOfDay(zone).format(formatter)
+                        deadlineMsToSave = deadlineTextToSave.toEpochMillis()
+                    } else if (isQuickPick) {
+                        val ms = System.currentTimeMillis() + quickDays * 24L * 60 * 60 * 1000
+                        deadlineMsToSave = ms
+                        deadlineTextToSave = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
+                            .format(Date(ms))
+                    } else {
+                        deadlineTextToSave = selectedDeadlineValue.value
+                        deadlineMsToSave = deadlineTextToSave.toEpochMillis()
+                    }
 
                     val existing = taskToEdit
                     val task = Task(
@@ -392,7 +402,7 @@ fun AddTaskScreen(
                             else -> existing?.type ?: Type.DAILY.value // дефолт
                         },
                         deadLine = deadlineTextToSave,
-                        deadLineMs = deadlineTextToSave.toEpochMillis(),
+                        deadLineMs = deadlineMsToSave,
                         status = existing?.status ?: Status.STARTED,
                         work = existing?.work ?: if (isWorkTask) Work.WORK else Work.HOME
                     )
