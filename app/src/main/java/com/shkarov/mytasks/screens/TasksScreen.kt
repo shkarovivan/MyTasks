@@ -205,6 +205,14 @@ fun TaskView(
 
     var isLongPressed by remember { mutableStateOf(false) }
 
+    val isOverdue = task.deadLineMs < System.currentTimeMillis()
+    val containerColor = when (task.status) {
+        Status.STARTED -> if (isOverdue) LatedTaskColor else StartedTaskColor
+        Status.STOPPED -> StoppedTaskColor
+        Status.WAITING -> WaitingTaskColor
+        Status.PAUSED -> PausedTaskColor
+    }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -227,15 +235,9 @@ fun TaskView(
             ),
 
         colors = CardDefaults.cardColors(
-            containerColor = when (task.status) {
-                Status.STARTED -> {
-                    if (task.deadLineMs < System.currentTimeMillis()) LatedTaskColor
-                    else StartedTaskColor
-                }
-                Status.STOPPED -> StoppedTaskColor
-                Status.WAITING -> WaitingTaskColor
-                Status.PAUSED -> PausedTaskColor
-            }
+            containerColor = containerColor,
+            // Dark text reads on every status background in both light and dark themes.
+            contentColor = OnTaskCardColor
         )
     )
     {
