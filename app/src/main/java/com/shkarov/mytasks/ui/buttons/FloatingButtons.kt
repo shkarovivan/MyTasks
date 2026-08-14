@@ -26,7 +26,7 @@ fun FloatingButtonAddByText(navController: NavHostController) {
     FloatingActionButton(
         modifier = Modifier.padding(
             end = dimensionResource(id = dimen.floating_button_padding),
-            bottom = dimensionResource(id = dimen.floating_button_padding)
+            bottom = dimensionResource(id = dimen.padding_smallest)
         ),
         onClick = {
             navController.navigate(CreateTaskScreen.CreatedTaskScreen.routeFor(null)) {
@@ -46,7 +46,7 @@ fun FloatingButtonFiredTasks(navController: NavHostController) {
     FloatingActionButton(
         modifier = Modifier.padding(
             end = dimensionResource(id = dimen.floating_button_padding),
-            bottom = dimensionResource(id = dimen.floating_button_padding)
+            bottom = dimensionResource(id = dimen.padding_small)
         ),
         onClick = {
             navController.navigate(ResponseScreen.SearchScreen.route) {
@@ -67,7 +67,7 @@ fun FloatingButtonAddByVoice(
     FloatingActionButton(
         modifier = Modifier.padding(
             end = dimensionResource(id = dimen.floating_button_padding),
-            bottom = dimensionResource(id = dimen.floating_button_padding)
+            bottom = dimensionResource(id = dimen.padding_small)
         ),
         onClick = {
             onShowDialog()
@@ -88,7 +88,7 @@ fun FloatingButtonSearchByVoice(
         modifier = Modifier
             .padding(
                 end = dimensionResource(id = dimen.floating_button_padding) * 2,
-                bottom = dimensionResource(id = dimen.floating_button_padding)
+                bottom = dimensionResource(id = dimen.padding_small)
             )
             .width(dimensionResource(id = dimen.floating_search_button_width)),
         onClick = {

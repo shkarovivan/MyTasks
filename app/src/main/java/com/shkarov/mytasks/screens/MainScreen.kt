@@ -205,10 +205,21 @@ fun MainScreen(
                 )
             },
             bottomBar = { BottomBar(navController = navController) },
-            floatingActionButton = {
+        ) { paddingValue ->
+            Box(modifier = Modifier.padding(paddingValue)) {
+                lastTabRoute?.let {
+                    NavGraph(
+                        navController = navController,
+                        startDestination = lastTabRoute!!,
+                        onFABVisibilityChanged = { visible ->
+                            showFAB = visible
+                        },
+                        onGraphReady = { navGraphReady = true }
+                    )
+                }
                 if (showFAB) {
                     Row(
-                        //horizontalArrangement = Arrangement.spacedBy(0.dp)
+                        modifier = Modifier.align(Alignment.BottomEnd)
                     ) {
                         FloatingButtonFiredTasks(navController)
                         FloatingButtonSearchByVoice(onShowDialog = {
@@ -221,19 +232,6 @@ fun MainScreen(
                             showVoiceDialog = true
                         })
                     }
-                }
-            },
-        ) { paddingValue ->
-            Box(modifier = Modifier.padding(paddingValue)) {
-                lastTabRoute?.let {
-                    NavGraph(
-                        navController = navController,
-                        startDestination = lastTabRoute!!,
-                        onFABVisibilityChanged = { visible ->
-                            showFAB = visible
-                        },
-                        onGraphReady = { navGraphReady = true }
-                    )
                 }
             }
         }

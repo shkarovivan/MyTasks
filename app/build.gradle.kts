@@ -68,7 +68,6 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
-
     room {
         schemaDirectory("$projectDir/schemas")
     }
@@ -79,6 +78,7 @@ kotlin {
 
     compilerOptions {
         jvmTarget.set(JvmTarget.JVM_21)
+        freeCompilerArgs.add("-XXLanguage:+PropertyParamAnnotationDefaultTargetMode")
     }
 }
 

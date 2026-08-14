@@ -1,8 +1,6 @@
 package com.shkarov.mytasks.screens
 
-import android.os.Build
 import androidx.annotation.DrawableRes
-import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -168,13 +166,12 @@ fun TasksList(
     onDelete: (String) -> Unit
 ) {
     LazyColumn(
-        modifier = Modifier
-            .padding(
-                start = dimensionResource(id = R.dimen.padding_small).value.dp,
-                end = dimensionResource(id = R.dimen.padding_small).value.dp,
-                top = dimensionResource(id =R.dimen.padding_small).value.dp,
-                bottom = dimensionResource(id = R.dimen.bottom_height).value.dp
-            )
+        contentPadding = PaddingValues(
+            start = dimensionResource(id = R.dimen.padding_small),
+            end = dimensionResource(id = R.dimen.padding_small),
+            top = dimensionResource(id = R.dimen.padding_small),
+            bottom = dimensionResource(id = R.dimen.bottom_height)
+        )
     ) {
         items(tasks) { itemTask ->
             TaskView(
