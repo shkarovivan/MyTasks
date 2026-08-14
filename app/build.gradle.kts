@@ -27,7 +27,7 @@ android {
             useSupportLibrary = true
         }
 
-        // Читаем токен из local.properties (для отладки)
+        // Read the token from local.properties (for debugging)
         val localProperties = Properties()
         localProperties.load(
             project.rootProject.file("local.properties").readText().byteInputStream()

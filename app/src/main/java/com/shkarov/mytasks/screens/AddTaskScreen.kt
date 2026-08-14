@@ -59,6 +59,7 @@ import com.shkarov.mytasks.viewmodels.AddTaskViewModel
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.time.Instant
+import java.time.LocalDate
 import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
@@ -165,8 +166,10 @@ fun AddTaskScreen(
                 deadlineTextToSave = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
                     .format(Date(ms))
             } else {
-                deadlineTextToSave = selectedDeadlineValue.value
-                deadlineMsToSave = deadlineTextToSave.toEpochMillis()
+                // No deadline picked — default it to tomorrow.
+                val tomorrow = LocalDate.now().plusDays(1).atStartOfDay(zone)
+                deadlineTextToSave = tomorrow.format(formatter)
+                deadlineMsToSave = tomorrow.toInstant().toEpochMilli()
             }
 
             val existing = taskToEdit
@@ -182,7 +185,7 @@ fun AddTaskScreen(
                     dailyTasksLabel -> Type.DAILY.value
                     mediumTasksLabel -> Type.MEDIUM.value
                     largeTasksLabel -> Type.LARGE.value
-                    else -> existing?.type ?: Type.DAILY.value // дефолт
+                    else -> existing?.type ?: Type.DAILY.value // default
                 },
                 deadLine = deadlineTextToSave,
                 deadLineMs = deadlineMsToSave,

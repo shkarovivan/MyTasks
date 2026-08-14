@@ -30,10 +30,11 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.text.SimpleDateFormat
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Date
-import java.util.Locale
 import java.util.Locale.getDefault
 import javax.inject.Inject
 
@@ -183,7 +184,13 @@ class MainScreenViewModel @Inject constructor(
                     else -> Type.DAILY.value
                 },
                 deadLine = taskResponse.date,
-                deadLineMs = taskResponse.date.toEpochMillis(),
+                deadLineMs = taskResponse.date.toEpochMillis()
+                    .takeIf { it > 0L }
+                    ?: LocalDate.now()
+                        .plusDays(1)
+                        .atStartOfDay(ZoneId.systemDefault())
+                        .toInstant()
+                        .toEpochMilli(),
                 status = Status.STARTED,
                 work = if (isWorkTask) Work.WORK else Work.HOME
             )
