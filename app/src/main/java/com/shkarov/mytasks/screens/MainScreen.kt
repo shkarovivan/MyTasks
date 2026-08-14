@@ -206,7 +206,7 @@ fun MainScreen(
             },
             bottomBar = { BottomBar(navController = navController) },
         ) { paddingValue ->
-            Box(modifier = Modifier.padding(paddingValue)) {
+            Box(modifier = Modifier.fillMaxSize().padding(paddingValue)) {
                 lastTabRoute?.let {
                     NavGraph(
                         navController = navController,
