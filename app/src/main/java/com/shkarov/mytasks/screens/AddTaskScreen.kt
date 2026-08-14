@@ -94,6 +94,7 @@ fun AddTaskScreen(
     var chosenDateText by rememberSaveable { mutableStateOf("") }
     var chosenDateMs by rememberSaveable { mutableStateOf<Long?>(null) }
     var showDatePicker by rememberSaveable { mutableStateOf(false) }
+    var deadlineChanged by rememberSaveable { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState()
     val chooseDateItem = stringResource(R.string.deadline_choose_date)
 
@@ -152,9 +153,14 @@ fun AddTaskScreen(
             val quickDays = deadlineItems.indexOf(selectedDeadlineValue.value) + 1
             val isQuickPick = quickDays in 1..7
 
+            val existing = taskToEdit
             val deadlineTextToSave: String
             val deadlineMsToSave: Long
-            if (selectedDeadlineValue.value == chooseDateItem && chosenDateMs != null) {
+            if (existing != null && !deadlineChanged) {
+                // Editing without touching the deadline — keep the stored value as is.
+                deadlineTextToSave = existing.deadLine
+                deadlineMsToSave = existing.deadLineMs
+            } else if (selectedDeadlineValue.value == chooseDateItem && chosenDateMs != null) {
                 val localDate = Instant.ofEpochMilli(chosenDateMs!!)
                     .atZone(ZoneOffset.UTC)
                     .toLocalDate()
@@ -172,7 +178,6 @@ fun AddTaskScreen(
                 deadlineMsToSave = tomorrow.toInstant().toEpochMilli()
             }
 
-            val existing = taskToEdit
             val task = Task(
                 id = existing?.id ?: System.currentTimeMillis().toString(),
                 created = existing?.created ?: SimpleDateFormat(
@@ -310,6 +315,7 @@ fun AddTaskScreen(
                             label = item.trim(),
                             selected = selectedDeadlineValue.value == item,
                             onClick = {
+                                deadlineChanged = true
                                 if (item == chooseDateItem) {
                                     selectedDeadlineValue.value = item
                                     showDatePicker = true
@@ -342,6 +348,7 @@ fun AddTaskScreen(
                                     chosenDateMs = ms
                                     chosenDateText = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
                                         .format(Date(ms))
+                                    deadlineChanged = true
                                 }
                                 showDatePicker = false
                             }
