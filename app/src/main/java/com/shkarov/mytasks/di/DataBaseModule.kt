@@ -2,6 +2,7 @@ package com.shkarov.mytasks.di
 
 import android.content.Context
 import androidx.room.Room
+import androidx.room.migration.Migration
 import com.shkarov.mytasks.data_base.TasksDataBase
 import com.shkarov.mytasks.data_base.TasksDbDao
 import dagger.Module
@@ -23,6 +24,9 @@ class DataBaseModule {
             TasksDataBase::class.java,
             TasksDataBase.DB_NAME
         )
+            // Schemas v1 and v2 are structurally identical, so the migration is a no-op,
+            // but without it the app crashes on update for existing users.
+            .addMigrations(object : Migration(1, 2) {})
             .build()
 
         Timber.d("✅ DataBaseModule: TasksDataBase создан: $db")
