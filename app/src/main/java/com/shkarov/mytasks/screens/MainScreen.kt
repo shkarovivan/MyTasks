@@ -59,6 +59,8 @@ fun MainScreen(
     val llmDirectConnectionType by settingsViewModel.llmConnectionDirectType.collectAsStateWithLifecycle()
     val llmProvider by settingsViewModel.llmProvider.collectAsStateWithLifecycle()
     val llmModel by settingsViewModel.llmModel.collectAsStateWithLifecycle()
+    val backendUrl by settingsViewModel.backendUrlFlow.collectAsStateWithLifecycle()
+    val backendApiKey by settingsViewModel.backendApiKeyFlow.collectAsStateWithLifecycle()
 
     val notificationsEnabled by settingsViewModel.notificationsEnabled.collectAsStateWithLifecycle()
     val notificationTime by settingsViewModel.notificationTime.collectAsStateWithLifecycle()
@@ -178,6 +180,14 @@ fun MainScreen(
                 providers = settingsViewModel.aiProviders,
                 onProviderKeyChanged = { providerKey ->
                     settingsViewModel.updateProviderKey(providerKey)
+                },
+                backendUrl = backendUrl,
+                backendApiKey = backendApiKey,
+                onBackendUrlChanged = { url ->
+                    settingsViewModel.setBackendUrl(url)
+                },
+                onBackendApiKeyChanged = { key ->
+                    settingsViewModel.setBackendApiKey(key)
                 },
                 onNotificationTimeChanged = { hour, minute ->
                     settingsViewModel.updateNotificationTime(hour, minute)

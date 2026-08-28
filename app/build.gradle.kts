@@ -27,13 +27,15 @@ android {
             useSupportLibrary = true
         }
 
-        // Read the token from local.properties (for debugging)
+        // Read backend connection defaults from local.properties (debug convenience)
         val localProperties = Properties()
         localProperties.load(
             project.rootProject.file("local.properties").readText().byteInputStream()
         )
-        val token = localProperties["proxy.token"] as? String ?: ""
-        buildConfigField("String", "API_TOKEN", "\"$token\"")
+        val backendUrl = localProperties["backend.url"] as? String ?: "http://10.0.2.2:8080"
+        val backendApiKey = localProperties["backend.api.key"] as? String ?: ""
+        buildConfigField("String", "BACKEND_URL", "\"$backendUrl\"")
+        buildConfigField("String", "BACKEND_API_KEY", "\"$backendApiKey\"")
     }
 
     compileOptions {

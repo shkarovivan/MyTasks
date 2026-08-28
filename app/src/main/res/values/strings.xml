@@ -63,6 +63,13 @@
     <string name="settings_llm_model_token">Token</string>
     <string name="settings_llm_model_token_title">Enter provider key</string>
     <string name="settings_llm_model_token_description">-enter the individual key you received from the provider. The model cannot be accessed without a key.</string>
+    <string name="settings_llm_connection_backend">Backend (server-side key)</string>
+    <string name="settings_backend_url">Backend URL</string>
+    <string name="settings_backend_url_desc">MyTasksBackend server address, e.g. http://10.0.2.2:8080</string>
+    <string name="settings_backend_key">Backend API key</string>
+    <string name="settings_backend_key_desc">Shared X-Api-Key secret issued by the backend</string>
+    <string name="settings_backend_url_dialog_title">Enter backend URL</string>
+    <string name="settings_backend_key_dialog_title">Enter backend API key</string>
 
 
     <string name="speech_error_audio">Audio recording error</string>

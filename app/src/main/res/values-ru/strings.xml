@@ -77,6 +77,13 @@
     <string name="settings_llm_model_token">Ключ</string>
     <string name="settings_llm_model_token_title">Введите ключ провайдера</string>
     <string name="settings_llm_model_token_description">-введите индивидульный ключ, полученный у провайдера. Без ключа доступ у модели невозможен</string>
+    <string name="settings_llm_connection_backend">Через бэкенд (ключ на сервере)</string>
+    <string name="settings_backend_url">Адрес бэкенда</string>
+    <string name="settings_backend_url_desc">Адрес сервера MyTasksBackend, например http://10.0.2.2:8080</string>
+    <string name="settings_backend_key">Ключ бэкенда</string>
+    <string name="settings_backend_key_desc">Общий секрет X-Api-Key, выданный бэкендом</string>
+    <string name="settings_backend_url_dialog_title">Введите адрес бэкенда</string>
+    <string name="settings_backend_key_dialog_title">Введите ключ бэкенда</string>
 
     <string name="detail_task_title">Детали задачи</string>
     <string name="cd_back">Назад</string>

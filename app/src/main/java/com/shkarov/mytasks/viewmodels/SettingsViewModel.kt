@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.shkarov.mytasks.domain.provider.ProviderKey
 import com.shkarov.mytasks.network.AiProviderInterceptor
+import com.shkarov.mytasks.network.BackendInterceptor
 import com.shkarov.mytasks.repository.AiProvider
 import com.shkarov.mytasks.repository.AiProvidersRepository
 import com.shkarov.mytasks.settings.ThemeSettings
@@ -27,6 +28,7 @@ class SettingsViewModel @Inject constructor(
     application: Application,
     private val themeSettings: ThemeSettings,
     private val providerInterceptor: AiProviderInterceptor,
+    private val backendInterceptor: BackendInterceptor,
     aiProviderRepository: AiProvidersRepository
 ) : AndroidViewModel(application) {
 
@@ -58,6 +60,18 @@ class SettingsViewModel @Inject constructor(
     val providerKeyFlow: StateFlow<String> = settingsStore.providerKeyFlow
         .onEach { key ->
             providerInterceptor.providerToken = key
+        }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, "")
+
+    val backendUrlFlow: StateFlow<String> = settingsStore.backendUrlFlow
+        .onEach { url ->
+            backendInterceptor.baseUrl = url
+        }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, "")
+
+    val backendApiKeyFlow: StateFlow<String> = settingsStore.backendApiKeyFlow
+        .onEach { key ->
+            backendInterceptor.apiKey = key
         }
         .stateIn(viewModelScope, SharingStarted.Eagerly, "")
 
@@ -128,6 +142,20 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             settingsStore.saveProviderKey(providerKey)
             providerInterceptor.providerToken = providerKey.key
+        }
+    }
+
+    fun setBackendUrl(url: String) {
+        viewModelScope.launch {
+            settingsStore.saveBackendUrl(url)
+            backendInterceptor.baseUrl = url
+        }
+    }
+
+    fun setBackendApiKey(key: String) {
+        viewModelScope.launch {
+            settingsStore.saveBackendApiKey(key)
+            backendInterceptor.apiKey = key
         }
     }
 }

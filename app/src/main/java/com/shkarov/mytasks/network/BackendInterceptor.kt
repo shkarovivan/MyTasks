@@ -4,7 +4,9 @@ import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.Interceptor
 import okhttp3.Response
 
-class AiProviderInterceptor(
+// Points every request at the user-configured backend URL and adds the
+// shared X-Api-Key secret. The provider key never exists in the app.
+class BackendInterceptor(
     defaultUrl: String
 ) : Interceptor {
 
@@ -12,7 +14,7 @@ class AiProviderInterceptor(
     var baseUrl: String = defaultUrl
 
     @Volatile
-    var providerToken: String = ""
+    var apiKey: String = ""
 
     override fun intercept(chain: Interceptor.Chain): Response {
         val original = chain.request()
@@ -26,7 +28,7 @@ class AiProviderInterceptor(
 
         val newRequest = original.newBuilder()
             .url(newUrl)
-            .addHeader("Authorization", "Bearer $providerToken")
+            .addHeader("X-Api-Key", apiKey)
             .build()
 
         return chain.proceed(newRequest)

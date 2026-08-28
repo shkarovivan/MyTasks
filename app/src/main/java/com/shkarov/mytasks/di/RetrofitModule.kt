@@ -1,7 +1,10 @@
 package com.shkarov.mytasks.di
 
+import com.shkarov.mytasks.BuildConfig
 import com.shkarov.mytasks.network.ApiService
 import com.shkarov.mytasks.network.AiProviderInterceptor
+import com.shkarov.mytasks.network.BackendApi
+import com.shkarov.mytasks.network.BackendInterceptor
 import com.shkarov.mytasks.network.RetrofitClient
 import dagger.Module
 import dagger.Provides
@@ -27,5 +30,19 @@ object RetrofitModule {
         return RetrofitClient.create(
             aiProviderInterceptor = aiProviderInterceptor,
             baseUrl = DEFAULT_URL)
+    }
+
+    @Provides
+    @Singleton
+    fun provideBackendInterceptor(): BackendInterceptor {
+        return BackendInterceptor(BuildConfig.BACKEND_URL)
+    }
+
+    @Provides
+    @Singleton
+    fun provideBackendApi(backendInterceptor: BackendInterceptor): BackendApi {
+        return RetrofitClient.createBackend(
+            backendInterceptor = backendInterceptor,
+            baseUrl = BuildConfig.BACKEND_URL)
     }
 }

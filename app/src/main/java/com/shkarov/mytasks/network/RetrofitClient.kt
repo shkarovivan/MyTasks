@@ -1,5 +1,6 @@
 package com.shkarov.mytasks.network
 
+import com.google.gson.GsonBuilder
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -9,25 +10,39 @@ import java.util.concurrent.TimeUnit
 object RetrofitClient {
     const val USE_UNSAFE = false
 
+    private const val CONNECT_TIMEOUT_SECONDS = 30L
+    private const val READ_TIMEOUT_SECONDS = 120L
+    private const val WRITE_TIMEOUT_SECONDS = 120L
+
+    private fun baseClientBuilder(): OkHttpClient.Builder =
+        OkHttpClient.Builder()
+            .connectTimeout(CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .readTimeout(READ_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .writeTimeout(WRITE_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+
+    // Keys must never appear in logcat; BASIC level keeps bodies out as well.
+    private fun addLogging(builder: OkHttpClient.Builder) {
+        val loggingInterceptor = HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.BASIC
+            redactHeader("Authorization")
+            redactHeader("X-Api-Key")
+        }
+        builder.addInterceptor(loggingInterceptor)
+    }
+
     fun create(
         aiProviderInterceptor: AiProviderInterceptor,
         baseUrl: String,
         enableLogging: Boolean = true
     ): ApiService {
-        val clientBuilder = OkHttpClient.Builder()
-            .connectTimeout(30, TimeUnit.SECONDS)
-            .readTimeout(30, TimeUnit.SECONDS)
-            .writeTimeout(30, TimeUnit.SECONDS)
+        val clientBuilder = baseClientBuilder()
             .addInterceptor(aiProviderInterceptor)
 
         if (enableLogging) {
-            val loggingInterceptor = HttpLoggingInterceptor().apply {
-                level = HttpLoggingInterceptor.Level.BODY
-            }
-            clientBuilder.addInterceptor(loggingInterceptor)
+            addLogging(clientBuilder)
         }
 
-        // Если HTTPS, добавляем unsafe client (только для разработки!)
+        // If HTTPS, add the unsafe client (development only!)
         if (USE_UNSAFE && baseUrl.startsWith("https://", ignoreCase = true)) {
             makeUnsafe(clientBuilder)
         }
@@ -39,6 +54,33 @@ object RetrofitClient {
             .build()
 
         return retrofit.create(ApiService::class.java)
+    }
+
+    fun createBackend(
+        backendInterceptor: BackendInterceptor,
+        baseUrl: String,
+        enableLogging: Boolean = true
+    ): BackendApi {
+        val clientBuilder = baseClientBuilder()
+            .addInterceptor(backendInterceptor)
+
+        if (enableLogging) {
+            addLogging(clientBuilder)
+        }
+
+        // Same Gson settings as the direct mode task JSON, so the backend
+        // receives task bytes identical to what direct prompts embed.
+        val gson = GsonBuilder()
+            .disableHtmlEscaping()
+            .create()
+
+        val retrofit = Retrofit.Builder()
+            .baseUrl(ensureTrailingSlash(baseUrl))
+            .client(clientBuilder.build())
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .build()
+
+        return retrofit.create(BackendApi::class.java)
     }
 
     private fun makeUnsafe(builder: OkHttpClient.Builder) {

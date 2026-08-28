@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.shkarov.mytasks.BuildConfig
 import com.shkarov.mytasks.domain.provider.ProviderKey
 import com.shkarov.mytasks.screens.Screens
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -35,6 +36,8 @@ class SettingsStore @Inject constructor(
         val LLM_MODEL = stringPreferencesKey("llm_model")
 
         val CURRENT_PROVIDER_KEY = stringPreferencesKey("current_provider_key")
+        val BACKEND_URL = stringPreferencesKey("backend_url")
+        val BACKEND_API_KEY = stringPreferencesKey("backend_api_key")
         const val DEFAULT_HOUR = 7
         const val DEFAULT_MINUTE = 30
     }
@@ -76,6 +79,14 @@ class SettingsStore @Inject constructor(
         prefs[CURRENT_PROVIDER_KEY].orEmpty()
     }
 
+    val backendUrlFlow: Flow<String> = context.dataStore.data.map { prefs ->
+        prefs[BACKEND_URL] ?: BuildConfig.BACKEND_URL
+    }
+
+    val backendApiKeyFlow: Flow<String> = context.dataStore.data.map { prefs ->
+        prefs[BACKEND_API_KEY] ?: BuildConfig.BACKEND_API_KEY
+    }
+
     suspend fun saveEnabled(enabled: Boolean) {
         context.dataStore.edit { prefs ->
             prefs[KEY_ENABLED] = enabled
@@ -112,6 +123,18 @@ class SettingsStore @Inject constructor(
         context.dataStore.edit { prefs ->
             prefs[stringPreferencesKey(providerKey.providerName)] = providerKey.key
             prefs[CURRENT_PROVIDER_KEY] = providerKey.key
+        }
+    }
+
+    suspend fun saveBackendUrl(url: String) {
+        context.dataStore.edit { prefs ->
+            prefs[BACKEND_URL] = url
+        }
+    }
+
+    suspend fun saveBackendApiKey(key: String) {
+        context.dataStore.edit { prefs ->
+            prefs[BACKEND_API_KEY] = key
         }
     }
 }

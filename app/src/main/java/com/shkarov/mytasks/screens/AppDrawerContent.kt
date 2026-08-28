@@ -46,6 +46,9 @@ import com.shkarov.mytasks.domain.provider.ProviderKey
 import com.shkarov.mytasks.repository.AiProvider
 import timber.log.Timber
 
+private const val BACKEND_FIELD_URL = "url"
+private const val BACKEND_FIELD_KEY = "key"
+
 
 @Composable
 fun AppDrawerContent(
@@ -61,6 +64,10 @@ fun AppDrawerContent(
     onLlmModelChanged: (String) -> Unit,
     providers: List<AiProvider>,
     onProviderKeyChanged: (ProviderKey) -> Unit,
+    backendUrl: String,
+    backendApiKey: String,
+    onBackendUrlChanged: (String) -> Unit,
+    onBackendApiKeyChanged: (String) -> Unit,
     onDarkThemeChanged: (Boolean) -> Unit,
     onNotificationTimeChanged: (Int, Int) -> Unit,
 ) {
@@ -72,6 +79,8 @@ fun AppDrawerContent(
     var showDialog by remember { mutableStateOf(false) }
     var dialogInput by remember { mutableStateOf("") }
     var selectedProviderName by remember { mutableStateOf<String?>(null) }
+    // null = provider token dialog, otherwise the backend field being edited
+    var backendDialogField by remember { mutableStateOf<String?>(null) }
 
     ModalDrawerSheet {
         Text(
@@ -143,12 +152,21 @@ fun AppDrawerContent(
 
         ListItem(
             headlineContent = { Text(stringResource(R.string.settings_llm_connection)) },
-            supportingContent = { Text(stringResource(R.string.settings_llm_connection_type)) },
+            supportingContent = {
+                Text(
+                    stringResource(
+                        if (llmConnectionDirectType) {
+                            R.string.settings_llm_connection_type
+                        } else {
+                            R.string.settings_llm_connection_backend
+                        }
+                    )
+                )
+            },
             trailingContent = {
                 Switch(
                     checked = llmConnectionDirectType,
-                    onCheckedChange = omLlmTypeChanged,
-                    enabled = false
+                    onCheckedChange = omLlmTypeChanged
                 )
             }
         )
@@ -238,6 +256,47 @@ fun AppDrawerContent(
                 }
             }
         }
+
+        AnimatedVisibility(
+            visible = !llmConnectionDirectType,
+            enter = expandVertically() + fadeIn(),
+            exit = shrinkVertically() + fadeOut()
+        ) {
+            Column {
+                ListItem(
+                    headlineContent = { Text(stringResource(R.string.settings_backend_url)) },
+                    supportingContent = { Text(backendUrl) },
+                    modifier = Modifier
+                        .padding(start = dimensionResource(R.dimen.padding_main))
+                        .clickable {
+                            backendDialogField = BACKEND_FIELD_URL
+                            selectedProviderName = null
+                            dialogInput = ""
+                            showDialog = true
+                        }
+                )
+
+                HorizontalDivider()
+
+                ListItem(
+                    headlineContent = { Text(stringResource(R.string.settings_backend_key)) },
+                    supportingContent = {
+                        Text(
+                            stringResource(R.string.settings_backend_key_desc)
+                                .takeIf { backendApiKey.isBlank() } ?: "•••"
+                        )
+                    },
+                    modifier = Modifier
+                        .padding(start = dimensionResource(R.dimen.padding_main))
+                        .clickable {
+                            backendDialogField = BACKEND_FIELD_KEY
+                            selectedProviderName = null
+                            dialogInput = ""
+                            showDialog = true
+                        }
+                )
+            }
+        }
     }
 
     if (showTimePicker) {
@@ -253,11 +312,16 @@ fun AppDrawerContent(
     }
 
     if (showDialog) {
+        val dialogTitle = when (backendDialogField) {
+            BACKEND_FIELD_URL -> stringResource(R.string.settings_backend_url_dialog_title)
+            BACKEND_FIELD_KEY -> stringResource(R.string.settings_backend_key_dialog_title)
+            else -> selectedProviderName + stringResource(R.string.settings_llm_model_token_description)
+        }
         AlertDialog(
             onDismissRequest = { showDialog = false },
             title = {
                 Text(
-                    text = selectedProviderName + stringResource(R.string.settings_llm_model_token_description),
+                    text = dialogTitle,
                     fontSize = dimensionResource(R.dimen.main_text_size).value.sp,
                 )
             },
@@ -270,11 +334,15 @@ fun AppDrawerContent(
             },
             confirmButton = {
                 TextButton(onClick = {
-                    selectedProviderName?.let {
-                        onProviderKeyChanged(ProviderKey(
-                            providerName = it,
-                            key = dialogInput
-                        ))
+                    when (backendDialogField) {
+                        BACKEND_FIELD_URL -> onBackendUrlChanged(dialogInput)
+                        BACKEND_FIELD_KEY -> onBackendApiKeyChanged(dialogInput)
+                        else -> selectedProviderName?.let {
+                            onProviderKeyChanged(ProviderKey(
+                                providerName = it,
+                                key = dialogInput
+                            ))
+                        }
                     }
                     showDialog = false
                 }) {
