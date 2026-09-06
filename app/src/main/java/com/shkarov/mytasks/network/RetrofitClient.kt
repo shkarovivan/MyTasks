@@ -83,6 +83,27 @@ object RetrofitClient {
         return retrofit.create(BackendApi::class.java)
     }
 
+    fun createSync(
+        authInterceptor: AuthInterceptor,
+        baseUrl: String,
+        enableLogging: Boolean = true
+    ): SyncApi {
+        val clientBuilder = baseClientBuilder()
+            .addInterceptor(authInterceptor)
+
+        if (enableLogging) {
+            addLogging(clientBuilder)
+        }
+
+        val retrofit = Retrofit.Builder()
+            .baseUrl(ensureTrailingSlash(baseUrl))
+            .client(clientBuilder.build())
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        return retrofit.create(SyncApi::class.java)
+    }
+
     private fun makeUnsafe(builder: OkHttpClient.Builder) {
         try {
             val trustAllCerts = arrayOf<javax.net.ssl.TrustManager>(

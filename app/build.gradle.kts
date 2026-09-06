@@ -36,6 +36,12 @@ android {
         val backendApiKey = localProperties["backend.api.key"] as? String ?: ""
         buildConfigField("String", "BACKEND_URL", "\"$backendUrl\"")
         buildConfigField("String", "BACKEND_API_KEY", "\"$backendApiKey\"")
+        // Web OAuth client ID: the `aud` of Google ID-tokens, checked by the backend.
+        // Not a secret, but kept out of the repo: set google.serverClientId in
+        // local.properties (see CLAUDE.md). Empty on machines without the key —
+        // Google Sign-In will be unavailable until it is configured.
+        val googleServerClientId = localProperties["google.serverClientId"] as? String ?: ""
+        buildConfigField("String", "GOOGLE_SERVER_CLIENT_ID", "\"$googleServerClientId\"")
     }
 
     compileOptions {
@@ -113,6 +119,11 @@ dependencies {
 
     //Data store
     implementation(libs.androidx.data.store)
+
+    // Google Sign-In (Credential Manager)
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services)
+    implementation(libs.googleid)
 
     // Hilt
     implementation(libs.hilt.android)

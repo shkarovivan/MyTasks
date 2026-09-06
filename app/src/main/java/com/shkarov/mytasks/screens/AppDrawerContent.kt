@@ -68,6 +68,9 @@ fun AppDrawerContent(
     backendApiKey: String,
     onBackendUrlChanged: (String) -> Unit,
     onBackendApiKeyChanged: (String) -> Unit,
+    accountEmail: String?,
+    onSignIn: () -> Unit,
+    onSignOut: () -> Unit,
     onDarkThemeChanged: (Boolean) -> Unit,
     onNotificationTimeChanged: (Int, Int) -> Unit,
 ) {
@@ -89,6 +92,34 @@ fun AppDrawerContent(
             modifier = Modifier
                 .padding(16.dp)
                 .verticalScroll(scrollState)
+        )
+
+        HorizontalDivider()
+
+        ListItem(
+            headlineContent = { Text(stringResource(R.string.settings_account)) },
+            supportingContent = {
+                Text(
+                    accountEmail
+                        ?: stringResource(R.string.settings_account_signed_out)
+                )
+            },
+            trailingContent = {
+                TextButton(
+                    onClick = if (accountEmail != null) onSignOut else onSignIn
+                ) {
+                    Text(
+                        text = stringResource(
+                            if (accountEmail != null) {
+                                R.string.settings_account_sign_out
+                            } else {
+                                R.string.settings_account_sign_in
+                            }
+                        ),
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
         )
 
         HorizontalDivider()

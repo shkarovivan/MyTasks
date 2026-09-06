@@ -40,6 +40,10 @@ timber = "5.0.1"
 #Data store
 data-store = "1.2.1"
 
+# Google Sign-In (Credential Manager)
+androidx-credentials = "1.5.0"
+googleid = "1.1.1"
+
 # Other
 appcompat = "1.7.1"
 junit = "4.13.2"
@@ -94,6 +98,11 @@ timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "tim
 
 #Data store
 androidx-data-store = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "data-store" }
+
+# Google Sign-In (Credential Manager)
+androidx-credentials = { group = "androidx.credentials", name = "credentials", version.ref = "androidx-credentials" }
+androidx-credentials-play-services = { group = "androidx.credentials", name = "credentials-play-services-auth", version.ref = "androidx-credentials" }
+googleid = { group = "com.google.android.libraries.identity.googleid", name = "googleid", version.ref = "googleid" }
 
 # Retrofit
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }

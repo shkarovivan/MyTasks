@@ -85,6 +85,11 @@
     <string name="settings_backend_url_dialog_title">Введите адрес бэкенда</string>
     <string name="settings_backend_key_dialog_title">Введите ключ бэкенда</string>
 
+    <string name="settings_account">Аккаунт</string>
+    <string name="settings_account_signed_out">Войдите, чтобы синхронизировать задачи</string>
+    <string name="settings_account_sign_in">Войти</string>
+    <string name="settings_account_sign_out">Выйти</string>
+
     <string name="detail_task_title">Детали задачи</string>
     <string name="cd_back">Назад</string>
     <string name="new_task_title">Новая задача</string>

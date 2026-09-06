@@ -71,6 +71,11 @@
     <string name="settings_backend_url_dialog_title">Enter backend URL</string>
     <string name="settings_backend_key_dialog_title">Enter backend API key</string>
 
+    <string name="settings_account">Account</string>
+    <string name="settings_account_signed_out">Sign in to sync tasks</string>
+    <string name="settings_account_sign_in">Sign in</string>
+    <string name="settings_account_sign_out">Sign out</string>
+
 
     <string name="speech_error_audio">Audio recording error</string>
     <string name="speech_error_client">Client side error</string>

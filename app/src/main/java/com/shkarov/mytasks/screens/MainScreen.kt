@@ -15,6 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -64,6 +65,8 @@ fun MainScreen(
 
     val notificationsEnabled by settingsViewModel.notificationsEnabled.collectAsStateWithLifecycle()
     val notificationTime by settingsViewModel.notificationTime.collectAsStateWithLifecycle()
+    val account by settingsViewModel.account.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -189,6 +192,9 @@ fun MainScreen(
                 onBackendApiKeyChanged = { key ->
                     settingsViewModel.setBackendApiKey(key)
                 },
+                accountEmail = account?.email,
+                onSignIn = { settingsViewModel.signIn(context) },
+                onSignOut = { settingsViewModel.signOut(context) },
                 onNotificationTimeChanged = { hour, minute ->
                     settingsViewModel.updateNotificationTime(hour, minute)
                 },

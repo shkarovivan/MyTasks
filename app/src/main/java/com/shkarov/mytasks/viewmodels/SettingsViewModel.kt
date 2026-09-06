@@ -1,13 +1,18 @@
 package com.shkarov.mytasks.viewmodels
 
 import android.app.Application
+import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.shkarov.mytasks.domain.provider.ProviderKey
 import com.shkarov.mytasks.network.AiProviderInterceptor
 import com.shkarov.mytasks.network.BackendInterceptor
+import com.shkarov.mytasks.network.SyncApi
+import com.shkarov.mytasks.repository.AccountInfo
 import com.shkarov.mytasks.repository.AiProvider
 import com.shkarov.mytasks.repository.AiProvidersRepository
+import com.shkarov.mytasks.repository.AuthRepository
+import com.shkarov.mytasks.settings.AuthStore
 import com.shkarov.mytasks.settings.ThemeSettings
 import com.shkarov.mytasks.settings.SettingsStore
 import com.shkarov.mytasks.settings.NotificationTime
@@ -29,10 +34,13 @@ class SettingsViewModel @Inject constructor(
     private val themeSettings: ThemeSettings,
     private val providerInterceptor: AiProviderInterceptor,
     private val backendInterceptor: BackendInterceptor,
+    private val authRepository: AuthRepository,
+    private val syncApi: SyncApi,
     aiProviderRepository: AiProvidersRepository
 ) : AndroidViewModel(application) {
 
     private val settingsStore = SettingsStore(application)
+    private val authStore = AuthStore(application)
 
     val lastTabRoute = settingsStore.lastTabRouteFlow
 
@@ -94,6 +102,32 @@ class SettingsViewModel @Inject constructor(
             scope = viewModelScope,
             started = SharingStarted.Eagerly,
             initialValue = "")
+
+    val account: StateFlow<AccountInfo?> = authRepository.accountFlow
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
+    fun signIn(activityContext: Context) {
+        viewModelScope.launch {
+            authRepository.signIn(activityContext).onSuccess { info ->
+                // Ask the backend who this token belongs to and persist the
+                // stable user_id (Google `sub`) for upcoming sync.
+                runCatching { syncApi.whoami() }
+                    .onSuccess { response ->
+                        response.body()?.let { who ->
+                            authStore.save(userId = who.userId, email = info.email)
+                            Timber.d("✅ whoami: ${who.userId}")
+                        }
+                    }
+                    .onFailure { Timber.e(it, "❌ whoami failed") }
+            }
+        }
+    }
+
+    fun signOut(activityContext: Context) {
+        viewModelScope.launch {
+            authRepository.signOut(activityContext)
+        }
+    }
 
     fun setLlmProvider(provider: AiProvider) {
         viewModelScope.launch {
