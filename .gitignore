@@ -14,5 +14,7 @@
 .cxx
 local.properties
 /app/src/main/java/com/shkarov/mytasks/_what_done/Done.txt
-# Инструкции для AI-агента (локальные)
+# Инструкции и скиллы для AI-агента (локальные)
 /CLAUDE.md
+/AGENTS.md
+/.agents/
