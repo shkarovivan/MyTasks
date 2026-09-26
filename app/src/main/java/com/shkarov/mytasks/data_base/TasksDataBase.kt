@@ -19,7 +19,7 @@ abstract class TasksDataBase : RoomDatabase() {
     abstract fun taskDbDao(): TasksDbDao
 
     companion object {
-        const val DB_VERSION = 2
+        const val DB_VERSION = 3
         const val DB_NAME = TaskDataBaseContract.TABLE_NAME
     }
 }

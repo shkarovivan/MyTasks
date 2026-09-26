@@ -14,5 +14,9 @@ object TaskDataBaseContract {
         const val STATUS = "status"
 
         const val WORK = "work"
+
+        const val UPDATED_AT = "updated_at"
+
+        const val DELETED = "deleted"
     }
 }

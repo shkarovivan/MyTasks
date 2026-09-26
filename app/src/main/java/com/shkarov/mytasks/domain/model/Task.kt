@@ -27,6 +27,12 @@ data class Task(
     val status: Status,
     @ColumnInfo(name = TaskDataBaseContract.Columns.WORK)
     val work: Work,
+    // Server-sync fields; not shown in the UI. updatedAt (epoch ms) is the
+    // last-write-wins arbiter, deleted is a tombstone for replication.
+    @ColumnInfo(name = TaskDataBaseContract.Columns.UPDATED_AT, defaultValue = "0")
+    val updatedAt: Long = 0,
+    @ColumnInfo(name = TaskDataBaseContract.Columns.DELETED, defaultValue = "0")
+    val deleted: Boolean = false,
 ) : Parcelable
 
 enum class Work(val work: String){
