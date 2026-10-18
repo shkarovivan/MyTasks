@@ -147,14 +147,10 @@ class AuthRepositoryImpl @Inject constructor(
             }
             credential.idToken
         } catch (e: NoCredentialException) {
-            // The account vanished (removed from the device, credentials cleared):
-            // drop the persisted account so the UI offers sign-in again.
-            Timber.d("no google account available, resetting auth state")
-            authStore.clear()
-            tokenMutex.withLock {
-                cachedToken = null
-                cachedTokenAt = 0L
-            }
+            // Transient: the account may be momentarily unavailable (Play
+            // services hiccup). Do NOT clear the persisted sign-in — only an
+            // explicit signOut() does that; the next trigger retries.
+            Timber.d("no google credential available right now, will retry")
             null
         } catch (e: Exception) {
             Timber.e(e, "❌ silent token refresh failed")
