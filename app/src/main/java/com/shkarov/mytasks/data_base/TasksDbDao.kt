@@ -57,4 +57,15 @@ interface TasksDbDao {
 
     @Query("SELECT MAX(${TaskDataBaseContract.Columns.UPDATED_AT}) FROM ${TaskDataBaseContract.TABLE_NAME}")
     suspend fun getMaxUpdatedAt(): Long?
+
+    @Query("SELECT * FROM ${TaskDataBaseContract.TABLE_NAME} WHERE ${TaskDataBaseContract.Columns.ID} = :id")
+    suspend fun getTaskByIdIncludingDeleted(id: String): Task?
+
+    // First-login backfill: rows predating sync have updated_at = 0.
+    @Query("UPDATE ${TaskDataBaseContract.TABLE_NAME} SET ${TaskDataBaseContract.Columns.UPDATED_AT} = :timestamp WHERE ${TaskDataBaseContract.Columns.UPDATED_AT} = 0")
+    suspend fun stampUnsynced(timestamp: Long)
+
+    // "Clear all" as tombstones so the deletion replicates.
+    @Query("UPDATE ${TaskDataBaseContract.TABLE_NAME} SET ${TaskDataBaseContract.Columns.DELETED} = 1, ${TaskDataBaseContract.Columns.UPDATED_AT} = :timestamp WHERE ${TaskDataBaseContract.Columns.DELETED} = 0")
+    suspend fun markAllDeleted(timestamp: Long)
 }

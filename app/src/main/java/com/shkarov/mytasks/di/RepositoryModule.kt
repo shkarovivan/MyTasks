@@ -6,6 +6,7 @@ import com.shkarov.mytasks.repository.AiTaskRepository
 import com.shkarov.mytasks.repository.AiTaskRepositoryImpl
 import com.shkarov.mytasks.repository.AuthRepository
 import com.shkarov.mytasks.repository.AuthRepositoryImpl
+import com.shkarov.mytasks.repository.SyncingTasksRepository
 import com.shkarov.mytasks.repository.TasksRepository
 import com.shkarov.mytasks.repository.TasksRepositoryImpl
 import dagger.Binds
@@ -20,7 +21,7 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
-    abstract fun provideTasksRepository(impl: TasksRepositoryImpl): TasksRepository
+    abstract fun provideTasksRepository(impl: SyncingTasksRepository): TasksRepository
 
     @Binds
     @Singleton
