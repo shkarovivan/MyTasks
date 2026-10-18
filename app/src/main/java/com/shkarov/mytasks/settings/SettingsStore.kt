@@ -47,7 +47,9 @@ class SettingsStore @Inject constructor(
     }
 
     val llmDirectConnectionFlow : Flow<Boolean> = context.dataStore.data.map { preferences ->
-        preferences[LLM_DIRECT_CONNECTION] ?: true
+        // Backend is the default connection: prompts and the provider key
+        // stay server-side; direct mode is opt-in for advanced use.
+        preferences[LLM_DIRECT_CONNECTION] ?: false
     }
 
     val llmProviderFlow : Flow<String> = context.dataStore.data.map { preferences ->
