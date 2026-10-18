@@ -47,7 +47,12 @@ class SyncManager @Inject constructor(
         started = true
         scope.launch {
             authStore.userIdFlow.collect { userId ->
-                if (userId != null) onAccountChanged(userId)
+                if (userId != null) {
+                    // Account bookkeeping only; the actual sync round needs a
+                    // token and is driven by MainActivity.onStart (prefetch)
+                    // and the triggers below.
+                    onAccountChanged(userId)
+                }
             }
         }
         scope.launch {
@@ -61,7 +66,10 @@ class SyncManager @Inject constructor(
 
     // Account lifecycle: first login backfills local tasks; switching to a
     // different account wipes the local cache (tasks belong to the account).
+    // Blank ids are intermediate sign-in states (before whoami) and are
+    // ignored — treating them as accounts caused spurious wipes.
     private suspend fun onAccountChanged(userId: String) {
+        if (userId.isBlank()) return
         val stored = syncStore.userIdFlow.first()
         if (stored == userId) return
 
@@ -87,8 +95,15 @@ class SyncManager @Inject constructor(
 
     // One push + pull round; safe to call from anywhere.
     suspend fun syncNow(reason: String) {
-        if (authStore.userIdFlow.first() == null) return
-        if (authRepository.getIdToken() == null) return
+        Timber.d("syncNow(%s) entered", reason)
+        if (authStore.userIdFlow.first().isNullOrBlank()) {
+            Timber.d("syncNow(%s): no user id", reason)
+            return
+        }
+        if (authRepository.getIdToken() == null) {
+            Timber.d("syncNow(%s): no token", reason)
+            return
+        }
 
         syncMutex.withLock {
             val okPush = push()

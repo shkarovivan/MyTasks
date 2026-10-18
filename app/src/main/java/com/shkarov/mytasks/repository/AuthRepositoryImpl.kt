@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withTimeoutOrNull
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -29,6 +30,11 @@ class AuthRepositoryImpl @Inject constructor(
     private companion object {
         // Google ID-tokens live ~1h; refresh slightly earlier.
         private const val TOKEN_TTL_MS = 50 * 60 * 1000L
+
+        // CredentialManager calls have no built-in deadline and can hang
+        // indefinitely (e.g. silent request from a non-activity context);
+        // give up and let the next trigger retry instead of blocking forever.
+        private const val SILENT_TOKEN_TIMEOUT_MS = 10_000L
     }
 
     private val tokenMutex = Mutex()
@@ -57,7 +63,7 @@ class AuthRepositoryImpl @Inject constructor(
                 .getCredential(activityContext, request)
             val credential = GoogleIdTokenCredential.createFrom(response.credential.data)
             // userId (Google `sub`) is filled later from the backend /v1/auth/whoami.
-            authStore.save(userId = "", email = credential.id)
+            authStore.saveEmail(credential.id)
             cachedToken = credential.idToken
             cachedTokenAt = System.currentTimeMillis()
             Timber.d("✅ signed in as ${credential.id}")
@@ -88,6 +94,18 @@ class AuthRepositoryImpl @Inject constructor(
         cachedToken = null
     }
 
+    override suspend fun prefetchToken(activityContext: Context) {
+        if (authStore.emailFlow.first() == null) return
+        if (getIdToken() != null) return
+        silentToken(activityContext)?.let { token ->
+            tokenMutex.withLock {
+                cachedToken = token
+                cachedTokenAt = System.currentTimeMillis()
+            }
+            Timber.d("✅ token prefetched from activity context")
+        }
+    }
+
     override suspend fun getIdToken(): String? {
         if (authStore.emailFlow.first() == null) return null
 
@@ -99,21 +117,30 @@ class AuthRepositoryImpl @Inject constructor(
                 return token
             }
         }
+        return silentToken(appContext)
+    }
 
-        // Silent refresh: only accounts that already consented are eligible,
-        // so no UI is needed and the application context is enough.
+    // Silent refresh: only accounts that already consented are eligible.
+    // Auto-select returns immediately when exactly one such account exists,
+    // without any UI. Runs under a timeout: a silent request can hang, and
+    // callers must not block forever.
+    private suspend fun silentToken(context: Context): String? {
         val option = GetGoogleIdOption.Builder()
             .setFilterByAuthorizedAccounts(true)
             .setServerClientId(BuildConfig.GOOGLE_SERVER_CLIENT_ID)
+            .setAutoSelectEnabled(true)
             .build()
         val request = GetCredentialRequest.Builder()
             .addCredentialOption(option)
             .build()
 
         return try {
-            val response = CredentialManager.create(appContext)
-                .getCredential(appContext, request)
-            val credential = GoogleIdTokenCredential.createFrom(response.credential.data)
+            val credential = withTimeoutOrNull(SILENT_TOKEN_TIMEOUT_MS) {
+                CredentialManager.create(context).getCredential(context, request)
+            }?.let { GoogleIdTokenCredential.createFrom(it.credential.data) } ?: run {
+                Timber.e("❌ silent token request timed out")
+                return null
+            }
             tokenMutex.withLock {
                 cachedToken = credential.idToken
                 cachedTokenAt = System.currentTimeMillis()

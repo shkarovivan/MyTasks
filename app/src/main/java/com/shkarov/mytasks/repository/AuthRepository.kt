@@ -19,6 +19,10 @@ interface AuthRepository {
 
     suspend fun signOut(activityContext: Context)
 
+    // Warm up the token cache from an Activity context (silent, no UI):
+    // background contexts can hang in CredentialManager, an activity cannot.
+    suspend fun prefetchToken(activityContext: Context)
+
     // Returns a fresh ID-token for backend calls, or null when signed out /
     // no account is available anymore.
     suspend fun getIdToken(): String?

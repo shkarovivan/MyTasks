@@ -11,18 +11,29 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.lifecycleScope
 import com.shkarov.mytasks.permissions.NotificationPermissionDialog
 import com.shkarov.mytasks.permissions.PermissionHandler
+import com.shkarov.mytasks.repository.AuthRepository
 import com.shkarov.mytasks.screens.MainScreen
+import com.shkarov.mytasks.sync.SyncManager
 import com.shkarov.mytasks.ui.theme.MyTasksTheme
 import com.shkarov.mytasks.viewmodels.SettingsViewModel
 import com.shkarov.mytasks.worker.TaskReminderReceiver
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private lateinit var permissionHandler: PermissionHandler
+
+    @Inject
+    lateinit var authRepository: AuthRepository
+
+    @Inject
+    lateinit var syncManager: SyncManager
 
     private val _navigateTo = mutableStateOf<String?>(null)
 
@@ -59,6 +70,16 @@ class MainActivity : ComponentActivity() {
         val route = intent.getStringExtra(TaskReminderReceiver.NAVIGATE_TO_ROUTE)
         Timber.d("MainActivity onNewIntent: navigateTo = $route")
         _navigateTo.value = route
+    }
+
+    // Activity context is required for a reliable silent token fetch; warm the
+    // cache here and run the startup sync round right after.
+    override fun onStart() {
+        super.onStart()
+        lifecycleScope.launch {
+            authRepository.prefetchToken(this@MainActivity)
+            syncManager.syncNow("start")
+        }
     }
 
 }

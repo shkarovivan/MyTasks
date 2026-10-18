@@ -35,6 +35,14 @@ class AuthStore @Inject constructor(
         }
     }
 
+    // Sign-in step: persist the account before the backend has told us the
+    // stable user_id (filled later by /v1/auth/whoami).
+    suspend fun saveEmail(email: String) {
+        context.authDataStore.edit { prefs ->
+            prefs[EMAIL] = email
+        }
+    }
+
     suspend fun clear() {
         context.authDataStore.edit { prefs ->
             prefs.remove(USER_ID)
