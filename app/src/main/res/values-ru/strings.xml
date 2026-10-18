@@ -90,6 +90,8 @@
     <string name="settings_account_sign_in">Войти</string>
     <string name="settings_account_sign_out">Выйти</string>
 
+    <string name="error_ai_request">Не удалось выполнить запрос: нет связи с сервером или истекло время ожидания</string>
+
     <string name="detail_task_title">Детали задачи</string>
     <string name="cd_back">Назад</string>
     <string name="new_task_title">Новая задача</string>

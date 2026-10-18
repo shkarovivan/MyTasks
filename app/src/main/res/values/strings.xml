@@ -76,6 +76,8 @@
     <string name="settings_account_sign_in">Sign in</string>
     <string name="settings_account_sign_out">Sign out</string>
 
+    <string name="error_ai_request">Request failed: no connection to the server or the request timed out</string>
+
 
     <string name="speech_error_audio">Audio recording error</string>
     <string name="speech_error_client">Client side error</string>

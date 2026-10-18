@@ -5,6 +5,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.shkarov.mytasks.R
 import com.shkarov.mytasks.domain.model.SearchResult
 import com.shkarov.mytasks.domain.model.Status
 import com.shkarov.mytasks.domain.model.Task
@@ -15,10 +16,14 @@ import com.shkarov.mytasks.repository.AiTaskRepository
 import com.shkarov.mytasks.repository.TasksRepository
 import com.shkarov.mytasks.utils.toEpochMillis
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.time.LocalDate
@@ -39,12 +44,16 @@ class MainScreenViewModel @Inject constructor(
     private val _searchResultFlow: MutableStateFlow<SearchResult?> = MutableStateFlow(null)
     val searchResultFlow: StateFlow<SearchResult?> = _searchResultFlow.asStateFlow()
 
+    // One-shot error messages (string resource ids) for the UI to show as a toast.
+    private val _errorEvent = MutableSharedFlow<Int>()
+    val errorEvent: SharedFlow<Int> = _errorEvent.asSharedFlow()
+
     @RequiresApi(Build.VERSION_CODES.O)
     fun saveTaskRequest(request: String, isWorkTask: Boolean) {
         viewModelScope.launch {
             _loading.value = true
             try {
-                val taskResponse = aiTaskRepository.sendTaskRequest(request)
+                val taskResponse = runAiRequest { aiTaskRepository.sendTaskRequest(request) }
                 if (taskResponse != null) {
                     val task = taskResponseToTask(taskResponse = taskResponse, isWorkTask = isWorkTask)
                     task?.let {
@@ -64,7 +73,7 @@ class MainScreenViewModel @Inject constructor(
             try {
                 val work = (if (isWorkTask) Work.WORK.name else Work.HOME.name).lowercase(getDefault())
                 val tasks = repository.getTaskByWork(work = work)
-                val searchResult = aiTaskRepository.sendSearchRequest(request, tasks)
+                val searchResult = runAiRequest { aiTaskRepository.sendSearchRequest(request, tasks) }
                 _searchResultFlow.value = searchResult.also {
                     Timber.d("$TAG searchResults - $it")
                 }
@@ -72,6 +81,17 @@ class MainScreenViewModel @Inject constructor(
                 _loading.value = false
             }
         }
+    }
+
+    // Caps any AI request (direct or backend mode) with a hard deadline so the
+    // loader can never spin indefinitely, and reports a visible error when the
+    // request produced nothing: no connection, timeout, or an HTTP failure.
+    private suspend fun <T : Any> runAiRequest(block: suspend () -> T?): T? {
+        val result = withTimeoutOrNull(AI_REQUEST_TIMEOUT_MS) { block() }
+        if (result == null) {
+            _errorEvent.emit(R.string.error_ai_request)
+        }
+        return result
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -110,5 +130,9 @@ class MainScreenViewModel @Inject constructor(
 
     companion object {
         private const val TAG = "MainScreenViewModel"
+
+        // Hard deadline for one AI request: the backend LLM timeout is 120s
+        // server-side, but anything above this is pointless for the UI.
+        private const val AI_REQUEST_TIMEOUT_MS = 90_000L
     }
 }

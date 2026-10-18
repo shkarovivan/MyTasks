@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit
 object RetrofitClient {
     const val USE_UNSAFE = false
 
-    private const val CONNECT_TIMEOUT_SECONDS = 30L
+    private const val CONNECT_TIMEOUT_SECONDS = 10L
     private const val READ_TIMEOUT_SECONDS = 120L
     private const val WRITE_TIMEOUT_SECONDS = 120L
 

@@ -20,6 +20,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.window.Dialog
+import android.widget.Toast
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination
@@ -152,6 +153,13 @@ fun MainScreen(
                 ?.set("searchResponse", searchResponse)
 
             navController.navigate(ResponseScreen.SearchScreen.route)
+        }
+    }
+
+    // AI request failures: show a toast and dismiss the loader.
+    LaunchedEffect(Unit) {
+        mainScreenViewModel.errorEvent.collect { messageRes ->
+            Toast.makeText(context, messageRes, Toast.LENGTH_LONG).show()
         }
     }
 
